@@ -37,7 +37,27 @@
 
 .sidebar.collapsed .sidebar-title,
 .sidebar.collapsed .sidebar-content {
-    display: none;
+    display: none !important; /* Ensure these are hidden when sidebar is collapsed */
+}
+
+/* Hide categories section when sidebar is collapsed */
+.sidebar.collapsed .categories-section {
+    display: none !important;
+}
+
+/* Hide search input and buttons when sidebar is collapsed */
+.sidebar.collapsed .sidebar-content {
+    display: none !important;
+}
+
+/* Ensure search input is hidden when collapsed */
+.sidebar.collapsed #sidebar-search {
+    display: none !important;
+}
+
+/* Ensure all buttons in sidebar content are hidden when collapsed */
+.sidebar.collapsed .sidebar-content button {
+    display: none !important;
 }
 
 .sidebar.collapsed .sidebar-toggle-icon {
@@ -57,20 +77,7 @@
     display: none;
 }
 
-/* Hover effect for collapsed sidebar */
-.sidebar.collapsed:hover {
-    width: 45vw !important;
-    z-index: 60;
-}
-
-.sidebar.collapsed:hover .sidebar-title,
-.sidebar.collapsed:hover .sidebar-content {
-    display: block;
-}
-
-.sidebar.collapsed:hover .sidebar-icon-only {
-    display: none !important;
-}
+/* Removed hover effects for collapsed sidebar */
 
 /* Show expand button when sidebar is collapsed */
 .sidebar-expand-button {
@@ -88,9 +95,7 @@
         width: 45vw !important;
     }
     
-    .sidebar.collapsed:hover {
-        width: 45vw !important;
-    }
+    /* Removed hover effects */
 }
 
 /* Ensure main content adjusts properly */
