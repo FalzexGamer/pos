@@ -1,11 +1,11 @@
 <!-- Mobile overlay -->
-<div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden" onclick="toggleMobileSidebar()"></div>
+<div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 xl:hidden hidden" onclick="toggleMobileSidebar()"></div>
 
 <!-- Sidebar -->
 <aside class="sidebar fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-40" style="top: 64px;">
     <div class="p-4 h-full overflow-y-auto">
-        <!-- Close button for mobile -->
-        <div class="flex justify-between items-center mb-4 lg:hidden">
+        <!-- Close button for mobile and tablet -->
+        <div class="flex justify-between items-center mb-4 xl:hidden">
             <h2 class="text-lg font-semibold text-gray-800">Menu</h2>
             <button onclick="toggleMobileSidebar()" class="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors">
                 <i class="fas fa-times text-xl"></i>
@@ -148,7 +148,7 @@ function toggleSubmenu(submenuId) {
     arrow.style.transform = submenu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
 }
 
-// Initialize sidebar for mobile
+// Initialize sidebar for mobile and tablet
 document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.getElementById('sidebar-overlay');
@@ -158,11 +158,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    // Start with sidebar closed on mobile
-    if (window.innerWidth < 1024) {
+    // Start with sidebar closed on mobile and tablet (iPad Pro included)
+    if (window.innerWidth < 1280) { // xl breakpoint
         sidebar.style.transform = 'translateX(-100%)';
         if (overlay) overlay.classList.add('hidden');
-        console.log('Mobile: Sidebar initialized as closed');
+        console.log('Mobile/Tablet: Sidebar initialized as closed');
     } else {
         // Desktop - ensure sidebar is visible
         sidebar.style.transform = 'translateX(0)';
@@ -176,12 +176,12 @@ window.addEventListener('resize', function() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.getElementById('sidebar-overlay');
     
-    if (window.innerWidth >= 1024) {
+    if (window.innerWidth >= 1280) { // xl breakpoint
         // Desktop - show sidebar
         sidebar.style.transform = 'translateX(0)';
         if (overlay) overlay.classList.add('hidden');
     } else {
-        // Mobile - hide sidebar
+        // Mobile and tablet - hide sidebar
         sidebar.style.transform = 'translateX(-100%)';
         if (overlay) overlay.classList.add('hidden');
     }
@@ -192,9 +192,9 @@ $(document).ready(function() {
     const currentPage = window.location.pathname.split('/').pop();
     $('a[href="' + currentPage + '"]').addClass('bg-blue-50 text-blue-600');
     
-    // Close mobile sidebar when clicking on a link
+    // Close mobile/tablet sidebar when clicking on a link
     $('a').click(function() {
-        if (window.innerWidth < 1024) {
+        if (window.innerWidth < 1280) { // xl breakpoint
             toggleMobileSidebar();
         }
     });

@@ -3,10 +3,10 @@
     <div class="flex items-center justify-between px-4 py-3">
         <!-- Logo and Menu Toggle -->
         <div class="flex items-center space-x-4">
-            <button onclick="toggleMobileSidebar()" class="text-gray-600 hover:text-gray-900 lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors">
+            <button onclick="toggleMobileSidebar()" class="text-gray-600 hover:text-gray-900 xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors">
                 <i class="fas fa-bars text-xl"></i>
             </button>
-            <div class="hidden lg:block">
+            <div class="hidden xl:block">
                 <h1 class="text-xl font-bold text-gray-900">POS System</h1>
             </div>
         </div>
