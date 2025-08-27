@@ -269,7 +269,7 @@ while ($category = mysqli_fetch_array($categories_query)) {
                     <div class="border-t border-gray-200 pt-2 lg:pt-3">
                         <div class="flex justify-between items-center">
                             <span class="text-base lg:text-lg font-bold text-gray-900">Total:</span>
-                            <span id="total" class="text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">RM 0.00</span>
+                            <span id="total" class="text-2xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">RM 0.00</span>
                         </div>
                     </div>
                 </div>
@@ -505,6 +505,77 @@ while ($category = mysqli_fetch_array($categories_query)) {
                             <input type="number" id="amount-received" step="0.01" class="w-full pl-10 lg:pl-12 pr-4 py-3 lg:py-4 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-base lg:text-lg font-medium">
                         </div>
                     </div>
+                    
+                    <!-- Malaysian Ringgit Banknotes -->
+                    <div id="quick-amount-selection" class="space-y-3">
+                        <label class="block text-xs lg:text-sm font-semibold text-gray-700">Quick Amount Selection</label>
+                        <div class="grid grid-cols-5 gap-2">
+                            <!-- RM 5 Banknote -->
+                            <button onclick="addBanknoteAmount(5)" class="group relative overflow-hidden rounded-lg border-2 border-gray-200 hover:border-green-400 hover:shadow-lg transition-all duration-200 transform hover:scale-105">
+                                <div class="w-full h-16 bg-gradient-to-br from-green-400 to-green-600 relative">
+                                    <div class="absolute inset-0 bg-white/20"></div>
+                                    <div class="absolute top-1 left-1 text-white text-xs font-bold">RM</div>
+                                    <div class="absolute bottom-1 right-1 text-white text-lg font-bold">5</div>
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xs opacity-80">MALAYSIA</div>
+                                </div>
+                                <div class="bg-white p-1 text-center">
+                                    <span class="text-xs font-medium text-gray-700">RM 5</span>
+                                </div>
+                            </button>
+                            
+                            <!-- RM 10 Banknote -->
+                            <button onclick="addBanknoteAmount(10)" class="group relative overflow-hidden rounded-lg border-2 border-gray-200 hover:border-orange-400 hover:shadow-lg transition-all duration-200 transform hover:scale-105">
+                                <div class="w-full h-16 bg-gradient-to-br from-orange-400 to-orange-600 relative">
+                                    <div class="absolute inset-0 bg-white/20"></div>
+                                    <div class="absolute top-1 left-1 text-white text-xs font-bold">RM</div>
+                                    <div class="absolute bottom-1 right-1 text-white text-lg font-bold">10</div>
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xs opacity-80">MALAYSIA</div>
+                                </div>
+                                <div class="bg-white p-1 text-center">
+                                    <span class="text-xs font-medium text-gray-700">RM 10</span>
+                                </div>
+                            </button>
+                            
+                            <!-- RM 20 Banknote -->
+                            <button onclick="addBanknoteAmount(20)" class="group relative overflow-hidden rounded-lg border-2 border-gray-200 hover:border-yellow-400 hover:shadow-lg transition-all duration-200 transform hover:scale-105">
+                                <div class="w-full h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 relative">
+                                    <div class="absolute inset-0 bg-white/20"></div>
+                                    <div class="absolute top-1 left-1 text-white text-xs font-bold">RM</div>
+                                    <div class="absolute bottom-1 right-1 text-white text-lg font-bold">20</div>
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xs opacity-80">MALAYSIA</div>
+                                </div>
+                                <div class="bg-white p-1 text-center">
+                                    <span class="text-xs font-medium text-gray-700">RM 20</span>
+                                </div>
+                            </button>
+                            
+                            <!-- RM 50 Banknote -->
+                            <button onclick="addBanknoteAmount(50)" class="group relative overflow-hidden rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:shadow-lg transition-all duration-200 transform hover:scale-105">
+                                <div class="w-full h-16 bg-gradient-to-br from-blue-400 to-blue-600 relative">
+                                    <div class="absolute inset-0 bg-white/20"></div>
+                                    <div class="absolute top-1 left-1 text-white text-xs font-bold">RM</div>
+                                    <div class="absolute bottom-1 right-1 text-white text-lg font-bold">50</div>
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xs opacity-80">MALAYSIA</div>
+                                </div>
+                                <div class="bg-white p-1 text-center">
+                                    <span class="text-xs font-medium text-gray-700">RM 50</span>
+                                </div>
+                            </button>
+                            
+                            <!-- RM 100 Banknote -->
+                            <button onclick="addBanknoteAmount(100)" class="group relative overflow-hidden rounded-lg border-2 border-gray-200 hover:border-purple-400 hover:shadow-lg transition-all duration-200 transform hover:scale-105">
+                                <div class="w-full h-16 bg-gradient-to-br from-purple-400 to-purple-600 relative">
+                                    <div class="absolute inset-0 bg-white/20"></div>
+                                    <div class="absolute top-1 left-1 text-white text-xs font-bold">RM</div>
+                                    <div class="absolute bottom-1 right-1 text-white text-lg font-bold">100</div>
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xs opacity-80">MALAYSIA</div>
+                                </div>
+                                <div class="bg-white p-1 text-center">
+                                    <span class="text-xs font-medium text-gray-700">RM 100</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
                     <div class="text-center">
                         <label class="block text-xs lg:text-sm font-semibold text-gray-700 mb-2">Change</label>
                         <div class="text-xl sm:text-2xl font-bold text-green-600" id="change-amount">RM 0.00</div>
@@ -542,12 +613,19 @@ while ($category = mysqli_fetch_array($categories_query)) {
             </div>
             
             <div class="p-4 sm:p-6">
-                <!-- Search Bar -->
+                <!-- Search Bar and Quick Add Button -->
                 <div class="mb-4 lg:mb-6">
-                    <div class="relative">
-                        <i class="fas fa-search absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm lg:text-base"></i>
-                        <input type="text" id="member-search" placeholder="Search by member code, name, or phone..." 
-                               class="w-full pl-10 lg:pl-12 pr-4 py-2 lg:py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm lg:text-base">
+                    <div class="flex space-x-3">
+                        <div class="relative flex-1">
+                            <i class="fas fa-search absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm lg:text-base"></i>
+                            <input type="text" id="member-search" placeholder="Search by member code, name, or phone..." 
+                                   class="w-full pl-10 lg:pl-12 pr-4 py-2 lg:py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm lg:text-base">
+                        </div>
+                        <button onclick="openQuickAddMemberModal()" 
+                                class="px-4 py-2 lg:py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 text-sm lg:text-base font-medium">
+                            <i class="fas fa-plus mr-1"></i>
+                            Quick Add
+                        </button>
                     </div>
                 </div>
                 
@@ -586,6 +664,82 @@ while ($category = mysqli_fetch_array($categories_query)) {
                     <h3 class="text-base lg:text-lg font-medium text-gray-900 mb-2">Search for Members</h3>
                     <p class="text-xs lg:text-sm text-gray-500">Type a member code, name, or phone number to search</p>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Add Member Modal -->
+<div id="quick-add-member-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-2 sm:p-4">
+        <div class="backdrop-blur-md bg-white/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-white/20">
+            <div class="p-4 sm:p-6 border-b border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-2 sm:space-x-3">
+                        <div class="p-2 sm:p-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl">
+                            <i class="fas fa-user-plus text-white text-lg sm:text-xl"></i>
+                        </div>
+                        <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Quick Add Member</h3>
+                    </div>
+                    <button onclick="closeQuickAddMemberModal()" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200">
+                        <i class="fas fa-times text-lg sm:text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4 sm:p-6">
+                <form id="quick-add-member-form">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Member Code *</label>
+                            <input type="text" id="quick-member-code" name="member_code" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+                            <input type="text" id="quick-member-name" name="name" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                            <input type="tel" id="quick-member-phone" name="phone"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" id="quick-member-email" name="email"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Membership Tier</label>
+                        <select id="quick-membership-tier" name="membership_tier_id"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Select Tier</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                        <textarea id="quick-member-address" name="address" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeQuickAddMemberModal()" 
+                                class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200">
+                            Add Member
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -817,7 +971,6 @@ function addProductToCartFromSidebar(productId) {
             const data = JSON.parse(response);
             if (data.success) {
                 updateCart();
-                showAlert('Product added to cart!', 'success');
                 playBeepSound();
                 
                 // Close mobile sidebar if open
@@ -932,7 +1085,6 @@ function updateQuantity(cartId, quantity) {
                 const data = JSON.parse(response);
                 if (data.success) {
                     updateCart();
-                    showAlert('Quantity updated', 'success');
                 } else {
                     showAlert(data.message, 'error');
                 }
@@ -955,9 +1107,41 @@ function processPayment(method) {
     $('#amount-received').val(total.toFixed(2));
     $('#change-amount').text('RM 0.00');
     
+    // Show/hide quick amount selection based on payment method
+    if (method === 'cash') {
+        $('#quick-amount-selection').show();
+        $('#amount-received').prop('readonly', false);
+    } else {
+        $('#quick-amount-selection').hide();
+        $('#amount-received').prop('readonly', true);
+    }
+    
     $('#payment-modal').removeClass('hidden');
     $('body').addClass('overflow-hidden');
     $('#amount-received').focus();
+}
+
+// Set banknote amount as received amount
+function addBanknoteAmount(amount) {
+    $('#amount-received').val(amount.toFixed(2));
+    
+    // Trigger the change calculation
+    const total = parseFloat($('#payment-total').text().replace('RM ', ''));
+    const change = amount - total;
+    
+    // Show negative change if amount is insufficient
+    if (change < 0) {
+        $('#change-amount').text('RM ' + change.toFixed(2)).removeClass('text-green-600').addClass('text-red-600');
+    } else {
+        $('#change-amount').text('RM ' + change.toFixed(2)).removeClass('text-red-600').addClass('text-green-600');
+    }
+    
+    // Add visual feedback
+    const button = event.target.closest('button');
+    button.classList.add('ring-4', 'ring-green-400', 'ring-opacity-50');
+    setTimeout(() => {
+        button.classList.remove('ring-4', 'ring-green-400', 'ring-opacity-50');
+    }, 300);
 }
 
 // Calculate change
@@ -966,7 +1150,12 @@ $('#amount-received').on('input', function() {
     const received = parseFloat($(this).val()) || 0;
     const change = received - total;
     
-    $('#change-amount').text('RM ' + Math.max(0, change).toFixed(2));
+    // Show negative change if amount is insufficient
+    if (change < 0) {
+        $('#change-amount').text('RM ' + change.toFixed(2)).removeClass('text-green-600').addClass('text-red-600');
+    } else {
+        $('#change-amount').text('RM ' + change.toFixed(2)).removeClass('text-red-600').addClass('text-green-600');
+    }
 });
 
 // Complete payment
@@ -1165,6 +1354,89 @@ function getTierColor(tierName) {
     }
 }
 
+// Quick Add Member Functions
+function openQuickAddMemberModal() {
+    $('#quick-add-member-modal').removeClass('hidden');
+    $('body').addClass('overflow-hidden');
+    loadMembershipTiers();
+    generateMemberCode();
+    $('#quick-member-name').focus();
+}
+
+function closeQuickAddMemberModal() {
+    $('#quick-add-member-modal').addClass('hidden');
+    $('body').removeClass('overflow-hidden');
+    $('#quick-add-member-form')[0].reset();
+}
+
+function loadMembershipTiers() {
+    $.ajax({
+        url: 'ajax/get-membership-tiers.php',
+        type: 'GET',
+        success: function(response) {
+            try {
+                const data = JSON.parse(response);
+                if (data.success && data.tiers) {
+                    let options = '<option value="">Select Tier</option>';
+                    data.tiers.forEach(function(tier) {
+                        options += `<option value="${tier.id}">${tier.name} (${tier.discount_percentage}% discount)</option>`;
+                    });
+                    $('#quick-membership-tier').html(options);
+                }
+            } catch (e) {
+                console.error('Error loading membership tiers:', e);
+            }
+        }
+    });
+}
+
+function generateMemberCode() {
+    // Generate a simple member code with timestamp
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const memberCode = `MEM${timestamp}${random}`;
+    $('#quick-member-code').val(memberCode);
+}
+
+// Handle quick add member form submission
+$(document).ready(function() {
+    $('#quick-add-member-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        $.ajax({
+            url: 'ajax/save-member.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                try {
+                    const data = JSON.parse(response);
+                    if (data.success) {
+                        showAlert('Member added successfully!', 'success');
+                        closeQuickAddMemberModal();
+                        
+                        // Refresh member search in the main modal
+                        const currentSearch = $('#member-search').val();
+                        if (currentSearch) {
+                            searchMembers(currentSearch);
+                        }
+                    } else {
+                        showAlert(data.message, 'error');
+                    }
+                } catch (e) {
+                    showAlert('Error processing response', 'error');
+                }
+            },
+            error: function() {
+                showAlert('Error adding member', 'error');
+            }
+        });
+    });
+});
+
 function selectMember(memberId, memberName) {
     $('#member-select').val(memberId);
     $('#selected-member-display').val(memberName);
@@ -1263,7 +1535,7 @@ $(window).on('orientationchange', function() {
 });
 
 // Close modals when clicking outside
-$(document).on('click', '#product-modal, #payment-modal, #member-modal', function(e) {
+$(document).on('click', '#product-modal, #payment-modal, #member-modal, #quick-add-member-modal', function(e) {
     if (e.target === this) {
         if ($('#product-modal').hasClass('hidden') === false) {
             closeProductModal();
@@ -1273,6 +1545,9 @@ $(document).on('click', '#product-modal, #payment-modal, #member-modal', functio
         }
         if ($('#member-modal').hasClass('hidden') === false) {
             closeMemberModal();
+        }
+        if ($('#quick-add-member-modal').hasClass('hidden') === false) {
+            closeQuickAddMemberModal();
         }
     }
 });
@@ -1288,6 +1563,9 @@ $(document).on('keydown', function(e) {
         }
         if (!$('#member-modal').hasClass('hidden')) {
             closeMemberModal();
+        }
+        if (!$('#quick-add-member-modal').hasClass('hidden')) {
+            closeQuickAddMemberModal();
         }
     }
 });
