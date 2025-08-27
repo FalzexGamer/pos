@@ -149,67 +149,6 @@
                 font-size: 16px;
             }
         }
-        
-        /* POS Sidebar Categories Grid Styles */
-        .categories-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0.5rem;
-        }
-        
-        /* Categories are hidden when sidebar is collapsed */
-        
-        /* Show products section when expanded, hide when collapsed */
-        .sidebar.collapsed .products-section {
-            display: none;
-        }
-        
-        .sidebar:not(.collapsed) .products-section {
-            display: none; /* Hidden by default, shown only when category is selected */
-        }
-        
-        /* Products section becomes visible when a category is selected */
-        .products-section.show {
-            display: block;
-        }
-        
-        /* Smooth transitions for section visibility */
-        .categories-section,
-        .products-section {
-            transition: opacity 0.3s ease-in-out;
-        }
-        
-        /* Hide all buttons when sidebar is collapsed */
-        .sidebar-icon-only {
-            display: none !important;
-        }
-        
-        .sidebar.collapsed .sidebar-icon-only {
-            display: none !important;
-        }
-        
-        /* Hide categories section when collapsed */
-        .sidebar.collapsed .categories-section {
-            display: none !important;
-        }
-        
-        /* Ensure grid maintains 4 columns in both states */
-        .sidebar:not(.collapsed) .categories-grid {
-            grid-template-columns: repeat(4, 1fr);
-        }
-        
-        /* Responsive adjustments for smaller screens */
-        @media (max-width: 1200px) {
-            .categories-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-        
-        @media (max-width: 1024px) {
-            .categories-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
     </style>
 </head>
 <body class="bg-gray-100">
