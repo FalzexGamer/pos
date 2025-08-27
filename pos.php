@@ -71,8 +71,29 @@ while ($category = mysqli_fetch_array($categories_query)) {
                 Categories
             </h3>
             
+            <!-- Search Bar -->
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400 text-sm"></i>
+                </div>
+                <input type="text" id="product-search" placeholder="Search products..." 
+                       class="w-full pl-10 pr-10 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                       autocomplete="off">
+                <div id="search-loading" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
+                    <div class="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <button id="clear-search" onclick="clearSearch()" class="absolute inset-y-0 right-0 pr-3 flex items-center justify-center hidden w-6 h-6">
+                    <i class="fas fa-times text-gray-400 hover:text-gray-600 text-sm"></i>
+                </button>
+            </div>
+            
+            <!-- Search Results -->
+            <div id="search-results" class="hidden space-y-2 max-h-64 overflow-y-auto">
+                <!-- Search results will be loaded here -->
+            </div>
+            
             <!-- Categories Grid - 4 columns on desktop, 2 on mobile -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3">
+            <div id="categories-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3">
                 <?php foreach ($categories as $category): ?>
                 <button class="category-card flex flex-col items-center justify-center p-3 lg:p-4 bg-white border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" 
                         onclick="toggleCategory('category-<?= $category['id'] ?>')"
@@ -1195,6 +1216,16 @@ $(document).keydown(function(e) {
             toggleMobileSidebar();
         }
     }
+    
+    // Focus search with Ctrl + F
+    if (e.ctrlKey && e.keyCode === 70) { // Ctrl + F
+        e.preventDefault();
+        const searchInput = document.getElementById('product-search');
+        if (searchInput) {
+            searchInput.focus();
+            searchInput.select();
+        }
+    }
 });
 
 // Mobile-specific improvements
@@ -1454,7 +1485,178 @@ document.addEventListener('DOMContentLoaded', function() {
         card.style.animationDelay = `${index * 0.1}s`;
         card.classList.add('animate-fade-in');
     });
+    
+    // Initialize product search functionality
+    initializeProductSearch();
 });
+
+// Product search functionality
+function initializeProductSearch() {
+    const searchInput = document.getElementById('product-search');
+    const searchResults = document.getElementById('search-results');
+    const categoriesGrid = document.getElementById('categories-grid');
+    const searchLoading = document.getElementById('search-loading');
+    
+    let searchTimeout;
+    
+    // Handle search input
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim();
+        const clearSearchBtn = document.getElementById('clear-search');
+        const searchLoading = document.getElementById('search-loading');
+        
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+        
+        // Show/hide clear button based on input
+        if (searchTerm !== '') {
+            clearSearchBtn.classList.remove('hidden');
+            searchLoading.classList.add('hidden');
+        } else {
+            clearSearchBtn.classList.add('hidden');
+            searchLoading.classList.add('hidden');
+        }
+        
+        // Hide results and show categories if search is empty
+        if (searchTerm === '') {
+            hideSearchResults();
+            return;
+        }
+        
+        // Show loading
+        searchLoading.classList.remove('hidden');
+        clearSearchBtn.classList.add('hidden');
+        
+        // Set timeout to avoid too many requests
+        searchTimeout = setTimeout(() => {
+            performProductSearch(searchTerm);
+        }, 300);
+    });
+    
+    // Handle search input focus
+    searchInput.addEventListener('focus', function() {
+        const searchTerm = this.value.trim();
+        if (searchTerm !== '') {
+            showSearchResults();
+        }
+    });
+    
+    // Handle click outside to close search results
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            hideSearchResults();
+        }
+    });
+    
+    // Handle escape key to clear search
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.activeElement === searchInput) {
+            searchInput.value = '';
+            hideSearchResults();
+            searchInput.blur();
+        }
+    });
+}
+
+function performProductSearch(searchTerm) {
+    const searchResults = document.getElementById('search-results');
+    const searchLoading = document.getElementById('search-loading');
+    
+    $.ajax({
+        url: 'ajax/search-products.php',
+        type: 'GET',
+        data: { search: searchTerm },
+        success: function(response) {
+            searchLoading.classList.add('hidden');
+            
+            try {
+                const data = JSON.parse(response);
+                
+                if (data.success) {
+                    if (data.count > 0) {
+                        // Show search results
+                        searchResults.innerHTML = data.html;
+                        showSearchResults();
+                    } else {
+                        // Show no results message
+                        searchResults.innerHTML = data.html;
+                        showSearchResults();
+                    }
+                } else {
+                    // Show error message
+                    searchResults.innerHTML = `
+                        <div class="text-center py-4">
+                            <div class="text-sm text-red-600">${data.message}</div>
+                        </div>`;
+                    showSearchResults();
+                }
+            } catch (e) {
+                console.error('Error parsing search response:', e);
+                searchResults.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="text-sm text-red-600">Error processing search results</div>
+                    </div>`;
+                showSearchResults();
+            }
+        },
+        error: function(xhr, status, error) {
+            searchLoading.classList.add('hidden');
+            console.error('Search error:', error);
+            searchResults.innerHTML = `
+                <div class="text-center py-4">
+                    <div class="text-sm text-red-600">Error performing search</div>
+                </div>`;
+            showSearchResults();
+        }
+    });
+}
+
+function showSearchResults() {
+    const searchResults = document.getElementById('search-results');
+    const categoriesGrid = document.getElementById('categories-grid');
+    
+    searchResults.classList.remove('hidden');
+    categoriesGrid.classList.add('hidden');
+}
+
+function hideSearchResults() {
+    const searchResults = document.getElementById('search-results');
+    const categoriesGrid = document.getElementById('categories-grid');
+    const searchLoading = document.getElementById('search-loading');
+    const clearSearchBtn = document.getElementById('clear-search');
+    const searchInput = document.getElementById('product-search');
+    
+    searchResults.classList.add('hidden');
+    categoriesGrid.classList.remove('hidden');
+    searchLoading.classList.add('hidden');
+    clearSearchBtn.classList.add('hidden');
+    
+    // Clear the search input
+    if (searchInput) {
+        searchInput.value = '';
+    }
+}
+
+function clearSearch() {
+    const searchInput = document.getElementById('product-search');
+    const clearSearchBtn = document.getElementById('clear-search');
+    const searchLoading = document.getElementById('search-loading');
+    
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+    }
+    
+    if (clearSearchBtn) {
+        clearSearchBtn.classList.add('hidden');
+    }
+    
+    if (searchLoading) {
+        searchLoading.classList.add('hidden');
+    }
+    
+    hideSearchResults();
+}
 </script>
 
 <?php include 'include/footer.php'; ?>
