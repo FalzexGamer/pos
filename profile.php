@@ -181,7 +181,7 @@ $recent_sales_result = mysqli_stmt_get_result($stmt);
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                                        <input type="text" value="<?= htmlspecialchars($user['username']) ?>" 
+                                                                                <input type="text" value="<?= htmlspecialchars($user['username'] ?? '') ?>"
                                                class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50" 
                                                readonly>
                                         <p class="text-xs text-gray-500 mt-1">Username cannot be changed</p>
@@ -189,28 +189,28 @@ $recent_sales_result = mysqli_stmt_get_result($stmt);
                                     
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                                        <input type="text" value="<?= ucfirst(htmlspecialchars($user['role'])) ?>" 
+                                                                                <input type="text" value="<?= ucfirst(htmlspecialchars($user['role'] ?? '')) ?>"
                                                class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50" 
                                                readonly>
                                     </div>
                                     
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
-                                        <input type="text" name="full_name" value="<?= htmlspecialchars($user['full_name']) ?>" 
+                                        <input type="text" name="full_name" value="<?= htmlspecialchars($user['full_name'] ?? '') ?>" 
                                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
                                                required>
                                     </div>
                                     
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                                        <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" 
+                                        <input type="email" name="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" 
                                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
                                                required>
                                     </div>
                                     
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                                        <input type="tel" name="phone" value="<?= htmlspecialchars($user['phone']) ?>" 
+                                        <input type="tel" name="phone" value="<?= htmlspecialchars($user['phone'] ?? '') ?>" 
                                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                     </div>
                                     
@@ -282,20 +282,20 @@ $recent_sales_result = mysqli_stmt_get_result($stmt);
                             <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
                                 <i class="fas fa-user text-3xl text-blue-600"></i>
                             </div>
-                            <h3 class="text-lg font-semibold text-gray-900"><?= htmlspecialchars($user['full_name']) ?></h3>
-                            <p class="text-sm text-gray-600"><?= ucfirst(htmlspecialchars($user['role'])) ?></p>
-                            <p class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($user['username']) ?></p>
+                            <h3 class="text-lg font-semibold text-gray-900"><?= htmlspecialchars($user['full_name'] ?? '') ?></h3>
+                            <p class="text-sm text-gray-600"><?= ucfirst(htmlspecialchars($user['role'] ?? '')) ?></p>
+                            <p class="text-xs text-gray-500 mt-1"><?= htmlspecialchars($user['username'] ?? '') ?></p>
                         </div>
                         
                         <div class="mt-6 space-y-3">
                             <div class="flex items-center text-sm">
                                 <i class="fas fa-envelope text-gray-400 w-4 mr-3"></i>
-                                <span class="text-gray-600"><?= htmlspecialchars($user['email']) ?></span>
+                                <span class="text-gray-600"><?= htmlspecialchars($user['email'] ?? '') ?></span>
                             </div>
                             <?php if ($user['phone']): ?>
                                 <div class="flex items-center text-sm">
                                     <i class="fas fa-phone text-gray-400 w-4 mr-3"></i>
-                                    <span class="text-gray-600"><?= htmlspecialchars($user['phone']) ?></span>
+                                    <span class="text-gray-600"><?= htmlspecialchars($user['phone'] ?? '') ?></span>
                                 </div>
                             <?php endif; ?>
                             <div class="flex items-center text-sm">

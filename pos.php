@@ -107,6 +107,8 @@ while ($category = mysqli_fetch_array($categories_query)) {
                 <?php endforeach; ?>
             </div>
             
+
+            
             <!-- Products Section -->
             <div class="mt-6">
                 <h4 class="text-md font-semibold text-gray-800 mb-3 flex items-center">
@@ -1573,6 +1575,7 @@ $(document).on('keydown', function(e) {
 // Sidebar functions
 function toggleCategory(categoryId) {
     const category = document.getElementById(categoryId);
+    const categoriesGrid = document.getElementById('categories-grid');
     
     // Hide all other categories first
     const allCategories = document.querySelectorAll('[id^="category-"]');
@@ -1598,11 +1601,18 @@ function toggleCategory(categoryId) {
         if (selectedCard) {
             selectedCard.classList.add('bg-blue-50', 'border-blue-300');
         }
+        
+        // Hide categories grid
+        categoriesGrid.classList.add('hidden');
     }
 }
 
+
+
 function closeCategory(categoryId) {
     const category = document.getElementById(categoryId);
+    const categoriesGrid = document.getElementById('categories-grid');
+    
     category.classList.add('hidden');
     
     // Remove highlighting from category card
@@ -1610,6 +1620,13 @@ function closeCategory(categoryId) {
     const selectedCard = document.querySelector(`[data-category-id="${categoryIdNum}"]`);
     if (selectedCard) {
         selectedCard.classList.remove('bg-blue-50', 'border-blue-300');
+    }
+    
+    // Check if any categories are still visible
+    const visibleCategories = document.querySelectorAll('[id^="category-"]:not(.hidden)');
+    if (visibleCategories.length === 0) {
+        // Show categories grid
+        categoriesGrid.classList.remove('hidden');
     }
 }
 
@@ -1905,7 +1922,14 @@ function hideSearchResults() {
     const searchInput = document.getElementById('product-search');
     
     searchResults.classList.add('hidden');
-    categoriesGrid.classList.remove('hidden');
+    
+    // Check if any categories are visible
+    const visibleCategories = document.querySelectorAll('[id^="category-"]:not(.hidden)');
+    if (visibleCategories.length === 0) {
+        // Show categories grid
+        categoriesGrid.classList.remove('hidden');
+    }
+    
     searchLoading.classList.add('hidden');
     clearSearchBtn.classList.add('hidden');
     
