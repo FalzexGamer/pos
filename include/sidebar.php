@@ -129,6 +129,9 @@
                     <a href="company-settings.php" class="block px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
                         <i class="fas fa-building mr-2"></i>Company Settings
                     </a>
+                    <a href="payment-methods.php" class="block px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-credit-card mr-2"></i>Payment Methods
+                    </a>
                     <a href="backup.php" class="block px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
                         <i class="fas fa-database mr-2"></i>Backup
                     </a>
