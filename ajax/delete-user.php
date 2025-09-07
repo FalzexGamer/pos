@@ -2,6 +2,15 @@
 include '../include/conn.php';
 include '../include/session.php';
 
+// Check if user is logged in and has admin privileges
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Access denied. Admin privileges required.'
+    ]);
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode([
         'success' => false,
@@ -20,9 +29,21 @@ if ($id <= 0) {
     exit;
 }
 
-// Check if user exists
-$checkQuery = mysqli_query($conn, "SELECT id, username FROM users WHERE id = $id");
-if (mysqli_num_rows($checkQuery) == 0) {
+// Check if user exists (using prepared statement)
+$checkQuery = mysqli_prepare($conn, "SELECT id, username, role FROM users WHERE id = ?");
+if (!$checkQuery) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database error: ' . mysqli_error($conn)
+    ]);
+    exit;
+}
+
+mysqli_stmt_bind_param($checkQuery, "i", $id);
+mysqli_stmt_execute($checkQuery);
+$result = mysqli_stmt_get_result($checkQuery);
+
+if (mysqli_num_rows($result) == 0) {
     echo json_encode([
         'success' => false,
         'message' => 'User not found'
@@ -30,7 +51,8 @@ if (mysqli_num_rows($checkQuery) == 0) {
     exit;
 }
 
-$user = mysqli_fetch_array($checkQuery);
+$user = mysqli_fetch_array($result);
+mysqli_stmt_close($checkQuery);
 
 // Prevent deleting the current logged-in user
 if ($id == $_SESSION['user_id']) {
@@ -43,8 +65,19 @@ if ($id == $_SESSION['user_id']) {
 
 // Check if this is the last admin user
 if ($user['role'] == 'admin') {
-    $adminCountQuery = mysqli_query($conn, "SELECT COUNT(*) as count FROM users WHERE role = 'admin' AND is_active = 1");
-    $adminCount = mysqli_fetch_array($adminCountQuery)['count'];
+    $adminCountQuery = mysqli_prepare($conn, "SELECT COUNT(*) as count FROM users WHERE role = 'admin' AND is_active = 1");
+    if (!$adminCountQuery) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Database error: ' . mysqli_error($conn)
+        ]);
+        exit;
+    }
+    
+    mysqli_stmt_execute($adminCountQuery);
+    $adminResult = mysqli_stmt_get_result($adminCountQuery);
+    $adminCount = mysqli_fetch_array($adminResult)['count'];
+    mysqli_stmt_close($adminCountQuery);
     
     if ($adminCount <= 1) {
         echo json_encode([
@@ -55,10 +88,19 @@ if ($user['role'] == 'admin') {
     }
 }
 
-// Delete user
-$deleteQuery = "DELETE FROM users WHERE id = $id";
+// Delete user (using prepared statement)
+$deleteQuery = mysqli_prepare($conn, "DELETE FROM users WHERE id = ?");
+if (!$deleteQuery) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database error: ' . mysqli_error($conn)
+    ]);
+    exit;
+}
 
-if (mysqli_query($conn, $deleteQuery)) {
+mysqli_stmt_bind_param($deleteQuery, "i", $id);
+
+if (mysqli_stmt_execute($deleteQuery)) {
     echo json_encode([
         'success' => true,
         'message' => 'User deleted successfully'
@@ -66,7 +108,9 @@ if (mysqli_query($conn, $deleteQuery)) {
 } else {
     echo json_encode([
         'success' => false,
-        'message' => 'Failed to delete user: ' . mysqli_error($conn)
+        'message' => 'Failed to delete user: ' . mysqli_stmt_error($deleteQuery)
     ]);
 }
+
+mysqli_stmt_close($deleteQuery);
 ?>
