@@ -71,10 +71,7 @@ $html .= '<div class="bg-gray-50/50 rounded-xl p-6">
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500">Payment Method</p>
-                    <div class="flex items-center">
-                        <i class="' . getPaymentIcon($sale['payment_method']) . ' mr-2"></i>
-                        <span class="text-lg font-semibold text-gray-900 capitalize">' . $sale['payment_method'] . '</span>
-                    </div>
+                    <span class="text-lg font-semibold text-gray-900 capitalize">' . $sale['payment_method'] . '</span>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-500">Status</p>
@@ -190,19 +187,6 @@ header('Content-Type: application/json');
 echo json_encode($response);
 
 // Helper functions
-function getPaymentIcon($method) {
-    switch ($method) {
-        case 'cash':
-            return 'fas fa-money-bill-wave text-green-600';
-        case 'card':
-            return 'fas fa-credit-card text-blue-600';
-        case 'ewallet':
-            return 'fas fa-mobile-alt text-purple-600';
-        default:
-            return 'fas fa-money-bill text-gray-600';
-    }
-}
-
 function getStatusClass($status) {
     switch ($status) {
         case 'paid':

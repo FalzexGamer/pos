@@ -2,53 +2,31 @@
 include '../include/conn.php';
 include '../include/session.php';
 
-header('Content-Type: application/json');
+$id = $_GET['id'] ?? null;
 
-try {
-    if (!isset($_GET['id']) || empty($_GET['id'])) {
-        throw new Exception('Payment method ID is required');
-    }
-    
-    $id = (int)$_GET['id'];
-    
-    // Get payment method details
-    $query = "SELECT id, name, description, is_active, created_at, updated_at 
-              FROM payment_methods 
-              WHERE id = ?";
-    
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows === 0) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Payment method not found'
-        ]);
-        exit;
-    }
-    
-    $paymentMethod = $result->fetch_assoc();
-    
-    echo json_encode([
-        'success' => true,
-        'payment_method' => [
-            'id' => $paymentMethod['id'],
-            'name' => htmlspecialchars($paymentMethod['name']),
-            'description' => htmlspecialchars($paymentMethod['description']),
-            'is_active' => $paymentMethod['is_active'],
-            'created_at' => $paymentMethod['created_at'],
-            'updated_at' => $paymentMethod['updated_at']
-        ]
-    ]);
-    
-} catch (Exception $e) {
-    echo json_encode([
-        'success' => false,
-        'message' => 'Error: ' . $e->getMessage()
-    ]);
+if (!$id) {
+    echo json_encode(['success' => false, 'message' => 'Payment method ID is required']);
+    exit;
 }
 
-$conn->close();
+$query = mysqli_query($conn, "SELECT * FROM payment_methods WHERE id = $id");
+
+if (!$query || mysqli_num_rows($query) == 0) {
+    echo json_encode(['success' => false, 'message' => 'Payment method not found']);
+    exit;
+}
+
+$payment_method = mysqli_fetch_array($query);
+
+echo json_encode([
+    'success' => true,
+    'payment_method' => [
+        'id' => $payment_method['id'],
+        'name' => $payment_method['name'],
+        'description' => $payment_method['description'],
+        'is_active' => $payment_method['is_active'],
+        'created_at' => $payment_method['created_at'],
+        'updated_at' => $payment_method['updated_at']
+    ]
+]);
 ?>

@@ -294,27 +294,18 @@ while ($category = mysqli_fetch_array($categories_query)) {
 
                 <!-- Payment Buttons -->
                 <div class="space-y-2 lg:space-y-3">
-                    <div class="grid grid-cols-2 gap-2 lg:gap-3">
-                        <button onclick="processPayment('cash')" class="group relative px-3 lg:px-4 py-3 lg:py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                            <div class="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div class="relative z-10">
-                                <i class="fas fa-money-bill text-lg lg:text-xl mb-1"></i>
-                                <div class="text-xs lg:text-sm font-medium">Cash</div>
-                            </div>
-                        </button>
-                        <button onclick="processPayment('card')" class="group relative px-3 lg:px-4 py-3 lg:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                            <div class="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div class="relative z-10">
-                                <i class="fas fa-credit-card text-lg lg:text-xl mb-1"></i>
-                                <div class="text-xs lg:text-sm font-medium">Card</div>
-                            </div>
-                        </button>
-                    </div>
-                    <button onclick="processPayment('ewallet')" class="group relative w-full px-3 lg:px-4 py-3 lg:py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    <button onclick="processPayment('cash')" class="group relative w-full px-3 lg:px-4 py-3 lg:py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                         <div class="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <div class="relative z-10 flex items-center justify-center">
-                            <i class="fas fa-mobile-alt text-lg lg:text-xl mr-2"></i>
-                            <span class="font-medium text-sm lg:text-base">E-Wallet</span>
+                            <i class="fas fa-money-bill text-lg lg:text-xl mr-2"></i>
+                            <span class="font-medium text-sm lg:text-base">Cash Payment</span>
+                        </div>
+                    </button>
+                    <button onclick="openPaymentMethodModal()" class="group relative w-full px-3 lg:px-4 py-3 lg:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <div class="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="relative z-10 flex items-center justify-center">
+                            <i class="fas fa-credit-card text-lg lg:text-xl mr-2"></i>
+                            <span class="font-medium text-sm lg:text-base">Online Payment</span>
                         </div>
                     </button>
                 </div>
@@ -747,9 +738,86 @@ while ($category = mysqli_fetch_array($categories_query)) {
     </div>
 </div>
 
+<!-- Payment Method Selection Modal -->
+<div id="payment-method-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-2 sm:p-4">
+        <div class="backdrop-blur-md bg-white/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-white/20">
+            <div class="p-4 sm:p-6 border-b border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-2 sm:space-x-3">
+                        <div class="p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
+                            <i class="fas fa-credit-card text-white text-lg sm:text-xl"></i>
+                        </div>
+                        <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Select Payment Method</h3>
+                    </div>
+                    <button onclick="closePaymentMethodModal()" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200">
+                        <i class="fas fa-times text-lg sm:text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4 sm:p-6">
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700">Select Payment Method</label>
+                        <div class="relative">
+                            <select id="payment-method-dropdown" class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm lg:text-base appearance-none cursor-pointer">
+                                <option value="">Choose a payment method...</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Selected Payment Method Info -->
+                    <div id="selected-payment-info" class="hidden p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                        <div class="flex items-center space-x-3">
+                            <div id="payment-method-icon" class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-credit-card text-white"></i>
+                            </div>
+                            <div>
+                                <h4 id="selected-payment-name" class="font-semibold text-gray-900"></h4>
+                                <p id="selected-payment-description" class="text-sm text-gray-600"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="payment-methods-loading" class="text-center py-6 lg:py-8">
+                    <div class="w-6 h-6 lg:w-8 lg:h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                    <p class="text-gray-500 text-sm lg:text-base">Loading payment methods...</p>
+                </div>
+                
+                <!-- No Results -->
+                <div id="no-payment-methods-found" class="hidden text-center py-6 lg:py-8">
+                    <div class="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-credit-card text-xl lg:text-2xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-base lg:text-lg font-medium text-gray-900 mb-2">No Payment Methods Available</h3>
+                    <p class="text-xs lg:text-sm text-gray-500">Please contact administrator to add payment methods</p>
+                </div>
+            </div>
+            
+            <!-- Modal Footer with Action Buttons -->
+            <div class="p-4 sm:p-6 border-t border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50 flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4">
+                <button onclick="closePaymentMethodModal()" class="px-4 lg:px-6 py-2 lg:py-3 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium text-sm lg:text-base">
+                    Cancel
+                </button>
+                <button onclick="proceedWithSelectedPayment()" id="proceed-payment-btn" disabled class="px-4 lg:px-6 py-2 lg:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium text-sm lg:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                    <i class="fas fa-credit-card mr-2"></i>
+                    Proceed with Payment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 let cart = [];
 let currentPaymentMethod = '';
+let currentPaymentMethodId = null;
 
 // Load cart on page load
 $(document).ready(function() {
@@ -1102,6 +1170,12 @@ function processPayment(method) {
         return;
     }
     
+    // For online payments, we need to have selected a payment method first
+    if (method === 'online' && !currentPaymentMethodId) {
+        showAlert('Please select a payment method first', 'error');
+        return;
+    }
+    
     currentPaymentMethod = method;
     const total = parseFloat($('#total').text().replace('RM ', ''));
     
@@ -1177,6 +1251,7 @@ function completePayment() {
         data: {
             member_id: memberId,
             payment_method: currentPaymentMethod,
+            payment_method_id: currentPaymentMethodId,
             amount_received: amountReceived
         },
         success: function(response) {
@@ -1186,6 +1261,10 @@ function completePayment() {
                 updateCart();
                 showAlert('Sale completed successfully!', 'success');
                 printReceipt(data.invoice_number);
+                
+                // Reset payment method selection
+                currentPaymentMethodId = null;
+                currentPaymentMethod = '';
             } else {
                 showAlert(data.message, 'error');
             }
@@ -1214,6 +1293,161 @@ function closePaymentModal() {
     $('#payment-modal').addClass('hidden');
     $('body').removeClass('overflow-hidden');
     $('#amount-received').val('');
+}
+
+// Payment method modal functions
+function openPaymentMethodModal() {
+    $('#payment-method-modal').removeClass('hidden');
+    $('body').addClass('overflow-hidden');
+    loadPaymentMethods();
+}
+
+function closePaymentMethodModal() {
+    $('#payment-method-modal').addClass('hidden');
+    $('body').removeClass('overflow-hidden');
+    
+    // Reset dropdown state
+    $('#payment-method-dropdown').val('').trigger('change');
+    $('#proceed-payment-btn').prop('disabled', true);
+    hideSelectedPaymentMethod();
+}
+
+function loadPaymentMethods() {
+    $('#payment-methods-loading').removeClass('hidden');
+    $('#payment-method-dropdown').addClass('hidden');
+    $('#no-payment-methods-found').addClass('hidden');
+    
+    $.ajax({
+        url: 'ajax/get-payment-methods.php',
+        type: 'GET',
+        success: function(response) {
+            $('#payment-methods-loading').addClass('hidden');
+            
+            try {
+                const data = JSON.parse(response);
+                
+                if (data.success && data.payment_methods && data.payment_methods.length > 0) {
+                    displayPaymentMethods(data.payment_methods);
+                } else {
+                    $('#no-payment-methods-found').removeClass('hidden');
+                }
+            } catch (e) {
+                console.error('Error parsing payment methods response:', e);
+                $('#no-payment-methods-found').removeClass('hidden');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX error loading payment methods:', status, error);
+            $('#payment-methods-loading').addClass('hidden');
+            $('#no-payment-methods-found').removeClass('hidden');
+        }
+    });
+}
+
+function displayPaymentMethods(paymentMethods) {
+    const dropdown = $('#payment-method-dropdown');
+    let options = '<option value="">Choose a payment method...</option>';
+    
+    paymentMethods.forEach(function(method) {
+        options += `<option value="${method.id}" data-name="${method.name}" data-description="${method.description || 'Online payment method'}">${method.name}</option>`;
+    });
+    
+    dropdown.html(options);
+    $('#payment-methods-loading').addClass('hidden');
+    dropdown.removeClass('hidden');
+    
+    // Add change event listener to dropdown
+    dropdown.off('change').on('change', function() {
+        const selectedOption = $(this).find('option:selected');
+        const methodId = selectedOption.val();
+        const methodName = selectedOption.data('name');
+        const methodDescription = selectedOption.data('description');
+        
+        if (methodId) {
+            showSelectedPaymentMethod(methodId, methodName, methodDescription);
+            $('#proceed-payment-btn').prop('disabled', false);
+        } else {
+            hideSelectedPaymentMethod();
+            $('#proceed-payment-btn').prop('disabled', true);
+        }
+    });
+}
+
+function getPaymentMethodIcon(methodName) {
+    const name = methodName.toLowerCase();
+    if (name.includes('credit') || name.includes('card')) {
+        return 'fas fa-credit-card';
+    } else if (name.includes('debit')) {
+        return 'fas fa-credit-card';
+    } else if (name.includes('wallet') || name.includes('ewallet')) {
+        return 'fas fa-mobile-alt';
+    } else if (name.includes('bank') || name.includes('transfer')) {
+        return 'fas fa-university';
+    } else if (name.includes('mobile') || name.includes('money')) {
+        return 'fas fa-mobile-alt';
+    } else if (name.includes('check')) {
+        return 'fas fa-file-invoice';
+    } else if (name.includes('gift')) {
+        return 'fas fa-gift';
+    } else {
+        return 'fas fa-credit-card';
+    }
+}
+
+function getPaymentMethodColor(methodName) {
+    const name = methodName.toLowerCase();
+    if (name.includes('credit') || name.includes('card')) {
+        return 'bg-gradient-to-r from-blue-500 to-indigo-600';
+    } else if (name.includes('debit')) {
+        return 'bg-gradient-to-r from-green-500 to-emerald-600';
+    } else if (name.includes('wallet') || name.includes('ewallet')) {
+        return 'bg-gradient-to-r from-purple-500 to-pink-600';
+    } else if (name.includes('bank') || name.includes('transfer')) {
+        return 'bg-gradient-to-r from-indigo-500 to-blue-600';
+    } else if (name.includes('mobile') || name.includes('money')) {
+        return 'bg-gradient-to-r from-orange-500 to-red-600';
+    } else if (name.includes('check')) {
+        return 'bg-gradient-to-r from-gray-500 to-gray-600';
+    } else if (name.includes('gift')) {
+        return 'bg-gradient-to-r from-pink-500 to-rose-600';
+    } else {
+        return 'bg-gradient-to-r from-blue-500 to-indigo-600';
+    }
+}
+
+function showSelectedPaymentMethod(methodId, methodName, methodDescription) {
+    const iconClass = getPaymentMethodIcon(methodName);
+    const bgColor = getPaymentMethodColor(methodName);
+    
+    $('#payment-method-icon').removeClass().addClass(`w-10 h-10 ${bgColor} rounded-lg flex items-center justify-center`);
+    $('#payment-method-icon i').removeClass().addClass(`${iconClass} text-white`);
+    $('#selected-payment-name').text(methodName);
+    $('#selected-payment-description').text(methodDescription);
+    $('#selected-payment-info').removeClass('hidden');
+}
+
+function hideSelectedPaymentMethod() {
+    $('#selected-payment-info').addClass('hidden');
+}
+
+function proceedWithSelectedPayment() {
+    const selectedOption = $('#payment-method-dropdown option:selected');
+    const methodId = selectedOption.val();
+    const methodName = selectedOption.data('name');
+    
+    if (methodId) {
+        currentPaymentMethodId = methodId;
+        currentPaymentMethod = methodName;
+        closePaymentMethodModal();
+        processPayment('online');
+    }
+}
+
+function selectPaymentMethod(methodId, methodName) {
+    currentPaymentMethodId = methodId;
+    currentPaymentMethod = methodName; // Store the actual method name
+    closePaymentMethodModal();
+    processPayment('online');
 }
 
 // Load form data
@@ -1537,7 +1771,7 @@ $(window).on('orientationchange', function() {
 });
 
 // Close modals when clicking outside
-$(document).on('click', '#product-modal, #payment-modal, #member-modal, #quick-add-member-modal', function(e) {
+$(document).on('click', '#product-modal, #payment-modal, #member-modal, #quick-add-member-modal, #payment-method-modal', function(e) {
     if (e.target === this) {
         if ($('#product-modal').hasClass('hidden') === false) {
             closeProductModal();
@@ -1550,6 +1784,9 @@ $(document).on('click', '#product-modal, #payment-modal, #member-modal, #quick-a
         }
         if ($('#quick-add-member-modal').hasClass('hidden') === false) {
             closeQuickAddMemberModal();
+        }
+        if ($('#payment-method-modal').hasClass('hidden') === false) {
+            closePaymentMethodModal();
         }
     }
 });
@@ -1568,6 +1805,9 @@ $(document).on('keydown', function(e) {
         }
         if (!$('#quick-add-member-modal').hasClass('hidden')) {
             closeQuickAddMemberModal();
+        }
+        if (!$('#payment-method-modal').hasClass('hidden')) {
+            closePaymentMethodModal();
         }
     }
 });

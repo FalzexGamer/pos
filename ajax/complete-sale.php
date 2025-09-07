@@ -9,8 +9,18 @@ if (session_status() == PHP_SESSION_NONE) {
 
 $member_id = $_POST['member_id'] ?? null;
 $payment_method = $_POST['payment_method'];
+$payment_method_id = $_POST['payment_method_id'] ?? null;
 $amount_received = $_POST['amount_received'];
 $user_id = $_SESSION['user_id'] ?? 0;
+
+// Get payment method name from database if payment_method_id is provided
+$payment_method_name = $payment_method; // Default to the passed value
+if ($payment_method_id) {
+    $payment_method_query = mysqli_query($conn, "SELECT name FROM payment_methods WHERE id = $payment_method_id");
+    if ($payment_method_data = mysqli_fetch_array($payment_method_query)) {
+        $payment_method_name = $payment_method_data['name'];
+    }
+}
 
 if (!$user_id) {
     echo json_encode(['success' => false, 'message' => 'User not authenticated']);
@@ -78,9 +88,11 @@ mysqli_begin_transaction($conn);
 try {
     // Insert sale record
     $member_id_sql = $member_id ? $member_id : 'NULL';
+    $payment_method_id_sql = $payment_method_id ? $payment_method_id : 'NULL';
+    $payment_method_name_escaped = mysqli_real_escape_string($conn, $payment_method_name);
     $insert_sale = mysqli_query($conn, "
-        INSERT INTO sales (invoice_number, session_id, member_id, user_id, subtotal, discount_amount, tax_amount, total_amount, payment_method, payment_status) 
-        VALUES ('$invoice_number', $session_id, $member_id_sql, $user_id, $subtotal, $discount, $tax, $total, '$payment_method', 'paid')
+        INSERT INTO sales (invoice_number, session_id, member_id, user_id, subtotal, discount_amount, tax_amount, total_amount, payment_method, payment_method_id, payment_status) 
+        VALUES ('$invoice_number', $session_id, $member_id_sql, $user_id, $subtotal, $discount, $tax, $total, '$payment_method_name_escaped', $payment_method_id_sql, 'paid')
     ");
     
     if (!$insert_sale) {

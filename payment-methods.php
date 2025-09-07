@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Load payment methods
 function loadPaymentMethods() {
-    fetch(`ajax/get-payment-methods.php?page=${currentPage}`)
+    fetch(`ajax/get-payment-methods-list.php?page=${currentPage}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {

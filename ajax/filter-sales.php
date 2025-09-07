@@ -99,18 +99,6 @@ while ($sale = mysqli_fetch_assoc($result)) {
             break;
     }
     
-    $payment_icon = '';
-    switch ($sale['payment_method']) {
-        case 'cash':
-            $payment_icon = 'fas fa-money-bill-wave';
-            break;
-        case 'card':
-            $payment_icon = 'fas fa-credit-card';
-            break;
-        case 'ewallet':
-            $payment_icon = 'fas fa-mobile-alt';
-            break;
-    }
     
     echo '<tr class="hover:bg-gray-50/50 transition-colors duration-200">
             <td class="px-6 py-4 whitespace-nowrap">
@@ -143,10 +131,7 @@ while ($sale = mysqli_fetch_assoc($result)) {
                 <div class="text-sm text-gray-500">Sub: RM ' . number_format($sale['subtotal'], 2) . '</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                    <i class="' . $payment_icon . ' text-gray-400 mr-2"></i>
-                    <span class="text-sm text-gray-900 capitalize">' . $sale['payment_method'] . '</span>
-                </div>
+                <span class="text-sm text-gray-900 capitalize">' . $sale['payment_method'] . '</span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' . $status_class . '">

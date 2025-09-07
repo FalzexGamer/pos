@@ -2,61 +2,33 @@
 include '../include/conn.php';
 include '../include/session.php';
 
-header('Content-Type: application/json');
+$name = $_POST['name'] ?? '';
+$description = $_POST['description'] ?? '';
+$is_active = $_POST['is_active'] ?? 1;
 
-try {
-    // Validate input
-    if (!isset($_POST['name']) || empty(trim($_POST['name']))) {
-        throw new Exception('Payment method name is required');
-    }
-    
-    $name = trim($_POST['name']);
-    $description = isset($_POST['description']) ? trim($_POST['description']) : '';
-    $isActive = isset($_POST['is_active']) ? (int)$_POST['is_active'] : 1;
-    
-    // Validate name length
-    if (strlen($name) > 100) {
-        throw new Exception('Payment method name must be 100 characters or less');
-    }
-    
-    // Check if name already exists
-    $checkQuery = "SELECT id FROM payment_methods WHERE name = ?";
-    $checkStmt = $conn->prepare($checkQuery);
-    $checkStmt->bind_param('s', $name);
-    $checkStmt->execute();
-    $checkResult = $checkStmt->get_result();
-    
-    if ($checkResult->num_rows > 0) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'A payment method with this name already exists'
-        ]);
-        exit;
-    }
-    
-    // Insert new payment method
-    $query = "INSERT INTO payment_methods (name, description, is_active, created_at, updated_at) 
-              VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
-    
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param('ssi', $name, $description, $isActive);
-    
-    if ($stmt->execute()) {
-        echo json_encode([
-            'success' => true,
-            'message' => 'Payment method added successfully',
-            'id' => $conn->insert_id
-        ]);
-    } else {
-        throw new Exception('Failed to insert payment method');
-    }
-    
-} catch (Exception $e) {
-    echo json_encode([
-        'success' => false,
-        'message' => 'Error: ' . $e->getMessage()
-    ]);
+if (empty($name)) {
+    echo json_encode(['success' => false, 'message' => 'Payment method name is required']);
+    exit;
 }
 
-$conn->close();
+// Check if name already exists
+$checkQuery = mysqli_query($conn, "SELECT id FROM payment_methods WHERE name = '" . mysqli_real_escape_string($conn, $name) . "'");
+if (mysqli_num_rows($checkQuery) > 0) {
+    echo json_encode(['success' => false, 'message' => 'Payment method name already exists']);
+    exit;
+}
+
+$name_escaped = mysqli_real_escape_string($conn, $name);
+$description_escaped = mysqli_real_escape_string($conn, $description);
+
+$query = mysqli_query($conn, "
+    INSERT INTO payment_methods (name, description, is_active) 
+    VALUES ('$name_escaped', '$description_escaped', $is_active)
+");
+
+if ($query) {
+    echo json_encode(['success' => true, 'message' => 'Payment method added successfully']);
+} else {
+    echo json_encode(['success' => false, 'message' => 'Failed to add payment method']);
+}
 ?>
