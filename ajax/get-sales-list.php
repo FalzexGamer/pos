@@ -145,12 +145,16 @@ while ($sale = mysqli_fetch_assoc($result)) {
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex items-center space-x-2">
-                    <button onclick="viewSaleDetails(' . $sale['id'] . ')" class="text-blue-600 hover:text-blue-900 p-2 rounded-lg hover:bg-blue-50 transition-colors">
+                    <button onclick="viewSaleDetails(' . $sale['id'] . ')" class="text-blue-600 hover:text-blue-900 p-2 rounded-lg hover:bg-blue-50 transition-colors" title="View Details">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button onclick="printReceipt(' . $sale['id'] . ')" class="text-green-600 hover:text-green-900 p-2 rounded-lg hover:bg-green-50 transition-colors">
+                    <button onclick="printReceipt(' . $sale['id'] . ')" class="text-green-600 hover:text-green-900 p-2 rounded-lg hover:bg-green-50 transition-colors" title="Print Receipt">
                         <i class="fas fa-print"></i>
-                    </button>
+                    </button>' . 
+                    ($sale['payment_status'] == 'paid' ? '
+                    <button onclick="refundSale(' . $sale['id'] . ')" class="text-red-600 hover:text-red-900 p-2 rounded-lg hover:bg-red-50 transition-colors" title="Refund Sale">
+                        <i class="fas fa-undo"></i>
+                    </button>' : '') . '
                 </div>
             </td>
           </tr>';
@@ -191,7 +195,11 @@ while ($sale = mysqli_fetch_assoc($result)) {
                 </button>
                 <button onclick="printReceipt(' . $sale['id'] . ')" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
                     <i class="fas fa-print mr-2"></i>Print
-                </button>
+                </button>' . 
+                ($sale['payment_status'] == 'paid' ? '
+                <button onclick="refundSale(' . $sale['id'] . ')" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                    <i class="fas fa-undo mr-2"></i>Refund
+                </button>' : '') . '
             </div>
           </div>';
 }

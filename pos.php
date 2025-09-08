@@ -741,8 +741,8 @@ while ($category = mysqli_fetch_array($categories_query)) {
 <!-- Payment Method Selection Modal -->
 <div id="payment-method-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50">
     <div class="flex items-center justify-center min-h-screen p-2 sm:p-4">
-        <div class="backdrop-blur-md bg-white/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-white/20">
-            <div class="p-4 sm:p-6 border-b border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50">
+        <div class="backdrop-blur-md bg-white/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col border border-white/20">
+            <div class="p-4 sm:p-6 border-b border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50 flex-shrink-0">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-2 sm:space-x-3">
                         <div class="p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
@@ -756,31 +756,16 @@ while ($category = mysqli_fetch_array($categories_query)) {
                 </div>
             </div>
             
-            <div class="p-4 sm:p-6">
+            <div class="p-4 sm:p-6 flex-1 overflow-y-auto">
                 <div class="space-y-4">
-                    <div class="space-y-2">
+                    <div class="space-y-3">
                         <label class="block text-sm font-semibold text-gray-700">Select Payment Method</label>
-                        <div class="relative">
-                            <select id="payment-method-dropdown" class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm lg:text-base appearance-none cursor-pointer">
-                                <option value="">Choose a payment method...</option>
-                            </select>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <i class="fas fa-chevron-down text-gray-400"></i>
-                            </div>
+                        
+                        <!-- Payment Method Buttons Grid -->
+                        <div id="payment-methods-buttons" class="grid grid-cols-1 sm:grid-cols-2 gap-3 hidden">
+                            <!-- Payment method buttons will be loaded here -->
                         </div>
-                    </div>
-                    
-                    <!-- Selected Payment Method Info -->
-                    <div id="selected-payment-info" class="hidden p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-                        <div class="flex items-center space-x-3">
-                            <div id="payment-method-icon" class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-credit-card text-white"></i>
-                            </div>
-                            <div>
-                                <h4 id="selected-payment-name" class="font-semibold text-gray-900"></h4>
-                                <p id="selected-payment-description" class="text-sm text-gray-600"></p>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
                 
@@ -801,7 +786,7 @@ while ($category = mysqli_fetch_array($categories_query)) {
             </div>
             
             <!-- Modal Footer with Action Buttons -->
-            <div class="p-4 sm:p-6 border-t border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50 flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4">
+            <div class="p-4 sm:p-6 border-t border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50 flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 flex-shrink-0">
                 <button onclick="closePaymentMethodModal()" class="px-4 lg:px-6 py-2 lg:py-3 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium text-sm lg:text-base">
                     Cancel
                 </button>
@@ -1306,15 +1291,15 @@ function closePaymentMethodModal() {
     $('#payment-method-modal').addClass('hidden');
     $('body').removeClass('overflow-hidden');
     
-    // Reset dropdown state
-    $('#payment-method-dropdown').val('').trigger('change');
+    // Reset button state
+    $('.payment-method-btn').removeClass('ring-4 ring-blue-400 ring-opacity-50 bg-blue-50 border-blue-300').addClass('border-gray-200');
     $('#proceed-payment-btn').prop('disabled', true);
     hideSelectedPaymentMethod();
 }
 
 function loadPaymentMethods() {
     $('#payment-methods-loading').removeClass('hidden');
-    $('#payment-method-dropdown').addClass('hidden');
+    $('#payment-methods-buttons').addClass('hidden');
     $('#no-payment-methods-found').addClass('hidden');
     
     $.ajax({
@@ -1345,32 +1330,35 @@ function loadPaymentMethods() {
 }
 
 function displayPaymentMethods(paymentMethods) {
-    const dropdown = $('#payment-method-dropdown');
-    let options = '<option value="">Choose a payment method...</option>';
+    const buttonsContainer = $('#payment-methods-buttons');
+    let buttonsHtml = '';
     
     paymentMethods.forEach(function(method) {
-        options += `<option value="${method.id}" data-name="${method.name}" data-description="${method.description || 'Online payment method'}">${method.name}</option>`;
-    });
-    
-    dropdown.html(options);
-    $('#payment-methods-loading').addClass('hidden');
-    dropdown.removeClass('hidden');
-    
-    // Add change event listener to dropdown
-    dropdown.off('change').on('change', function() {
-        const selectedOption = $(this).find('option:selected');
-        const methodId = selectedOption.val();
-        const methodName = selectedOption.data('name');
-        const methodDescription = selectedOption.data('description');
+        const iconClass = getPaymentMethodIcon(method.name);
+        const bgColor = getPaymentMethodColor(method.name);
         
-        if (methodId) {
-            showSelectedPaymentMethod(methodId, methodName, methodDescription);
-            $('#proceed-payment-btn').prop('disabled', false);
-        } else {
-            hideSelectedPaymentMethod();
-            $('#proceed-payment-btn').prop('disabled', true);
-        }
+        buttonsHtml += `
+            <button onclick="selectPaymentMethodButton('${method.id}', '${method.name}', '${method.description || 'Online payment method'}')" 
+                    class="payment-method-btn w-full p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-300 hover:shadow-lg transition-all duration-200 text-left group">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 ${bgColor} rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="${iconClass} text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-gray-900 text-sm lg:text-base group-hover:text-blue-600 transition-colors">${method.name}</h4>
+                        <p class="text-xs lg:text-sm text-gray-500 mt-1">${method.description || 'Online payment method'}</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-chevron-right text-gray-400 group-hover:text-blue-500 transition-colors"></i>
+                    </div>
+                </div>
+            </button>
+        `;
     });
+    
+    buttonsContainer.html(buttonsHtml);
+    $('#payment-methods-loading').addClass('hidden');
+    buttonsContainer.removeClass('hidden');
 }
 
 function getPaymentMethodIcon(methodName) {
@@ -1416,26 +1404,37 @@ function getPaymentMethodColor(methodName) {
 }
 
 function showSelectedPaymentMethod(methodId, methodName, methodDescription) {
-    const iconClass = getPaymentMethodIcon(methodName);
-    const bgColor = getPaymentMethodColor(methodName);
-    
-    $('#payment-method-icon').removeClass().addClass(`w-10 h-10 ${bgColor} rounded-lg flex items-center justify-center`);
-    $('#payment-method-icon i').removeClass().addClass(`${iconClass} text-white`);
-    $('#selected-payment-name').text(methodName);
-    $('#selected-payment-description').text(methodDescription);
-    $('#selected-payment-info').removeClass('hidden');
+    // Selected payment method info display removed as requested
 }
 
 function hideSelectedPaymentMethod() {
-    $('#selected-payment-info').addClass('hidden');
+    // Selected payment method info display removed as requested
+}
+
+function selectPaymentMethodButton(methodId, methodName, methodDescription) {
+    // Remove selection from all buttons
+    $('.payment-method-btn').removeClass('ring-4 ring-blue-400 ring-opacity-50 bg-blue-50 border-blue-300').addClass('border-gray-200');
+    
+    // Add selection to clicked button
+    const clickedButton = event.target.closest('.payment-method-btn');
+    $(clickedButton).removeClass('border-gray-200').addClass('ring-4 ring-blue-400 ring-opacity-50 bg-blue-50 border-blue-300');
+    
+    // Store selected method data
+    $(clickedButton).data('method-id', methodId);
+    $(clickedButton).data('method-name', methodName);
+    $(clickedButton).data('method-description', methodDescription);
+    
+    // Selected payment method info display removed as requested
+    $('#proceed-payment-btn').prop('disabled', false);
 }
 
 function proceedWithSelectedPayment() {
-    const selectedOption = $('#payment-method-dropdown option:selected');
-    const methodId = selectedOption.val();
-    const methodName = selectedOption.data('name');
+    const selectedButton = $('.payment-method-btn.ring-4');
     
-    if (methodId) {
+    if (selectedButton.length > 0) {
+        const methodId = selectedButton.data('method-id');
+        const methodName = selectedButton.data('method-name');
+        
         currentPaymentMethodId = methodId;
         currentPaymentMethod = methodName;
         closePaymentMethodModal();
@@ -2202,4 +2201,3 @@ function clearSearch() {
 </script>
 
 <?php include 'include/footer.php'; ?>
-

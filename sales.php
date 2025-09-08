@@ -270,6 +270,82 @@ $avg_sale = mysqli_fetch_array($query_avg_sale);
     </div>
 </div>
 
+<!-- Refund Confirmation Modal -->
+<div id="refund-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-6">
+        <div class="backdrop-blur-md bg-white/95 rounded-3xl shadow-2xl max-w-md w-full border border-white/20 m-6">
+            <div class="p-8 border-b border-gray-200/50 bg-gradient-to-r from-red-50/50 to-orange-50/50">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-3 bg-gradient-to-r from-red-500 to-orange-600 rounded-xl">
+                            <i class="fas fa-undo text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900">Refund Sale</h3>
+                            <p class="text-sm text-gray-600">Invoice #<span id="refund-invoice-number"></span></p>
+                        </div>
+                    </div>
+                    <button onclick="closeRefundModal()" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-8">
+                <div class="mb-6">
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-yellow-600 text-lg"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-yellow-800">Warning</h4>
+                                <p class="text-sm text-yellow-700 mt-1">
+                                    This action will refund the sale and restore inventory. This cannot be undone.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Refund Reason *</label>
+                            <textarea id="refund-reason" rows="3" placeholder="Enter the reason for this refund..." 
+                                class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-sm resize-none"></textarea>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-2">Refund Details</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Total Amount:</span>
+                                    <span class="font-semibold text-gray-900" id="refund-total-amount">RM 0.00</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Items:</span>
+                                    <span class="font-semibold text-gray-900" id="refund-item-count">0 items</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Inventory:</span>
+                                    <span class="font-semibold text-green-600">Will be restored</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button onclick="closeRefundModal()" class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium">
+                        Cancel
+                    </button>
+                    <button onclick="confirmRefund()" id="confirm-refund-btn" class="flex-1 px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-xl hover:from-red-700 hover:to-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium">
+                        <i class="fas fa-undo mr-2"></i>Confirm Refund
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
 /* Custom DataTable Styling */
 .dataTables_wrapper .dataTables_filter {
@@ -661,6 +737,130 @@ $(document).on('click', '#sale-detail-modal', function(e) {
 $(document).on('keydown', function(e) {
     if (e.key === 'Escape' && !$('#sale-detail-modal').hasClass('hidden')) {
         closeSaleModal();
+    }
+    if (e.key === 'Escape' && !$('#refund-modal').hasClass('hidden')) {
+        closeRefundModal();
+    }
+});
+
+// Refund functionality
+let currentRefundSaleId = null;
+
+function refundSale(saleId) {
+    currentRefundSaleId = saleId;
+    
+    // Get sale details for the modal
+    $.ajax({
+        url: 'ajax/get-sale-details.php',
+        type: 'GET',
+        dataType: 'json',
+        data: { id: saleId },
+        success: function(response) {
+            try {
+                // Check if response is already an object (jQuery sometimes auto-parses JSON)
+                let data;
+                if (typeof response === 'string') {
+                    data = JSON.parse(response);
+                } else {
+                    data = response;
+                }
+                
+                if (data.error) {
+                    showAlert(data.error, 'error');
+                    return;
+                }
+                
+                // Populate refund modal with sale details
+                $('#refund-invoice-number').text(data.sale.invoice_number);
+                $('#refund-total-amount').text('RM ' + parseFloat(data.sale.total_amount).toFixed(2));
+                $('#refund-item-count').text((data.sale.item_count || 0) + ' items');
+                
+                // Clear previous reason
+                $('#refund-reason').val('');
+                
+                // Show modal
+                $('#refund-modal').removeClass('hidden');
+                $('body').addClass('overflow-hidden');
+                
+            } catch (e) {
+                showAlert('Error loading sale details for refund: ' + e.message, 'error');
+            }
+        },
+        error: function(xhr, status, error) {
+            showAlert('Error loading sale details for refund: ' + error, 'error');
+        }
+    });
+}
+
+function closeRefundModal() {
+    $('#refund-modal').addClass('hidden');
+    $('body').removeClass('overflow-hidden');
+    currentRefundSaleId = null;
+    $('#refund-reason').val('');
+}
+
+function confirmRefund() {
+    const reason = $('#refund-reason').val().trim();
+    
+    if (!reason) {
+        showAlert('Please enter a refund reason', 'error');
+        $('#refund-reason').focus();
+        return;
+    }
+    
+    if (!currentRefundSaleId) {
+        showAlert('Invalid sale ID', 'error');
+        return;
+    }
+    
+    // Disable button to prevent double submission
+    const btn = $('#confirm-refund-btn');
+    const originalText = btn.html();
+    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Processing...');
+    
+    $.ajax({
+        url: 'ajax/refund-sale.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            sale_id: currentRefundSaleId,
+            refund_reason: reason
+        },
+        success: function(response) {
+            try {
+                // Check if response is already an object (jQuery sometimes auto-parses JSON)
+                let data;
+                if (typeof response === 'string') {
+                    data = JSON.parse(response);
+                } else {
+                    data = response;
+                }
+                
+                if (data.success) {
+                    showAlert('Sale refunded successfully', 'success');
+                    closeRefundModal();
+                    loadSales(); // Refresh the sales list
+                } else {
+                    showAlert(data.message || 'Failed to refund sale', 'error');
+                }
+            } catch (e) {
+                showAlert('Error processing refund', 'error');
+            }
+        },
+        error: function() {
+            showAlert('Error processing refund', 'error');
+        },
+        complete: function() {
+            // Re-enable button
+            btn.prop('disabled', false).html(originalText);
+        }
+    });
+}
+
+// Close refund modal when clicking outside
+$(document).on('click', '#refund-modal', function(e) {
+    if (e.target === this) {
+        closeRefundModal();
     }
 });
 </script>

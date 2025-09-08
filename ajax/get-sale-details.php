@@ -1,11 +1,24 @@
 <?php
+// Prevent any output before JSON response
+ob_start();
+error_reporting(0);
+ini_set('display_errors', 0);
+
 include '../include/conn.php';
 include '../include/session.php';
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Unauthorized access']);
+    exit;
+}
 
 $sale_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 if ($sale_id <= 0) {
     header('Content-Type: application/json');
+    ob_end_clean();
     echo json_encode(['error' => 'Invalid sale ID']);
     exit;
 }
@@ -15,19 +28,27 @@ $sale_query = "SELECT s.*,
                       m.name as member_name,
                       m.email as member_email,
                       m.phone as member_phone,
-                      u.name as user_name
+                      u.full_name as user_name
                FROM sales s
                LEFT JOIN members m ON s.member_id = m.id
                LEFT JOIN users u ON s.user_id = u.id
                WHERE s.id = ?";
 
 $stmt = mysqli_prepare($conn, $sale_query);
+if (!$stmt) {
+    header('Content-Type: application/json');
+    ob_end_clean();
+    echo json_encode(['error' => 'Database error: ' . mysqli_error($conn)]);
+    exit;
+}
+
 mysqli_stmt_bind_param($stmt, 'i', $sale_id);
 mysqli_stmt_execute($stmt);
 $sale_result = mysqli_stmt_get_result($stmt);
 
 if (mysqli_num_rows($sale_result) === 0) {
     header('Content-Type: application/json');
+    ob_end_clean();
     echo json_encode(['error' => 'Sale not found']);
     exit;
 }
@@ -45,6 +66,13 @@ $items_query = "SELECT si.*,
                 WHERE si.sale_id = ?";
 
 $stmt = mysqli_prepare($conn, $items_query);
+if (!$stmt) {
+    header('Content-Type: application/json');
+    ob_end_clean();
+    echo json_encode(['error' => 'Database error: ' . mysqli_error($conn)]);
+    exit;
+}
+
 mysqli_stmt_bind_param($stmt, 'i', $sale_id);
 mysqli_stmt_execute($stmt);
 $items_result = mysqli_stmt_get_result($stmt);
@@ -177,6 +205,9 @@ $html .= '<div class="flex justify-between border-t border-gray-200 pt-3">
         </div>
       </div>';
 
+// Add item count to sale data
+$sale['item_count'] = count($items);
+
 // Return JSON response
 $response = [
     'sale' => $sale,
@@ -184,7 +215,19 @@ $response = [
 ];
 
 header('Content-Type: application/json');
-echo json_encode($response);
+header('Cache-Control: no-cache, must-revalidate');
+header('Expires: Mon, 26 Jul 1997 05:00:00');
+
+// Ensure clean output
+ob_end_clean();
+
+// Check for any errors
+if (json_last_error() !== JSON_ERROR_NONE) {
+    echo json_encode(['error' => 'JSON encoding error: ' . json_last_error_msg()]);
+} else {
+    echo json_encode($response);
+}
+exit;
 
 // Helper functions
 function getStatusClass($status) {

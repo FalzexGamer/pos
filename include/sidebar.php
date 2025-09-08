@@ -40,6 +40,9 @@
                     <a href="sales-report.php" class="block px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
                         <i class="fas fa-chart-bar mr-2"></i>Sales Report
                     </a>
+                    <a href="opening-closing.php" class="block px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-door-open mr-2"></i>Opening & Closing
+                    </a>
                 </div>
             </div>
 
