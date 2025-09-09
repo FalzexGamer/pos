@@ -145,10 +145,10 @@ while ($sale = mysqli_fetch_assoc($result)) {
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex items-center space-x-2">
-                    <button onclick="viewSaleDetails(' . $sale['id'] . ')" class="text-blue-600 hover:text-blue-900 p-2 rounded-lg hover:bg-blue-50 transition-colors">
+                    <button onclick="viewSaleDetails(\'' . $sale['invoice_number'] . '\')" class="text-blue-600 hover:text-blue-900 p-2 rounded-lg hover:bg-blue-50 transition-colors">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button onclick="printReceipt(' . $sale['id'] . ')" class="text-green-600 hover:text-green-900 p-2 rounded-lg hover:bg-green-50 transition-colors">
+                    <button onclick="printReceipt(\'' . $sale['invoice_number'] . '\')" class="text-green-600 hover:text-green-900 p-2 rounded-lg hover:bg-green-50 transition-colors">
                         <i class="fas fa-print"></i>
                     </button>
                 </div>

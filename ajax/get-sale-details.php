@@ -1,11 +1,26 @@
 <?php
 // Prevent any output before JSON response
 ob_start();
+// Disable error reporting to prevent output issues
 error_reporting(0);
 ini_set('display_errors', 0);
 
 include '../include/conn.php';
 include '../include/session.php';
+
+// Helper functions
+function getStatusClass($status) {
+    switch ($status) {
+        case 'paid':
+            return 'bg-green-100 text-green-800';
+        case 'pending':
+            return 'bg-yellow-100 text-yellow-800';
+        case 'refunded':
+            return 'bg-red-100 text-red-800';
+        default:
+            return 'bg-gray-100 text-gray-800';
+    }
+}
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -14,12 +29,15 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$sale_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+$invoice_number = isset($_GET['invoice']) ? mysqli_real_escape_string($conn, $_GET['invoice']) : '';
 
-if ($sale_id <= 0) {
+// Debug: Log the received invoice number (commented out to prevent output issues)
+// error_log("Received invoice number: " . $invoice_number);
+
+if (empty($invoice_number)) {
     header('Content-Type: application/json');
     ob_end_clean();
-    echo json_encode(['error' => 'Invalid sale ID']);
+    echo json_encode(['error' => 'Invoice number required']);
     exit;
 }
 
@@ -32,7 +50,7 @@ $sale_query = "SELECT s.*,
                FROM sales s
                LEFT JOIN members m ON s.member_id = m.id
                LEFT JOIN users u ON s.user_id = u.id
-               WHERE s.id = ?";
+               WHERE s.invoice_number = ?";
 
 $stmt = mysqli_prepare($conn, $sale_query);
 if (!$stmt) {
@@ -42,18 +60,22 @@ if (!$stmt) {
     exit;
 }
 
-mysqli_stmt_bind_param($stmt, 'i', $sale_id);
+mysqli_stmt_bind_param($stmt, 's', $invoice_number);
 mysqli_stmt_execute($stmt);
 $sale_result = mysqli_stmt_get_result($stmt);
+
+// Debug: Log query results (commented out to prevent output issues)
+// error_log("Query executed. Rows found: " . mysqli_num_rows($sale_result));
 
 if (mysqli_num_rows($sale_result) === 0) {
     header('Content-Type: application/json');
     ob_end_clean();
-    echo json_encode(['error' => 'Sale not found']);
+    echo json_encode(['error' => 'Sale not found for invoice: ' . $invoice_number . '. Please check if the invoice number exists in the database.']);
     exit;
 }
 
 $sale = mysqli_fetch_assoc($sale_result);
+$sale_id = $sale['id']; // Get the sale ID from the found sale record
 
 // Get sale items
 $items_query = "SELECT si.*, 
@@ -228,20 +250,6 @@ if (json_last_error() !== JSON_ERROR_NONE) {
     echo json_encode($response);
 }
 exit;
-
-// Helper functions
-function getStatusClass($status) {
-    switch ($status) {
-        case 'paid':
-            return 'bg-green-100 text-green-800';
-        case 'pending':
-            return 'bg-yellow-100 text-yellow-800';
-        case 'refunded':
-            return 'bg-red-100 text-red-800';
-        default:
-            return 'bg-gray-100 text-gray-800';
-    }
-}
 ?>
 
 

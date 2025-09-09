@@ -600,30 +600,29 @@ function updateMobileView() {
 }
 
 // View sale details
-function viewSaleDetails(id) {
+function viewSaleDetails(invoiceNumber) {
     $.ajax({
         url: 'ajax/get-sale-details.php',
         type: 'GET',
-        data: { id: id },
-        success: function(response) {
-            try {
-                const data = JSON.parse(response);
-                
-                if (data.error) {
-                    showAlert(data.error, 'error');
-                    return;
-                }
-                
-                $('#invoice-number').text(data.sale.invoice_number);
-                $('#sale-detail-content').html(data.html);
-                $('#sale-detail-modal').removeClass('hidden');
-                $('body').addClass('overflow-hidden');
-            } catch (e) {
-                showAlert('Error loading sale details', 'error');
+        data: { invoice: invoiceNumber },
+        dataType: 'json', // Explicitly set dataType to json
+        success: function(data) {
+            console.log('Response received:', data); // Debug log
+            
+            if (data.error) {
+                showAlert(data.error, 'error');
+                return;
             }
+            
+            $('#invoice-number').text(data.sale.invoice_number);
+            $('#sale-detail-content').html(data.html);
+            $('#sale-detail-modal').removeClass('hidden');
+            $('body').addClass('overflow-hidden');
         },
-        error: function() {
-            showAlert('Error loading sale details', 'error');
+        error: function(xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+            console.error('Response:', xhr.responseText);
+            showAlert('Error loading sale details: ' + error, 'error');
         }
     });
 }
@@ -635,8 +634,8 @@ function closeSaleModal() {
 }
 
 // Print receipt
-function printReceipt(id) {
-    window.open('print-receipt.php?id=' + id, '_blank');
+function printReceipt(invoiceNumber) {
+    window.open('print-receipt.php?invoice=' + invoiceNumber, '_blank');
 }
 
 // Export sales
