@@ -1,82 +1,102 @@
 <?php
-include '../include/conn.php';
+// Suppress any output that might interfere with our response
+ob_start();
 
 // Start session if not already started
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// Include database connection with error handling
+$conn = mysqli_connect('powershareserver.com', 'powersha_pos', 'Condition5594.', 'powersha_pos');
+
+if (!$conn || $conn->connect_error) {
+    ob_clean();
+    echo "ERROR: Database connection failed";
+    exit;
+}
+
+// Clear any output buffer content
+ob_clean();
+
 $product_id = $_POST['product_id'] ?? 0;
 $user_id = $_SESSION['user_id'] ?? 0;
 
 if (!$product_id || !$user_id) {
-    echo json_encode(['success' => false, 'message' => 'Invalid product ID or user not authenticated']);
+    echo "ERROR: Invalid product ID or user not authenticated";
     exit;
 }
 
-// Get product details with prepared statement
-$stmt = mysqli_prepare($conn, "SELECT * FROM products WHERE id = ? AND is_active = 1");
-mysqli_stmt_bind_param($stmt, "i", $product_id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
+// Get product details (using regular query for compatibility)
+$product_id = intval($product_id); // Sanitize input
+$query = "SELECT * FROM products WHERE id = $product_id AND is_active = 1";
+$result = mysqli_query($conn, $query);
 $product = mysqli_fetch_array($result);
 
 if (!$product) {
-    echo json_encode(['success' => false, 'message' => 'Product not found']);
+    echo "ERROR: Product not found";
     exit;
 }
 
 // Check stock availability
 if ($product['stock_quantity'] <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Product "' . $product['name'] . '" is out of stock']);
+    echo "ERROR: Product \"" . $product['name'] . "\" is out of stock";
     exit;
 }
 
-// Check if product already in cart with prepared statement
-$stmt_existing = mysqli_prepare($conn, "
+// Check if product already in cart (using regular query for compatibility)
+$user_id = intval($user_id); // Sanitize input
+$query_existing = "
     SELECT id, quantity, price, subtotal 
     FROM cart 
-    WHERE user_id = ? AND product_id = ? AND status = 'active'
-");
-mysqli_stmt_bind_param($stmt_existing, "ii", $user_id, $product_id);
-mysqli_stmt_execute($stmt_existing);
-$result_existing = mysqli_stmt_get_result($stmt_existing);
+    WHERE user_id = $user_id AND product_id = $product_id AND status = 'active'
+";
+$result_existing = mysqli_query($conn, $query_existing);
 $existing_item = mysqli_fetch_array($result_existing);
 
 if ($existing_item) {
     // Update existing item quantity
     $new_quantity = $existing_item['quantity'] + 1;
     $new_subtotal = $new_quantity * $existing_item['price'];
+    $cart_id = intval($existing_item['id']);
     
-    $stmt_update = mysqli_prepare($conn, "
+    $update_query = "
         UPDATE cart 
-        SET quantity = ?, subtotal = ?, updated_at = CURRENT_TIMESTAMP 
-        WHERE id = ?
-    ");
-    mysqli_stmt_bind_param($stmt_update, "ddi", $new_quantity, $new_subtotal, $existing_item['id']);
-    $update_result = mysqli_stmt_execute($stmt_update);
+        SET quantity = $new_quantity, subtotal = $new_subtotal, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = $cart_id
+    ";
+    $update_result = mysqli_query($conn, $update_query);
     
     if ($update_result) {
-        echo json_encode(['success' => true, 'message' => 'Product quantity updated in cart']);
+        echo "SUCCESS: Product quantity updated in cart";
     } else {
-        echo json_encode(['success' => false, 'message' => 'Failed to update cart: ' . mysqli_error($conn)]);
+        echo "ERROR: Failed to update cart: " . mysqli_error($conn);
     }
 } else {
     // Add new item to cart
-    $price = $product['selling_price'];
+    $price = floatval($product['selling_price']);
     $subtotal = $price;
+    $sku = mysqli_real_escape_string($conn, $product['sku']);
     
-    $stmt_insert = mysqli_prepare($conn, "
+    $insert_query = "
         INSERT INTO cart (user_id, product_id, sku, quantity, price, subtotal) 
-        VALUES (?, ?, ?, 1, ?, ?) 
-    ");
-    mysqli_stmt_bind_param($stmt_insert, "iisdd", $user_id, $product_id, $product['sku'], $price, $subtotal);
-    $insert_result = mysqli_stmt_execute($stmt_insert);
+        VALUES ($user_id, $product_id, '$sku', 1, $price, $subtotal) 
+    ";
+    $insert_result = mysqli_query($conn, $insert_query);
     
     if ($insert_result) {
-        echo json_encode(['success' => true, 'message' => 'Product added to cart']);
+        echo "SUCCESS: Product added to cart";
     } else {
-        echo json_encode(['success' => false, 'message' => 'Failed to add product to cart: ' . mysqli_error($conn)]);
+        echo "ERROR: Failed to add product to cart: " . mysqli_error($conn);
     }
 }
+
+// Ensure we always have a proper response
+if (!headers_sent()) {
+    header('Content-Type: text/plain');
+    header('Cache-Control: no-cache, no-store, must-revalidate');
+}
+
+// End output buffering and send response
+ob_end_flush();
 ?>

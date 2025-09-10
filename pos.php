@@ -1006,12 +1006,22 @@ function addProductToCart(productId) {
         type: 'POST',
         data: { product_id: productId },
         success: function(response) {
-            const data = JSON.parse(response);
-            if (data.success) {
+            // Trim any whitespace and check response
+            response = response.trim();
+            
+            if (response.startsWith('SUCCESS:')) {
                 updateCart();
+            } else if (response.startsWith('ERROR:')) {
+                const errorMessage = response.replace('ERROR: ', '');
+                showAlert(errorMessage, 'error');
             } else {
-                showAlert(data.message, 'error');
+                // Log the actual response for debugging
+                console.log('Unexpected response:', response);
+                showAlert('Unknown response from server: ' + response.substring(0, 50), 'error');
             }
+        },
+        error: function() {
+            showAlert('Error adding product to cart', 'error');
         }
     });
 }
@@ -1023,8 +1033,10 @@ function addProductToCartFromSidebar(productId) {
         type: 'POST',
         data: { product_id: productId },
         success: function(response) {
-            const data = JSON.parse(response);
-            if (data.success) {
+            // Trim any whitespace and check response
+            response = response.trim();
+            
+            if (response.startsWith('SUCCESS:')) {
                 updateCart();
                 playBeepSound();
                 
@@ -1032,9 +1044,17 @@ function addProductToCartFromSidebar(productId) {
                 if (window.innerWidth < 1024) {
                     closeMobileSidebar();
                 }
+            } else if (response.startsWith('ERROR:')) {
+                const errorMessage = response.replace('ERROR: ', '');
+                showAlert(errorMessage, 'error');
             } else {
-                showAlert(data.message, 'error');
+                // Log the actual response for debugging
+                console.log('Unexpected response:', response);
+                showAlert('Unknown response from server: ' + response.substring(0, 50), 'error');
             }
+        },
+        error: function() {
+            showAlert('Error adding product to cart', 'error');
         }
     });
 }
