@@ -105,7 +105,7 @@ $avg_sale = mysqli_fetch_array($query_avg_sale);
         </div>
 
         <!-- Filters with Glassmorphism -->
-        <div class="backdrop-blur-sm bg-white/70 rounded-xl lg:rounded-2xl shadow-xl border border-white/20 p-4 lg:p-6 mb-6 lg:mb-8">
+        <div class="filters-container backdrop-blur-sm bg-white/70 rounded-xl lg:rounded-2xl shadow-xl border border-white/20 p-4 lg:p-6 mb-6 lg:mb-8">
             <div class="flex items-center space-x-3 mb-4 lg:mb-6">
                 <div class="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
                     <i class="fas fa-filter text-white"></i>
@@ -113,8 +113,8 @@ $avg_sale = mysqli_fetch_array($query_avg_sale);
                 <h3 class="text-base lg:text-lg font-semibold text-gray-900">Filters & Search</h3>
             </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
-                <div class="space-y-2">
+            <div class="filter-row grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
+                <div class="filter-group space-y-2">
                     <label class="block text-xs lg:text-sm font-semibold text-gray-700">Search Sales</label>
                     <div class="relative group">
                         <i class="fas fa-search absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200"></i>
@@ -123,19 +123,19 @@ $avg_sale = mysqli_fetch_array($query_avg_sale);
                     </div>
                 </div>
                 
-                <div class="space-y-2">
+                <div class="filter-group space-y-2">
                     <label class="block text-xs lg:text-sm font-semibold text-gray-700">Date Range</label>
                     <input type="date" id="start-date" value="<?php echo $current_month . '-01'; ?>"
                            class="w-full px-3 lg:px-4 py-2.5 lg:py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg lg:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm lg:text-base">
                 </div>
                 
-                <div class="space-y-2">
+                <div class="filter-group space-y-2">
                     <label class="block text-xs lg:text-sm font-semibold text-gray-700">To Date</label>
                     <input type="date" id="end-date" value="<?php echo $today; ?>"
                            class="w-full px-3 lg:px-4 py-2.5 lg:py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg lg:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm lg:text-base">
                 </div>
                 
-                <div class="space-y-2">
+                <div class="filter-group space-y-2">
                     <label class="block text-xs lg:text-sm font-semibold text-gray-700">Payment Status</label>
                     <select id="status-filter" class="w-full px-3 lg:px-4 py-2.5 lg:py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg lg:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm lg:text-base">
                         <option value="">All Status</option>
@@ -147,7 +147,7 @@ $avg_sale = mysqli_fetch_array($query_avg_sale);
             </div>
             
             <!-- Quick Filter Buttons -->
-            <div class="flex flex-wrap items-center space-x-2 mt-4 lg:mt-6">
+            <div class="filter-buttons flex flex-wrap items-center space-x-2 mt-4 lg:mt-6">
                 <button onclick="setDateRange('today')" class="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
                     Today
                 </button>
@@ -174,7 +174,7 @@ $avg_sale = mysqli_fetch_array($query_avg_sale);
                         <div class="p-1.5 lg:p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg">
                             <i class="fas fa-list text-white text-sm lg:text-base"></i>
                         </div>
-                        <h3 class="text-lg lg:text-xl font-semibold text-gray-900">Sales Transactions</h3>
+                        <h3 class="page-title text-lg lg:text-xl font-semibold text-gray-900">Sales Transactions</h3>
                     </div>
                     <div class="flex items-center space-x-1 lg:space-x-2 text-xs lg:text-sm text-gray-600">
                         <i class="fas fa-info-circle"></i>
@@ -193,7 +193,7 @@ $avg_sale = mysqli_fetch_array($query_avg_sale);
             
             <!-- Mobile Cards View -->
             <div class="block lg:hidden">
-                <div id="sales-mobile" class="divide-y divide-gray-200/50">
+                <div id="sales-mobile" class="space-y-4 p-4">
                     <!-- Mobile cards will be loaded here -->
                 </div>
             </div>
@@ -457,6 +457,70 @@ $avg_sale = mysqli_fetch_array($query_avg_sale);
         margin-bottom: 1rem;
     }
     
+    /* Mobile header improvements */
+    .page-header {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Mobile filter improvements */
+    .filters-container {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .filter-row {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-group input,
+    .filter-group select {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    /* Mobile button improvements */
+    .filter-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .filter-buttons button {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 16px;
+    }
+    
+    /* Mobile stats improvements */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.875rem;
+    }
+    
     .dataTables_wrapper .dataTables_paginate {
         margin-top: 1rem;
     }
@@ -468,13 +532,90 @@ $avg_sale = mysqli_fetch_array($query_avg_sale);
     }
     
     /* Mobile card improvements */
-    #sales-mobile .p-4 {
-        padding: 1rem;
+    #sales-mobile {
+        padding: 0.5rem;
+    }
+    
+    #sales-mobile .bg-white {
+        margin-bottom: 1rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     }
     
     /* Mobile button improvements */
     #sales-mobile button {
         min-height: 44px; /* Better touch targets */
+        font-size: 14px;
+        padding: 12px 16px;
+    }
+    
+    /* Mobile grid improvements */
+    #sales-mobile .grid-cols-2 {
+        gap: 0.75rem;
+    }
+    
+    #sales-mobile .bg-gray-50 {
+        padding: 0.75rem;
+    }
+    
+    /* Mobile text improvements */
+    #sales-mobile h3 {
+        font-size: 1.125rem;
+        line-height: 1.4;
+    }
+    
+    #sales-mobile p {
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+    
+    /* Mobile spacing improvements */
+    #sales-mobile .mb-3 {
+        margin-bottom: 0.75rem;
+    }
+    
+    #sales-mobile .mb-4 {
+        margin-bottom: 1rem;
+    }
+    
+    /* Mobile flex improvements */
+    #sales-mobile .flex {
+        gap: 0.5rem;
+    }
+    
+    #sales-mobile .space-x-2 > * + * {
+        margin-left: 0.5rem;
+    }
+    
+    /* Mobile pagination styling */
+    .mobile-pagination {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .mobile-pagination button {
+        min-height: 44px;
+        font-size: 14px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    .mobile-pagination button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .mobile-pagination .bg-blue-600 {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    }
+    
+    .mobile-pagination .bg-gray-200 {
+        background: #f3f4f6;
+        color: #374151;
+    }
+    
+    .mobile-pagination .bg-gray-200:hover {
+        background: #e5e7eb;
     }
     
     /* Mobile modal improvements */
@@ -556,6 +697,8 @@ function loadSales() {
         },
         success: function(response) {
             $('#loading-state').addClass('hidden');
+            
+            // Update table
             $('#sales-tbody').html(response);
             
             // Update sales count
@@ -567,8 +710,8 @@ function loadSales() {
                 $('#empty-state').removeClass('hidden');
             }
             
-            // Update mobile view
-            updateMobileView();
+            // Load mobile view separately
+            loadMobileSales();
         },
         error: function() {
             $('#loading-state').addClass('hidden');
@@ -577,26 +720,30 @@ function loadSales() {
     });
 }
 
-// Update mobile view
-function updateMobileView() {
-    const mobileContainer = $('#sales-mobile');
-    mobileContainer.empty();
-    
-    // Check if we have mobile cards
-    const mobileCards = $('.mobile-card');
-    const emptyState = $('#mobile-empty-state');
-    
-    if (mobileCards.length > 0) {
-        mobileCards.each(function() {
-            const cardContent = $(this).html();
-            mobileContainer.append(cardContent);
-        });
-    } else if (emptyState.length > 0) {
-        const emptyContent = emptyState.html();
-        mobileContainer.html(emptyContent);
-    } else {
-        mobileContainer.html('<div class="p-8 text-center text-gray-500">No sales found</div>');
-    }
+// Load mobile sales
+function loadMobileSales(page = 1) {
+    $.ajax({
+        url: 'ajax/get-sales-mobile.php',
+        type: 'GET',
+        data: {
+            search: $('#search-input').val(),
+            start_date: $('#start-date').val(),
+            end_date: $('#end-date').val(),
+            status: $('#status-filter').val(),
+            page: page
+        },
+        success: function(response) {
+            $('#sales-mobile').html(response);
+        },
+        error: function() {
+            $('#sales-mobile').html('<div class="p-8 text-center text-gray-500">Error loading mobile view</div>');
+        }
+    });
+}
+
+// Load specific mobile page
+function loadMobilePage(page) {
+    loadMobileSales(page);
 }
 
 // View sale details

@@ -55,13 +55,52 @@ if (!empty($status)) {
 
 $query .= " GROUP BY s.id ORDER BY s.created_at DESC";
 
-// Prepare and execute the query
-$stmt = mysqli_prepare($conn, $query);
+// Prepare and execute the query with compatibility fix
 if (!empty($params)) {
+    // Use prepared statements for security
+    $stmt = mysqli_prepare($conn, $query);
     mysqli_stmt_bind_param($stmt, $types, ...$params);
+    mysqli_stmt_execute($stmt);
+    
+    // Get result using compatible method
+    $result = mysqli_stmt_result_metadata($stmt);
+    if ($result) {
+        $fields = mysqli_fetch_fields($result);
+        $field_names = array();
+        foreach ($fields as $field) {
+            $field_names[] = $field->name;
+        }
+        mysqli_free_result($result);
+        
+        // Bind result variables
+        $bind_vars = array();
+        $bind_vars[] = $stmt;
+        foreach ($field_names as $field) {
+            $bind_vars[] = &$$field;
+        }
+        call_user_func_array('mysqli_stmt_bind_result', $bind_vars);
+        
+        // Store results in array
+        $sales_data = array();
+        while (mysqli_stmt_fetch($stmt)) {
+            $row = array();
+            foreach ($field_names as $field) {
+                $row[$field] = $$field;
+            }
+            $sales_data[] = $row;
+        }
+        mysqli_stmt_close($stmt);
+    } else {
+        $sales_data = array();
+    }
+} else {
+    // No parameters, use direct query
+    $result = mysqli_query($conn, $query);
+    $sales_data = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+        $sales_data[] = $row;
+    }
 }
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
 
 // Get company info
 $query_company = mysqli_query($conn, "SELECT * FROM company_settings LIMIT 1");
@@ -268,7 +307,7 @@ $company = mysqli_fetch_array($query_company);
             $total_revenue = 0;
             $total_items = 0;
             
-            while ($sale = mysqli_fetch_assoc($result)): 
+            foreach ($sales_data as $sale): 
                 $total_sales++;
                 $total_revenue += $sale['total_amount'];
                 $total_items += $sale['item_count'];
@@ -288,7 +327,7 @@ $company = mysqli_fetch_array($query_company);
                     <td><?php echo date('M j, Y g:i A', strtotime($sale['created_at'])); ?></td>
                     <td><?php echo htmlspecialchars($sale['cashier_name'] ?: 'Unknown'); ?></td>
                 </tr>
-            <?php endwhile; ?>
+            <?php endforeach; ?>
         </tbody>
     </table>
     

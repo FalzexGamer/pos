@@ -30,27 +30,44 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $invoice_number = isset($_GET['invoice']) ? mysqli_real_escape_string($conn, $_GET['invoice']) : '';
+$sale_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-// Debug: Log the received invoice number (commented out to prevent output issues)
-// error_log("Received invoice number: " . $invoice_number);
+// Debug: Log the received parameters (commented out to prevent output issues)
+// error_log("Received invoice number: " . $invoice_number . ", sale ID: " . $sale_id);
 
-if (empty($invoice_number)) {
+if (empty($invoice_number) && $sale_id <= 0) {
     header('Content-Type: application/json');
     ob_end_clean();
-    echo json_encode(['error' => 'Invoice number required']);
+    echo json_encode(['error' => 'Invoice number or sale ID required']);
     exit;
 }
 
 // Get sale details
-$sale_query = "SELECT s.*, 
-                      m.name as member_name,
-                      m.email as member_email,
-                      m.phone as member_phone,
-                      u.full_name as user_name
-               FROM sales s
-               LEFT JOIN members m ON s.member_id = m.id
-               LEFT JOIN users u ON s.user_id = u.id
-               WHERE s.invoice_number = ?";
+if (!empty($invoice_number)) {
+    $sale_query = "SELECT s.*, 
+                          m.name as member_name,
+                          m.email as member_email,
+                          m.phone as member_phone,
+                          u.full_name as user_name
+                   FROM sales s
+                   LEFT JOIN members m ON s.member_id = m.id
+                   LEFT JOIN users u ON s.user_id = u.id
+                   WHERE s.invoice_number = ?";
+    $param_type = 's';
+    $param_value = $invoice_number;
+} else {
+    $sale_query = "SELECT s.*, 
+                          m.name as member_name,
+                          m.email as member_email,
+                          m.phone as member_phone,
+                          u.full_name as user_name
+                   FROM sales s
+                   LEFT JOIN members m ON s.member_id = m.id
+                   LEFT JOIN users u ON s.user_id = u.id
+                   WHERE s.id = ?";
+    $param_type = 'i';
+    $param_value = $sale_id;
+}
 
 $stmt = mysqli_prepare($conn, $sale_query);
 if (!$stmt) {
@@ -60,21 +77,53 @@ if (!$stmt) {
     exit;
 }
 
-mysqli_stmt_bind_param($stmt, 's', $invoice_number);
+mysqli_stmt_bind_param($stmt, $param_type, $param_value);
 mysqli_stmt_execute($stmt);
-$sale_result = mysqli_stmt_get_result($stmt);
 
-// Debug: Log query results (commented out to prevent output issues)
-// error_log("Query executed. Rows found: " . mysqli_num_rows($sale_result));
-
-if (mysqli_num_rows($sale_result) === 0) {
-    header('Content-Type: application/json');
-    ob_end_clean();
-    echo json_encode(['error' => 'Sale not found for invoice: ' . $invoice_number . '. Please check if the invoice number exists in the database.']);
-    exit;
+// Get result using compatible method
+$result = mysqli_stmt_result_metadata($stmt);
+if ($result) {
+    $fields = mysqli_fetch_fields($result);
+    $field_names = array();
+    foreach ($fields as $field) {
+        $field_names[] = $field->name;
+    }
+    mysqli_free_result($result);
+    
+    // Bind result variables
+    $bind_vars = array();
+    $bind_vars[] = $stmt;
+    foreach ($field_names as $field) {
+        $bind_vars[] = &$$field;
+    }
+    call_user_func_array('mysqli_stmt_bind_result', $bind_vars);
+    
+    // Fetch the sale data
+    if (mysqli_stmt_fetch($stmt)) {
+        $sale = array();
+        foreach ($field_names as $field) {
+            $sale[$field] = $$field;
+        }
+    } else {
+        $sale = null;
+    }
+    mysqli_stmt_close($stmt);
+} else {
+    $sale = null;
 }
 
-$sale = mysqli_fetch_assoc($sale_result);
+// Debug: Log query results (commented out to prevent output issues)
+// error_log("Query executed. Sale found: " . ($sale ? 'Yes' : 'No'));
+
+if (!$sale) {
+    header('Content-Type: application/json');
+    ob_end_clean();
+    $error_msg = !empty($invoice_number) ? 
+        'Sale not found for invoice: ' . $invoice_number . '. Please check if the invoice number exists in the database.' :
+        'Sale not found for ID: ' . $sale_id . '. Please check if the sale ID exists in the database.';
+    echo json_encode(['error' => $error_msg]);
+    exit;
+}
 $sale_id = $sale['id']; // Get the sale ID from the found sale record
 
 // Get sale items
@@ -97,11 +146,37 @@ if (!$stmt) {
 
 mysqli_stmt_bind_param($stmt, 'i', $sale_id);
 mysqli_stmt_execute($stmt);
-$items_result = mysqli_stmt_get_result($stmt);
 
-$items = [];
-while ($row = mysqli_fetch_assoc($items_result)) {
-    $items[] = $row;
+// Get result using compatible method
+$result = mysqli_stmt_result_metadata($stmt);
+if ($result) {
+    $fields = mysqli_fetch_fields($result);
+    $field_names = array();
+    foreach ($fields as $field) {
+        $field_names[] = $field->name;
+    }
+    mysqli_free_result($result);
+    
+    // Bind result variables
+    $bind_vars = array();
+    $bind_vars[] = $stmt;
+    foreach ($field_names as $field) {
+        $bind_vars[] = &$$field;
+    }
+    call_user_func_array('mysqli_stmt_bind_result', $bind_vars);
+    
+    // Store results in array
+    $items = array();
+    while (mysqli_stmt_fetch($stmt)) {
+        $row = array();
+        foreach ($field_names as $field) {
+            $row[$field] = $$field;
+        }
+        $items[] = $row;
+    }
+    mysqli_stmt_close($stmt);
+} else {
+    $items = array();
 }
 
 // Generate HTML for sale details

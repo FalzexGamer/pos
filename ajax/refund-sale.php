@@ -80,7 +80,7 @@ try {
         // Record stock movement
         $insert_movement = mysqli_query($conn, "
             INSERT INTO stock_movements (product_id, movement_type, quantity, reference_type, reference_id, notes, created_by) 
-            VALUES ($product_id, 'in', $quantity, 'refund', $sale_id, 'Refund for sale #{$sale['invoice_number']}', $user_id)
+            VALUES ($product_id, 'in', $quantity, 'adjustment', $sale_id, 'Refund for sale #{$sale['invoice_number']}', $user_id)
         ");
         
         if (!$insert_movement) {
@@ -101,11 +101,12 @@ try {
         }
     }
     
-    // Update sales session total
+    // Update sales session totals
     if ($sale['session_id']) {
         $update_session = mysqli_query($conn, "
             UPDATE sales_sessions 
-            SET total_sales = total_sales - {$sale['total_amount']} 
+            SET total_sales = total_sales - {$sale['total_amount']},
+                total_refunds = total_refunds + {$sale['total_amount']}
             WHERE id = {$sale['session_id']}
         ");
         

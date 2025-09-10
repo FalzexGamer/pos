@@ -55,17 +55,9 @@ if (!empty($status)) {
 
 $query .= " GROUP BY s.id ORDER BY s.created_at DESC";
 
-// Prepare and execute the query
-$stmt = mysqli_prepare($conn, $query);
-if (!empty($params)) {
-    mysqli_stmt_bind_param($stmt, $types, ...$params);
-}
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-
-// Set headers for CSV download
-$filename = 'sales_export_' . date('Y-m-d_H-i-s') . '.csv';
-header('Content-Type: text/csv');
+// Set headers for Excel download
+$filename = 'sales_export_' . date('Y-m-d_H-i-s') . '.xls';
+header('Content-Type: application/vnd.ms-excel');
 header('Content-Disposition: attachment; filename="' . $filename . '"');
 header('Pragma: no-cache');
 header('Expires: 0');
@@ -76,7 +68,7 @@ $output = fopen('php://output', 'w');
 // Add UTF-8 BOM for proper encoding
 fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
 
-// CSV headers
+// Excel headers with tab separation
 $headers = [
     'Invoice Number',
     'Customer Name',
@@ -94,10 +86,58 @@ $headers = [
     'Notes'
 ];
 
-fputcsv($output, $headers);
+// Write headers with tab separation for Excel
+fwrite($output, implode("\t", $headers) . "\n");
+
+// Prepare and execute the query with compatibility fix
+if (!empty($params)) {
+    // Use prepared statements for security
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
+    mysqli_stmt_execute($stmt);
+    
+    // Get result using compatible method
+    $result = mysqli_stmt_result_metadata($stmt);
+    if ($result) {
+        $fields = mysqli_fetch_fields($result);
+        $field_names = array();
+        foreach ($fields as $field) {
+            $field_names[] = $field->name;
+        }
+        mysqli_free_result($result);
+        
+        // Bind result variables
+        $bind_vars = array();
+        $bind_vars[] = $stmt;
+        foreach ($field_names as $field) {
+            $bind_vars[] = &$$field;
+        }
+        call_user_func_array('mysqli_stmt_bind_result', $bind_vars);
+        
+        // Store results in array
+        $sales_data = array();
+        while (mysqli_stmt_fetch($stmt)) {
+            $row = array();
+            foreach ($field_names as $field) {
+                $row[$field] = $$field;
+            }
+            $sales_data[] = $row;
+        }
+        mysqli_stmt_close($stmt);
+    } else {
+        $sales_data = array();
+    }
+} else {
+    // No parameters, use direct query
+    $result = mysqli_query($conn, $query);
+    $sales_data = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+        $sales_data[] = $row;
+    }
+}
 
 // Add data rows
-while ($sale = mysqli_fetch_assoc($result)) {
+foreach ($sales_data as $sale) {
     $row = [
         $sale['invoice_number'],
         $sale['member_name'] ?: 'Walk-in Customer',
@@ -115,7 +155,8 @@ while ($sale = mysqli_fetch_assoc($result)) {
         $sale['notes'] ?: ''
     ];
     
-    fputcsv($output, $row);
+    // Write row with tab separation for Excel
+    fwrite($output, implode("\t", $row) . "\n");
 }
 
 fclose($output);
