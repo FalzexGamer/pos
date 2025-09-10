@@ -646,6 +646,9 @@ $(document).ready(function() {
         pageLength: 25,
         order: [[6, 'desc']], // Sort by date descending
         responsive: true,
+        searching: false, // Disable search functionality
+        paging: false, // Disable pagination
+        info: false, // Disable info display
         language: {
             search: "",
             searchPlaceholder: "Search sales...",
@@ -658,25 +661,10 @@ $(document).ready(function() {
                 last: '<i class="fas fa-angle-double-right"></i>'
             }
         },
-        dom: '<"flex flex-col sm:flex-row justify-between items-center mb-6"lf>rt<"flex flex-col sm:flex-row justify-between items-center mt-6"ip>',
+        dom: 'rt', // Only show table and processing elements
         initComplete: function() {
-            // Add custom styling to DataTable elements
-            $('.dataTables_filter input').addClass('px-4 py-3 pl-12 pr-4 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400');
-            $('.dataTables_length select').addClass('px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200');
-            
-            // Ensure proper positioning for search icon
-            $('.dataTables_filter').addClass('relative');
-            
-            // Style pagination buttons
-            $('.dataTables_paginate .paginate_button').addClass('px-3 py-2 mx-1 rounded-lg border border-gray-200 bg-white/80 backdrop-blur-sm hover:bg-blue-50 hover:border-blue-200 transition-all duration-200');
-            $('.dataTables_paginate .paginate_button.current').addClass('bg-blue-600 text-white border-blue-600 hover:bg-blue-700');
-            $('.dataTables_paginate .paginate_button.disabled').addClass('bg-gray-100 text-gray-400 border-gray-100 cursor-not-allowed');
-            
-            // Style info text
-            $('.dataTables_info').addClass('text-sm text-gray-600 font-medium');
-            
-            // Style length menu
-            $('.dataTables_length label').addClass('text-sm font-medium text-gray-700');
+            // DataTable initialization complete
+            // Search and pagination elements are disabled
         }
     });
 });
