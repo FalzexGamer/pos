@@ -64,16 +64,23 @@ $sql = "SELECT p.*, c.name as category_name, u.abbreviation as uom_abbr, s.name 
         $where_clause 
         ORDER BY $order_by";
 
+// Build the final SQL with proper escaping for security
 if (!empty($params)) {
-    $stmt = mysqli_prepare($conn, $sql);
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, $types, ...$params);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-    } else {
-        echo '<tr class="no-data"><td colspan="7" class="px-6 py-4 text-center text-red-500">Error loading products</td></tr>';
-        exit;
+    // For better compatibility, we'll use a different approach
+    // Build the query with proper escaping
+    $escaped_params = [];
+    foreach ($params as $param) {
+        $escaped_params[] = "'" . mysqli_real_escape_string($conn, $param) . "'";
     }
+    
+    // Replace placeholders with escaped values
+    $final_sql = $sql;
+    $param_index = 0;
+    $final_sql = preg_replace_callback('/\?/', function($matches) use ($escaped_params, &$param_index) {
+        return $escaped_params[$param_index++];
+    }, $final_sql);
+    
+    $result = mysqli_query($conn, $final_sql);
 } else {
     $result = mysqli_query($conn, $sql);
 }
@@ -87,6 +94,11 @@ $html = '';
 $mobile_html = '';
 
 while ($product = mysqli_fetch_array($result)) {
+    // Process the product (same logic as before)
+    processProduct($product, $html, $mobile_html);
+}
+
+function processProduct($product, &$html, &$mobile_html) {
     // Stock status styling
     $stock_class = '';
     $stock_bg_class = '';
@@ -220,7 +232,8 @@ while ($product = mysqli_fetch_array($result)) {
     </div>';
 }
 
-if (mysqli_num_rows($result) == 0) {
+// Check if no products were found
+if (empty($html)) {
     $html = '<tr class="no-data"><td colspan="7" class="px-6 py-4 text-center text-gray-500">No products found</td></tr>';
     $mobile_html = '<div id="mobile-empty-state" class="p-8 text-center text-gray-500">No products found</div>';
 }
@@ -229,7 +242,5 @@ if (mysqli_num_rows($result) == 0) {
 echo '<div id="mobile-data" style="display: none;">' . $mobile_html . '</div>';
 echo $html;
 
-if (isset($stmt)) {
-    mysqli_stmt_close($stmt);
-}
+// No need to close prepared statements since we're using regular queries
 ?>

@@ -21,12 +21,11 @@ if (!$product_id || empty($sku) || empty($name) || empty($category_id) || empty(
 }
 
 // Check if product exists
-$stmt_check = mysqli_prepare($conn, "SELECT id, sku, barcode, stock_quantity FROM products WHERE id = ?");
-mysqli_stmt_bind_param($stmt_check, "i", $product_id);
-mysqli_stmt_execute($stmt_check);
-$result_check = mysqli_stmt_get_result($stmt_check);
+$escaped_product_id = mysqli_real_escape_string($conn, $product_id);
+$check_sql = "SELECT id, sku, barcode, stock_quantity FROM products WHERE id = '$escaped_product_id'";
+$result_check = mysqli_query($conn, $check_sql);
 
-if (mysqli_num_rows($result_check) == 0) {
+if (!$result_check || mysqli_num_rows($result_check) == 0) {
     echo json_encode(['success' => false, 'message' => 'Product not found']);
     exit;
 }
@@ -35,54 +34,50 @@ $current_product = mysqli_fetch_assoc($result_check);
 $old_stock_quantity = $current_product['stock_quantity'];
 
 // Check if SKU already exists for other products
-$stmt_sku = mysqli_prepare($conn, "SELECT id FROM products WHERE sku = ? AND id != ?");
-mysqli_stmt_bind_param($stmt_sku, "si", $sku, $product_id);
-mysqli_stmt_execute($stmt_sku);
-$result_sku = mysqli_stmt_get_result($stmt_sku);
+$escaped_sku = mysqli_real_escape_string($conn, $sku);
+$sku_check_sql = "SELECT id FROM products WHERE sku = '$escaped_sku' AND id != '$escaped_product_id'";
+$result_sku = mysqli_query($conn, $sku_check_sql);
 
-if (mysqli_num_rows($result_sku) > 0) {
+if (!$result_sku || mysqli_num_rows($result_sku) > 0) {
     echo json_encode(['success' => false, 'message' => 'SKU already exists']);
     exit;
 }
 
 // Check if barcode already exists for other products (if provided)
 if (!empty($barcode)) {
-    $stmt_barcode = mysqli_prepare($conn, "SELECT id FROM products WHERE barcode = ? AND id != ?");
-    mysqli_stmt_bind_param($stmt_barcode, "si", $barcode, $product_id);
-    mysqli_stmt_execute($stmt_barcode);
-    $result_barcode = mysqli_stmt_get_result($stmt_barcode);
+    $escaped_barcode = mysqli_real_escape_string($conn, $barcode);
+    $barcode_check_sql = "SELECT id FROM products WHERE barcode = '$escaped_barcode' AND id != '$escaped_product_id'";
+    $result_barcode = mysqli_query($conn, $barcode_check_sql);
     
-    if (mysqli_num_rows($result_barcode) > 0) {
+    if (!$result_barcode || mysqli_num_rows($result_barcode) > 0) {
         echo json_encode(['success' => false, 'message' => 'Barcode already exists']);
         exit;
     }
 }
 
-// Update product with prepared statement
-$stmt_update = mysqli_prepare($conn, "
+// Update product with proper escaping
+$escaped_name = mysqli_real_escape_string($conn, $name);
+$escaped_description = mysqli_real_escape_string($conn, $description);
+$escaped_barcode_value = !empty($barcode) ? "'$escaped_barcode'" : "NULL";
+
+$update_sql = "
     UPDATE products 
-    SET sku = ?, barcode = ?, name = ?, description = ?, category_id = ?, supplier_id = ?, 
-        uom_id = ?, cost_price = ?, selling_price = ?, stock_quantity = ?, min_stock_level = ?, 
+    SET sku = '$escaped_sku', 
+        barcode = $escaped_barcode_value, 
+        name = '$escaped_name', 
+        description = '$escaped_description', 
+        category_id = $category_id, 
+        supplier_id = $supplier_id, 
+        uom_id = $uom_id, 
+        cost_price = $cost_price, 
+        selling_price = $selling_price, 
+        stock_quantity = $stock_quantity, 
+        min_stock_level = $min_stock_level, 
         updated_at = CURRENT_TIMESTAMP
-    WHERE id = ?
-");
+    WHERE id = '$escaped_product_id'
+";
 
-mysqli_stmt_bind_param($stmt_update, "ssssiiidddii", 
-    $sku, 
-    $barcode, 
-    $name, 
-    $description, 
-    $category_id, 
-    $supplier_id, 
-    $uom_id, 
-    $cost_price, 
-    $selling_price, 
-    $stock_quantity, 
-    $min_stock_level, 
-    $product_id
-);
-
-if (mysqli_stmt_execute($stmt_update)) {
+if (mysqli_query($conn, $update_sql)) {
     // Record stock movement if stock quantity changed
     $stock_difference = $stock_quantity - $old_stock_quantity;
     
@@ -90,13 +85,13 @@ if (mysqli_stmt_execute($stmt_update)) {
         $movement_type = $stock_difference > 0 ? 'in' : 'out';
         $quantity = abs($stock_difference);
         $notes = $stock_difference > 0 ? 'Stock adjustment (increase)' : 'Stock adjustment (decrease)';
+        $escaped_notes = mysqli_real_escape_string($conn, $notes);
         
-        $stmt_movement = mysqli_prepare($conn, "
+        $movement_sql = "
             INSERT INTO stock_movements (product_id, movement_type, quantity, reference_type, reference_id, created_by, notes) 
-            VALUES (?, ?, ?, 'adjustment', ?, 1, ?)
-        ");
-        mysqli_stmt_bind_param($stmt_movement, "isiss", $product_id, $movement_type, $quantity, $product_id, $notes);
-        mysqli_stmt_execute($stmt_movement);
+            VALUES ('$escaped_product_id', '$movement_type', $quantity, 'adjustment', '$escaped_product_id', 1, '$escaped_notes')
+        ";
+        mysqli_query($conn, $movement_sql);
     }
     
     echo json_encode(['success' => true, 'message' => 'Product updated successfully']);
@@ -104,10 +99,5 @@ if (mysqli_stmt_execute($stmt_update)) {
     echo json_encode(['success' => false, 'message' => 'Failed to update product: ' . mysqli_error($conn)]);
 }
 
-mysqli_stmt_close($stmt_check);
-mysqli_stmt_close($stmt_sku);
-if (!empty($barcode)) {
-    mysqli_stmt_close($stmt_barcode);
-}
-mysqli_stmt_close($stmt_update);
+// No need to close prepared statements since we're using regular queries
 ?>
