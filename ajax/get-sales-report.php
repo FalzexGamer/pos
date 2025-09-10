@@ -1,6 +1,6 @@
 <?php
-// Prevent any output before JSON response
-ob_clean();
+// Start output buffering to prevent any output before JSON response
+ob_start();
 error_reporting(0);
 ini_set('display_errors', 0);
 
@@ -10,7 +10,14 @@ include '../include/session.php';
 // Check database connection
 if (!$conn) {
     header('Content-Type: application/json');
-    echo json_encode(['error' => 'Database connection failed']);
+    echo json_encode(['error' => 'Database connection failed: ' . mysqli_connect_error()]);
+    exit;
+}
+
+// Check if user is logged in
+if (empty($_SESSION['user_id'])) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'User not authenticated']);
     exit;
 }
 
@@ -57,14 +64,19 @@ if (!mysqli_stmt_execute($stmt)) {
     exit;
 }
 
-$metrics_result = mysqli_stmt_get_result($stmt);
-if (!$metrics_result) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'Failed to get query result: ' . mysqli_error($conn)]);
-    exit;
+mysqli_stmt_bind_result($stmt, $total_sales, $total_revenue, $avg_sale);
+if (!mysqli_stmt_fetch($stmt)) {
+    $total_sales = 0;
+    $total_revenue = 0;
+    $avg_sale = 0;
 }
+mysqli_stmt_close($stmt);
 
-$metrics = mysqli_fetch_assoc($metrics_result);
+$metrics = [
+    'total_sales' => $total_sales,
+    'total_revenue' => $total_revenue,
+    'avg_sale' => $avg_sale
+];
 
 // Get previous period for comparison
 $date_diff = strtotime($end_date) - strtotime($start_date);
@@ -78,11 +90,31 @@ $prev_metrics_query = "SELECT
                      FROM sales 
                      WHERE DATE(created_at) BETWEEN ? AND ?";
 
-$stmt = mysqli_prepare($conn, $prev_metrics_query);
-mysqli_stmt_bind_param($stmt, 'ss', $prev_start, $prev_end);
-mysqli_stmt_execute($stmt);
-$prev_metrics_result = mysqli_stmt_get_result($stmt);
-$prev_metrics = mysqli_fetch_assoc($prev_metrics_result);
+$prev_stmt = mysqli_prepare($conn, $prev_metrics_query);
+if (!$prev_stmt) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Previous metrics query preparation failed: ' . mysqli_error($conn)]);
+    exit;
+}
+mysqli_stmt_bind_param($prev_stmt, 'ss', $prev_start, $prev_end);
+if (!mysqli_stmt_execute($prev_stmt)) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Previous metrics query execution failed: ' . mysqli_stmt_error($prev_stmt)]);
+    exit;
+}
+mysqli_stmt_bind_result($prev_stmt, $prev_total_sales, $prev_total_revenue, $prev_avg_sale);
+if (!mysqli_stmt_fetch($prev_stmt)) {
+    $prev_total_sales = 0;
+    $prev_total_revenue = 0;
+    $prev_avg_sale = 0;
+}
+mysqli_stmt_close($prev_stmt);
+
+$prev_metrics = [
+    'total_sales' => $prev_total_sales,
+    'total_revenue' => $prev_total_revenue,
+    'avg_sale' => $prev_avg_sale
+];
 
 // Calculate growth percentages
 $revenue_change = $prev_metrics['total_revenue'] > 0 ? 
@@ -109,11 +141,29 @@ $top_product_query = "SELECT
                      ORDER BY total_quantity DESC
                      LIMIT 1";
 
-$stmt = mysqli_prepare($conn, $top_product_query);
-mysqli_stmt_bind_param($stmt, 'ss', $start_date, $end_date);
-mysqli_stmt_execute($stmt);
-$top_product_result = mysqli_stmt_get_result($stmt);
-$top_product = mysqli_fetch_assoc($top_product_result);
+$top_product_stmt = mysqli_prepare($conn, $top_product_query);
+if (!$top_product_stmt) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Top product query preparation failed: ' . mysqli_error($conn)]);
+    exit;
+}
+mysqli_stmt_bind_param($top_product_stmt, 'ss', $start_date, $end_date);
+if (!mysqli_stmt_execute($top_product_stmt)) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Top product query execution failed: ' . mysqli_stmt_error($top_product_stmt)]);
+    exit;
+}
+mysqli_stmt_bind_result($top_product_stmt, $product_name, $category_name, $total_quantity, $total_revenue);
+$top_product = null;
+if (mysqli_stmt_fetch($top_product_stmt)) {
+    $top_product = [
+        'product_name' => $product_name,
+        'category_name' => $category_name,
+        'total_quantity' => $total_quantity,
+        'total_revenue' => $total_revenue
+    ];
+}
+mysqli_stmt_close($top_product_stmt);
 
 $response['metrics'] = [
     'totalRevenue' => $metrics['total_revenue'] ?: 0,
@@ -157,26 +207,36 @@ $chart_query = "SELECT
                 GROUP BY $group_by
                 ORDER BY period";
 
-$stmt = mysqli_prepare($conn, $chart_query);
-mysqli_stmt_bind_param($stmt, 'sss', $date_format, $start_date, $end_date);
-mysqli_stmt_execute($stmt);
-$chart_result = mysqli_stmt_get_result($stmt);
+$chart_stmt = mysqli_prepare($conn, $chart_query);
+if (!$chart_stmt) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Chart query preparation failed: ' . mysqli_error($conn)]);
+    exit;
+}
+mysqli_stmt_bind_param($chart_stmt, 'sss', $date_format, $start_date, $end_date);
+if (!mysqli_stmt_execute($chart_stmt)) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Chart query execution failed: ' . mysqli_stmt_error($chart_stmt)]);
+    exit;
+}
+mysqli_stmt_bind_result($chart_stmt, $period, $sales_count, $revenue);
 
-while ($row = mysqli_fetch_assoc($chart_result)) {
-    $response['charts']['revenue']['labels'][] = $row['period'];
-    $response['charts']['revenue']['data'][] = (float)$row['revenue'];
-    $response['charts']['sales']['labels'][] = $row['period'];
-    $response['charts']['sales']['data'][] = (int)$row['sales_count'];
+while (mysqli_stmt_fetch($chart_stmt)) {
+    $response['charts']['revenue']['labels'][] = $period;
+    $response['charts']['revenue']['data'][] = (float)$revenue;
+    $response['charts']['sales']['labels'][] = $period;
+    $response['charts']['sales']['data'][] = (int)$sales_count;
     
     // Add to breakdown
     $response['breakdown'][] = [
-        'period' => $row['period'],
-        'salesCount' => (int)$row['sales_count'],
-        'revenue' => (float)$row['revenue'],
-        'avgSale' => $row['sales_count'] > 0 ? (float)$row['revenue'] / (int)$row['sales_count'] : 0,
+        'period' => $period,
+        'salesCount' => (int)$sales_count,
+        'revenue' => (float)$revenue,
+        'avgSale' => $sales_count > 0 ? (float)$revenue / (int)$sales_count : 0,
         'growth' => 0 // You can calculate this if needed
     ];
 }
+mysqli_stmt_close($chart_stmt);
 
 // Get top products
 $top_products_query = "SELECT 
@@ -193,19 +253,29 @@ $top_products_query = "SELECT
                      ORDER BY total_quantity DESC
                      LIMIT 5";
 
-$stmt = mysqli_prepare($conn, $top_products_query);
-mysqli_stmt_bind_param($stmt, 'ss', $start_date, $end_date);
-mysqli_stmt_execute($stmt);
-$top_products_result = mysqli_stmt_get_result($stmt);
+$top_products_stmt = mysqli_prepare($conn, $top_products_query);
+if (!$top_products_stmt) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Top products query preparation failed: ' . mysqli_error($conn)]);
+    exit;
+}
+mysqli_stmt_bind_param($top_products_stmt, 'ss', $start_date, $end_date);
+if (!mysqli_stmt_execute($top_products_stmt)) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Top products query execution failed: ' . mysqli_stmt_error($top_products_stmt)]);
+    exit;
+}
+mysqli_stmt_bind_result($top_products_stmt, $product_name, $category_name, $total_quantity, $total_revenue);
 
-while ($row = mysqli_fetch_assoc($top_products_result)) {
+while (mysqli_stmt_fetch($top_products_stmt)) {
     $response['topProducts'][] = [
-        'name' => $row['product_name'],
-        'category' => $row['category_name'] ?: 'Uncategorized',
-        'quantity' => (int)$row['total_quantity'],
-        'revenue' => (float)$row['total_revenue']
+        'name' => $product_name,
+        'category' => $category_name ?: 'Uncategorized',
+        'quantity' => (int)$total_quantity,
+        'revenue' => (float)$total_revenue
     ];
 }
+mysqli_stmt_close($top_products_stmt);
 
 // Get top categories
 $top_categories_query = "SELECT 
@@ -222,26 +292,36 @@ $top_categories_query = "SELECT
                          ORDER BY total_sales DESC
                          LIMIT 5";
 
-$stmt = mysqli_prepare($conn, $top_categories_query);
-mysqli_stmt_bind_param($stmt, 'ss', $start_date, $end_date);
-mysqli_stmt_execute($stmt);
-$top_categories_result = mysqli_stmt_get_result($stmt);
+$top_categories_stmt = mysqli_prepare($conn, $top_categories_query);
+if (!$top_categories_stmt) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Top categories query preparation failed: ' . mysqli_error($conn)]);
+    exit;
+}
+mysqli_stmt_bind_param($top_categories_stmt, 'ss', $start_date, $end_date);
+if (!mysqli_stmt_execute($top_categories_stmt)) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Top categories query execution failed: ' . mysqli_stmt_error($top_categories_stmt)]);
+    exit;
+}
+mysqli_stmt_bind_result($top_categories_stmt, $category_name, $product_count, $total_sales, $total_revenue);
 
-while ($row = mysqli_fetch_assoc($top_categories_result)) {
+while (mysqli_stmt_fetch($top_categories_stmt)) {
     $response['topCategories'][] = [
-        'name' => $row['category_name'] ?: 'Uncategorized',
-        'productCount' => (int)$row['product_count'],
-        'sales' => (int)$row['total_sales'],
-        'revenue' => (float)$row['total_revenue']
+        'name' => $category_name ?: 'Uncategorized',
+        'productCount' => (int)$product_count,
+        'sales' => (int)$total_sales,
+        'revenue' => (float)$total_revenue
     ];
 }
+mysqli_stmt_close($top_categories_stmt);
 
 // Return JSON response
 header('Content-Type: application/json');
 header('Cache-Control: no-cache, must-revalidate');
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 
-// Ensure clean output
+// Clean any previous output and send JSON response
 ob_end_clean();
 
 // Check for any errors

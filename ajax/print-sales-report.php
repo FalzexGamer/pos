@@ -21,47 +21,109 @@ $metrics_query = "SELECT
                  WHERE DATE(created_at) BETWEEN ? AND ?";
 
 $stmt = mysqli_prepare($conn, $metrics_query);
+if (!$stmt) {
+    die('Metrics query preparation failed: ' . mysqli_error($conn));
+}
 mysqli_stmt_bind_param($stmt, 'ss', $start_date, $end_date);
-mysqli_stmt_execute($stmt);
-$metrics_result = mysqli_stmt_get_result($stmt);
-$metrics = mysqli_fetch_assoc($metrics_result);
+if (!mysqli_stmt_execute($stmt)) {
+    die('Metrics query execution failed: ' . mysqli_stmt_error($stmt));
+}
+mysqli_stmt_bind_result($stmt, $total_sales, $total_revenue, $avg_sale, $unique_customers);
+if (!mysqli_stmt_fetch($stmt)) {
+    $total_sales = 0;
+    $total_revenue = 0;
+    $avg_sale = 0;
+    $unique_customers = 0;
+}
+mysqli_stmt_close($stmt);
+
+$metrics = [
+    'total_sales' => $total_sales,
+    'total_revenue' => $total_revenue,
+    'avg_sale' => $avg_sale,
+    'unique_customers' => $unique_customers
+];
 
 // Get detailed breakdown based on report type
-$group_by = '';
-$date_format = '';
+$breakdown_query = '';
 switch ($report_type) {
     case 'daily':
-        $group_by = 'DATE(created_at)';
-        $date_format = '%Y-%m-%d';
+        $breakdown_query = "SELECT 
+                            DATE_FORMAT(created_at, '%Y-%m-%d') as period,
+                            COUNT(*) as sales_count,
+                            SUM(total_amount) as revenue,
+                            AVG(total_amount) as avg_sale
+                        FROM sales 
+                        WHERE DATE(created_at) BETWEEN ? AND ?
+                        GROUP BY DATE(created_at)
+                        ORDER BY period";
         break;
     case 'weekly':
-        $group_by = 'YEARWEEK(created_at)';
-        $date_format = '%Y-%u';
+        $breakdown_query = "SELECT 
+                            DATE_FORMAT(created_at, '%Y-%u') as period,
+                            COUNT(*) as sales_count,
+                            SUM(total_amount) as revenue,
+                            AVG(total_amount) as avg_sale
+                        FROM sales 
+                        WHERE DATE(created_at) BETWEEN ? AND ?
+                        GROUP BY YEARWEEK(created_at)
+                        ORDER BY period";
         break;
     case 'monthly':
-        $group_by = 'DATE_FORMAT(created_at, "%Y-%m")';
-        $date_format = '%Y-%m';
+        $breakdown_query = "SELECT 
+                            DATE_FORMAT(created_at, '%Y-%m') as period,
+                            COUNT(*) as sales_count,
+                            SUM(total_amount) as revenue,
+                            AVG(total_amount) as avg_sale
+                        FROM sales 
+                        WHERE DATE(created_at) BETWEEN ? AND ?
+                        GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+                        ORDER BY period";
         break;
     case 'yearly':
-        $group_by = 'YEAR(created_at)';
-        $date_format = '%Y';
+        $breakdown_query = "SELECT 
+                            DATE_FORMAT(created_at, '%Y') as period,
+                            COUNT(*) as sales_count,
+                            SUM(total_amount) as revenue,
+                            AVG(total_amount) as avg_sale
+                        FROM sales 
+                        WHERE DATE(created_at) BETWEEN ? AND ?
+                        GROUP BY YEAR(created_at)
+                        ORDER BY period";
+        break;
+    default:
+        $breakdown_query = "SELECT 
+                            DATE_FORMAT(created_at, '%Y-%m-%d') as period,
+                            COUNT(*) as sales_count,
+                            SUM(total_amount) as revenue,
+                            AVG(total_amount) as avg_sale
+                        FROM sales 
+                        WHERE DATE(created_at) BETWEEN ? AND ?
+                        GROUP BY DATE(created_at)
+                        ORDER BY period";
         break;
 }
 
-$breakdown_query = "SELECT 
-                        DATE_FORMAT(created_at, ?) as period,
-                        COUNT(*) as sales_count,
-                        SUM(total_amount) as revenue,
-                        AVG(total_amount) as avg_sale
-                    FROM sales 
-                    WHERE DATE(created_at) BETWEEN ? AND ?
-                    GROUP BY $group_by
-                    ORDER BY period";
-
-$stmt = mysqli_prepare($conn, $breakdown_query);
-mysqli_stmt_bind_param($stmt, 'sss', $date_format, $start_date, $end_date);
-mysqli_stmt_execute($stmt);
-$breakdown_result = mysqli_stmt_get_result($stmt);
+$breakdown_stmt = mysqli_prepare($conn, $breakdown_query);
+if (!$breakdown_stmt) {
+    die('Breakdown query preparation failed: ' . mysqli_error($conn));
+}
+mysqli_stmt_bind_param($breakdown_stmt, 'ss', $start_date, $end_date);
+if (!mysqli_stmt_execute($breakdown_stmt)) {
+    die('Breakdown query execution failed: ' . mysqli_stmt_error($breakdown_stmt));
+}
+// Store breakdown data
+$breakdown_data = [];
+mysqli_stmt_bind_result($breakdown_stmt, $period, $sales_count, $revenue, $avg_sale);
+while (mysqli_stmt_fetch($breakdown_stmt)) {
+    $breakdown_data[] = [
+        'period' => $period,
+        'sales_count' => $sales_count,
+        'revenue' => $revenue,
+        'avg_sale' => $avg_sale
+    ];
+}
+mysqli_stmt_close($breakdown_stmt);
 
 // Get top products
 $top_products_query = "SELECT 
@@ -78,10 +140,27 @@ $top_products_query = "SELECT
                      ORDER BY total_quantity DESC
                      LIMIT 5";
 
-$stmt = mysqli_prepare($conn, $top_products_query);
-mysqli_stmt_bind_param($stmt, 'ss', $start_date, $end_date);
-mysqli_stmt_execute($stmt);
-$top_products_result = mysqli_stmt_get_result($stmt);
+$top_products_stmt = mysqli_prepare($conn, $top_products_query);
+if (!$top_products_stmt) {
+    die('Top products query preparation failed: ' . mysqli_error($conn));
+}
+mysqli_stmt_bind_param($top_products_stmt, 'ss', $start_date, $end_date);
+if (!mysqli_stmt_execute($top_products_stmt)) {
+    die('Top products query execution failed: ' . mysqli_stmt_error($top_products_stmt));
+}
+
+// Store top products data
+$top_products_data = [];
+mysqli_stmt_bind_result($top_products_stmt, $product_name, $category_name, $total_quantity, $total_revenue);
+while (mysqli_stmt_fetch($top_products_stmt)) {
+    $top_products_data[] = [
+        'product_name' => $product_name,
+        'category_name' => $category_name,
+        'total_quantity' => $total_quantity,
+        'total_revenue' => $total_revenue
+    ];
+}
+mysqli_stmt_close($top_products_stmt);
 
 // Get top categories
 $top_categories_query = "SELECT 
@@ -98,10 +177,27 @@ $top_categories_query = "SELECT
                          ORDER BY total_sales DESC
                          LIMIT 5";
 
-$stmt = mysqli_prepare($conn, $top_categories_query);
-mysqli_stmt_bind_param($stmt, 'ss', $start_date, $end_date);
-mysqli_stmt_execute($stmt);
-$top_categories_result = mysqli_stmt_get_result($stmt);
+$top_categories_stmt = mysqli_prepare($conn, $top_categories_query);
+if (!$top_categories_stmt) {
+    die('Top categories query preparation failed: ' . mysqli_error($conn));
+}
+mysqli_stmt_bind_param($top_categories_stmt, 'ss', $start_date, $end_date);
+if (!mysqli_stmt_execute($top_categories_stmt)) {
+    die('Top categories query execution failed: ' . mysqli_stmt_error($top_categories_stmt));
+}
+
+// Store top categories data
+$top_categories_data = [];
+mysqli_stmt_bind_result($top_categories_stmt, $category_name, $product_count, $total_sales, $total_revenue);
+while (mysqli_stmt_fetch($top_categories_stmt)) {
+    $top_categories_data[] = [
+        'category_name' => $category_name,
+        'product_count' => $product_count,
+        'total_sales' => $total_sales,
+        'total_revenue' => $total_revenue
+    ];
+}
+mysqli_stmt_close($top_categories_stmt);
 
 // Get payment method breakdown
 $payment_query = "SELECT 
@@ -113,10 +209,26 @@ $payment_query = "SELECT
                  GROUP BY payment_method
                  ORDER BY total DESC";
 
-$stmt = mysqli_prepare($conn, $payment_query);
-mysqli_stmt_bind_param($stmt, 'ss', $start_date, $end_date);
-mysqli_stmt_execute($stmt);
-$payment_result = mysqli_stmt_get_result($stmt);
+$payment_stmt = mysqli_prepare($conn, $payment_query);
+if (!$payment_stmt) {
+    die('Payment query preparation failed: ' . mysqli_error($conn));
+}
+mysqli_stmt_bind_param($payment_stmt, 'ss', $start_date, $end_date);
+if (!mysqli_stmt_execute($payment_stmt)) {
+    die('Payment query execution failed: ' . mysqli_stmt_error($payment_stmt));
+}
+
+// Store payment data
+$payment_data = [];
+mysqli_stmt_bind_result($payment_stmt, $payment_method, $count, $total);
+while (mysqli_stmt_fetch($payment_stmt)) {
+    $payment_data[] = [
+        'payment_method' => $payment_method,
+        'count' => $count,
+        'total' => $total
+    ];
+}
+mysqli_stmt_close($payment_stmt);
 ?>
 
 <!DOCTYPE html>
@@ -317,14 +429,14 @@ $payment_result = mysqli_stmt_get_result($stmt);
                 </tr>
             </thead>
             <tbody>
-                <?php while ($row = mysqli_fetch_assoc($breakdown_result)): ?>
+                <?php foreach ($breakdown_data as $row): ?>
                 <tr>
                     <td><?php echo $row['period']; ?></td>
                     <td class="text-center"><?php echo number_format($row['sales_count']); ?></td>
                     <td class="text-right"><?php echo number_format($row['revenue'], 2); ?></td>
                     <td class="text-right"><?php echo number_format($row['avg_sale'], 2); ?></td>
                 </tr>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
@@ -346,14 +458,14 @@ $payment_result = mysqli_stmt_get_result($stmt);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = mysqli_fetch_assoc($top_products_result)): ?>
+                        <?php foreach ($top_products_data as $row): ?>
                         <tr>
                             <td><?php echo htmlspecialchars($row['product_name']); ?></td>
                             <td><?php echo htmlspecialchars($row['category_name'] ?: 'Uncategorized'); ?></td>
                             <td class="text-center"><?php echo number_format($row['total_quantity']); ?></td>
                             <td class="text-right"><?php echo number_format($row['total_revenue'], 2); ?></td>
                         </tr>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
@@ -371,14 +483,14 @@ $payment_result = mysqli_stmt_get_result($stmt);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = mysqli_fetch_assoc($top_categories_result)): ?>
+                        <?php foreach ($top_categories_data as $row): ?>
                         <tr>
                             <td><?php echo htmlspecialchars($row['category_name'] ?: 'Uncategorized'); ?></td>
                             <td class="text-center"><?php echo number_format($row['product_count']); ?></td>
                             <td class="text-center"><?php echo number_format($row['total_sales']); ?></td>
                             <td class="text-right"><?php echo number_format($row['total_revenue'], 2); ?></td>
                         </tr>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
@@ -400,9 +512,7 @@ $payment_result = mysqli_stmt_get_result($stmt);
             <tbody>
                 <?php 
                 $total_payment_amount = 0;
-                $payment_data = [];
-                while ($row = mysqli_fetch_assoc($payment_result)) {
-                    $payment_data[] = $row;
+                foreach ($payment_data as $row) {
                     $total_payment_amount += $row['total'];
                 }
                 
