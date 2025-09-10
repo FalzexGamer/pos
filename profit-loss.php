@@ -60,8 +60,32 @@ $stmt = mysqli_prepare($conn, $revenue_query);
 if ($stmt) {
     mysqli_stmt_bind_param($stmt, $param_types, ...$params);
     mysqli_stmt_execute($stmt);
-    $revenue_result = mysqli_stmt_get_result($stmt);
-    $revenue_data = mysqli_fetch_assoc($revenue_result);
+    
+    // Bind result variables
+    $total_revenue = $total_subtotal = $total_discounts = $total_taxes = $total_sales = $avg_sale_value = 0;
+    mysqli_stmt_bind_result($stmt, $total_revenue, $total_subtotal, $total_discounts, $total_taxes, $total_sales, $avg_sale_value);
+    
+    // Fetch the result
+    if (mysqli_stmt_fetch($stmt)) {
+        $revenue_data = [
+            'total_revenue' => $total_revenue,
+            'total_subtotal' => $total_subtotal,
+            'total_discounts' => $total_discounts,
+            'total_taxes' => $total_taxes,
+            'total_sales' => $total_sales,
+            'avg_sale_value' => $avg_sale_value
+        ];
+    } else {
+        $revenue_data = [
+            'total_revenue' => 0,
+            'total_subtotal' => 0,
+            'total_discounts' => 0,
+            'total_taxes' => 0,
+            'total_sales' => 0,
+            'avg_sale_value' => 0
+        ];
+    }
+    mysqli_stmt_close($stmt);
 } else {
     $revenue_data = [
         'total_revenue' => 0,
@@ -87,8 +111,26 @@ $stmt = mysqli_prepare($conn, $cogs_query);
 if ($stmt) {
     mysqli_stmt_bind_param($stmt, $param_types, ...$params);
     mysqli_stmt_execute($stmt);
-    $cogs_result = mysqli_stmt_get_result($stmt);
-    $cogs_data = mysqli_fetch_assoc($cogs_result);
+    
+    // Bind result variables
+    $total_cogs = $total_profit_margin = $total_retail_value = 0;
+    mysqli_stmt_bind_result($stmt, $total_cogs, $total_profit_margin, $total_retail_value);
+    
+    // Fetch the result
+    if (mysqli_stmt_fetch($stmt)) {
+        $cogs_data = [
+            'total_cogs' => $total_cogs,
+            'total_profit_margin' => $total_profit_margin,
+            'total_retail_value' => $total_retail_value
+        ];
+    } else {
+        $cogs_data = [
+            'total_cogs' => 0,
+            'total_profit_margin' => 0,
+            'total_retail_value' => 0
+        ];
+    }
+    mysqli_stmt_close($stmt);
 } else {
     $cogs_data = [
         'total_cogs' => 0,
@@ -117,9 +159,23 @@ $stmt = mysqli_prepare($conn, $daily_revenue_query);
 if ($stmt) {
     mysqli_stmt_bind_param($stmt, $param_types, ...$params);
     mysqli_stmt_execute($stmt);
-    $daily_revenue_result = mysqli_stmt_get_result($stmt);
+    
+    // Bind result variables
+    $sale_date = $daily_revenue = $daily_sales = '';
+    mysqli_stmt_bind_result($stmt, $sale_date, $daily_revenue, $daily_sales);
+    
+    // Store results in an array
+    $daily_revenue_data = [];
+    while (mysqli_stmt_fetch($stmt)) {
+        $daily_revenue_data[] = [
+            'sale_date' => $sale_date,
+            'daily_revenue' => $daily_revenue,
+            'daily_sales' => $daily_sales
+        ];
+    }
+    mysqli_stmt_close($stmt);
 } else {
-    $daily_revenue_result = false;
+    $daily_revenue_data = [];
 }
 
 // Get top selling products
@@ -144,9 +200,27 @@ $stmt = mysqli_prepare($conn, $top_products_query);
 if ($stmt) {
     mysqli_stmt_bind_param($stmt, $param_types, ...$params);
     mysqli_stmt_execute($stmt);
-    $top_products_result = mysqli_stmt_get_result($stmt);
+    
+    // Bind result variables
+    $product_name = $sku = $total_quantity = $total_revenue = $total_cost = $total_profit = $category_name = '';
+    mysqli_stmt_bind_result($stmt, $product_name, $sku, $total_quantity, $total_revenue, $total_cost, $total_profit, $category_name);
+    
+    // Store results in an array
+    $top_products_data = [];
+    while (mysqli_stmt_fetch($stmt)) {
+        $top_products_data[] = [
+            'product_name' => $product_name,
+            'sku' => $sku,
+            'total_quantity' => $total_quantity,
+            'total_revenue' => $total_revenue,
+            'total_cost' => $total_cost,
+            'total_profit' => $total_profit,
+            'category_name' => $category_name
+        ];
+    }
+    mysqli_stmt_close($stmt);
 } else {
-    $top_products_result = false;
+    $top_products_data = [];
 }
 
 // Get categories for filter
@@ -359,8 +433,8 @@ if (!$categories_result) {
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <?php if ($top_products_result && mysqli_num_rows($top_products_result) > 0): ?>
-                                <?php while ($product = mysqli_fetch_assoc($top_products_result)): ?>
+                            <?php if (!empty($top_products_data)): ?>
+                                <?php foreach ($top_products_data as $product): ?>
                                     <?php 
                                     $profit_margin = $product['total_revenue'] > 0 ? ($product['total_profit'] / $product['total_revenue']) * 100 : 0;
                                     ?>
@@ -392,7 +466,7 @@ if (!$categories_result) {
                                             </span>
                                         </td>
                                     </tr>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
                                     <td colspan="7" class="px-6 py-4 text-center text-gray-500">
@@ -416,15 +490,14 @@ if (!$categories_result) {
             });
 
             // Revenue Trend Chart
-            <?php if ($daily_revenue_result && mysqli_num_rows($daily_revenue_result) > 0): ?>
+            <?php if (!empty($daily_revenue_data)): ?>
             const revenueCtx = document.getElementById('revenueTrendChart').getContext('2d');
             new Chart(revenueCtx, {
                 type: 'line',
                 data: {
                     labels: [
                         <?php 
-                        mysqli_data_seek($daily_revenue_result, 0);
-                        while ($row = mysqli_fetch_assoc($daily_revenue_result)) {
+                        foreach ($daily_revenue_data as $row) {
                             echo "'" . date('M j', strtotime($row['sale_date'])) . "',";
                         }
                         ?>
@@ -433,8 +506,7 @@ if (!$categories_result) {
                         label: 'Daily Revenue',
                         data: [
                             <?php 
-                            mysqli_data_seek($daily_revenue_result, 0);
-                            while ($row = mysqli_fetch_assoc($daily_revenue_result)) {
+                            foreach ($daily_revenue_data as $row) {
                                 echo $row['daily_revenue'] . ",";
                             }
                             ?>
