@@ -954,37 +954,53 @@ function processProductEntry(entry) {
         type: 'POST',
         data: { entry: entry },
         success: function(response) {
-            try {
-                const data = JSON.parse(response);
+            // Log the raw response for debugging
+            console.log('Raw response:', response);
+            
+            if (response.startsWith('SUCCESS:')) {
+                // Parse the pipe-separated success response
+                const parts = response.substring(8).split('|');
+                const productData = {
+                    id: parts[0],
+                    name: parts[1],
+                    sku: parts[2],
+                    barcode: parts[3],
+                    price: parts[4],
+                    stock: parts[5],
+                    category: parts[6],
+                    uom: parts[7]
+                };
                 
-                if (data.success) {
-                    // Add product to cart
-                    addProductToCart(data.product_id);
-                    
-                    // Clear the entry input
-                    $('#product-entry').val('');
-                    
-                    // Show success feedback
-                    showAlert('Product added to cart: ' + data.product_name, 'success');
-                    showEntryFeedback('success');
-                    
-                    // Play success sound
-                    playBeepSound();
-                } else {
-                    // Show error message
-                    showAlert(data.message, 'error');
-                    showEntryFeedback('error');
-                    
-                    // Clear the entry input
-                    $('#product-entry').val('');
-                }
-            } catch (e) {
-                showAlert('Invalid response from server', 'error');
+                // Add product to cart
+                addProductToCart(productData.id);
+                
+                // Clear the entry input
+                $('#product-entry').val('');
+                
+                // Show success feedback
+                showAlert('Product added to cart: ' + productData.name, 'success');
+                showEntryFeedback('success');
+                
+                // Play success sound
+                playBeepSound();
+            } else if (response.startsWith('ERROR:')) {
+                // Show error message
+                const errorMessage = response.substring(6);
+                showAlert(errorMessage, 'error');
+                showEntryFeedback('error');
+                
+                // Clear the entry input
+                $('#product-entry').val('');
+            } else {
+                // Handle unexpected response format
+                showAlert('Invalid response from server: ' + response, 'error');
                 $('#product-entry').val('');
             }
         },
-        error: function() {
-            showAlert('Error processing product entry', 'error');
+        error: function(xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+            console.error('Response:', xhr.responseText);
+            showAlert('Error processing product entry: ' + error, 'error');
             $('#product-entry').val('');
         },
         complete: function() {
