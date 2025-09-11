@@ -3,7 +3,7 @@ include '../include/conn.php';
 include '../include/session.php';
 
 $id = $_POST['id'] ?? null;
-$name = trim($_POST['name']);
+$name = trim($_POST['name'] ?? '');
 $contact_person = trim($_POST['contact_person'] ?? '');
 $phone = trim($_POST['phone'] ?? '');
 $email = trim($_POST['email'] ?? '');
@@ -19,13 +19,24 @@ if (empty($name)) {
 // Check if name already exists (excluding current record if editing)
 $check_sql = "SELECT id FROM suppliers WHERE name = ? AND id != ?";
 $check_stmt = mysqli_prepare($conn, $check_sql);
-$check_id = $id ?: 0;
-mysqli_stmt_bind_param($check_stmt, "si", $name, $check_id);
-mysqli_stmt_execute($check_stmt);
-$check_result = mysqli_stmt_get_result($check_stmt);
 
-if (mysqli_fetch_assoc($check_result)) {
-    echo json_encode(['success' => false, 'message' => 'Supplier name already exists']);
+if ($check_stmt) {
+    $check_id = $id ?: 0;
+    mysqli_stmt_bind_param($check_stmt, "si", $name, $check_id);
+    mysqli_stmt_execute($check_stmt);
+    
+    // Use bind_result instead of get_result for better compatibility
+    $existing_id = null;
+    mysqli_stmt_bind_result($check_stmt, $existing_id);
+    
+    if (mysqli_stmt_fetch($check_stmt)) {
+        mysqli_stmt_close($check_stmt);
+        echo json_encode(['success' => false, 'message' => 'Supplier name already exists']);
+        exit;
+    }
+    mysqli_stmt_close($check_stmt);
+} else {
+    echo json_encode(['success' => false, 'message' => 'Database error: ' . mysqli_error($conn)]);
     exit;
 }
 
@@ -40,6 +51,5 @@ if (mysqli_stmt_execute($stmt)) {
     echo json_encode(['success' => false, 'message' => 'Database error occurred']);
 }
 
-mysqli_stmt_close($check_stmt);
 mysqli_stmt_close($stmt);
 ?>
