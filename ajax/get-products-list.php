@@ -56,9 +56,11 @@ while ($product = mysqli_fetch_array($query)) {
         <td class="px-6 py-5">
             <div class="flex items-center space-x-4">
                 <div class="flex-shrink-0">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-box text-white text-sm"></i>
-                    </div>
+                    ' . ($product['img'] && $product['img'] !== '-' ? 
+                        '<img src="uploads/products/' . htmlspecialchars($product['img']) . '" alt="' . htmlspecialchars($product['name']) . '" class="w-12 h-12 rounded-xl object-cover border border-gray-200">' :
+                        '<div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-box text-white text-sm"></i>
+                        </div>') . '
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
@@ -138,9 +140,11 @@ while ($product = mysqli_fetch_array($query)) {
         <div class="flex items-start justify-between mb-3">
             <div class="flex-1">
                 <div class="flex items-center space-x-3 mb-2">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-box text-white text-sm"></i>
-                    </div>
+                    ' . ($product['img'] && $product['img'] !== '-' ? 
+                        '<img src="uploads/products/' . htmlspecialchars($product['img']) . '" alt="' . htmlspecialchars($product['name']) . '" class="w-12 h-12 rounded-xl object-cover border border-gray-200">' :
+                        '<div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-box text-white text-sm"></i>
+                        </div>') . '
                     <div>
                         <h4 class="text-lg font-semibold text-gray-900">' . htmlspecialchars($product['name']) . '</h4>
                         <p class="text-sm text-gray-600">' . htmlspecialchars($product['sku']) . '</p>

@@ -53,9 +53,11 @@ try {
             <button onclick="addProductToCartFromSidebar(' . $row['id'] . ')" 
                     class="w-full flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-box text-white text-sm"></i>
-                    </div>
+                    ' . ($row['img'] && $row['img'] !== '-' ? 
+                        '<img src="uploads/products/' . htmlspecialchars($row['img']) . '" alt="' . htmlspecialchars($row['name']) . '" class="w-12 h-12 rounded-lg object-cover border border-gray-200">' :
+                        '<div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-box text-white text-sm"></i>
+                        </div>') . '
                     <div class="text-left">
                         <div class="font-medium text-gray-900 text-sm">' . htmlspecialchars($row['name']) . '</div>
                         <div class="text-xs text-gray-500">' . htmlspecialchars($row['sku']) . '</div>

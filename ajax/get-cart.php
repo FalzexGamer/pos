@@ -42,7 +42,7 @@ if (!empty($member_id)) {
 
 // Get cart items from database
 $query_cart_items = mysqli_query($conn, "
-    SELECT c.*, p.name, p.barcode, p.stock_quantity 
+    SELECT c.*, p.name, p.barcode, p.stock_quantity, p.img 
     FROM cart c 
     JOIN products p ON c.product_id = p.id 
     WHERE c.user_id = $user_id AND c.status = 'active' 
@@ -69,9 +69,11 @@ while ($item = mysqli_fetch_array($query_cart_items)) {
         <div class="flex items-center space-x-2 lg:space-x-4">
             <!-- Product Icon -->
             <div class="flex-shrink-0">
-                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-box text-white text-xs lg:text-sm"></i>
-                </div>
+                ' . ($item['img'] && $item['img'] !== '-' ? 
+                    '<img src="uploads/products/' . htmlspecialchars($item['img']) . '" alt="' . htmlspecialchars($item['name']) . '" class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl object-cover border border-gray-200">' :
+                    '<div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-box text-white text-xs lg:text-sm"></i>
+                    </div>') . '
             </div>
             
             <!-- Product Info -->

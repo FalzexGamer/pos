@@ -1,23 +1,10 @@
 <?php
-// Suppress any output that might interfere with our response
-ob_start();
+include '../include/conn.php';
 
 // Start session if not already started
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
-// Include database connection with error handling
-$conn = mysqli_connect('powershareserver.com', 'powersha_pos', 'Condition5594.', 'powersha_pos');
-
-if (!$conn || $conn->connect_error) {
-    ob_clean();
-    echo "ERROR: Database connection failed";
-    exit;
-}
-
-// Clear any output buffer content
-ob_clean();
 
 $product_id = $_POST['product_id'] ?? 0;
 $user_id = $_SESSION['user_id'] ?? 0;
@@ -96,7 +83,4 @@ if (!headers_sent()) {
     header('Content-Type: text/plain');
     header('Cache-Control: no-cache, no-store, must-revalidate');
 }
-
-// End output buffering and send response
-ob_end_flush();
 ?>

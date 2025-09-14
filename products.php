@@ -354,6 +354,60 @@ include 'include/sidebar.php';
                         </div>
                     </div>
                     
+                    <!-- Product Image -->
+                    <div class="space-y-6">
+                        <div class="flex items-center space-x-3 mb-6">
+                            <div class="p-2 bg-purple-100 rounded-lg">
+                                <i class="fas fa-image text-purple-600"></i>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-900">Product Image</h4>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">Upload Image</label>
+                                <div class="flex items-center justify-center w-full">
+                                    <label for="product_image" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
+                                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                            <p class="mb-2 text-sm text-gray-500">
+                                                <span class="font-semibold">Click to upload</span> or drag and drop
+                                            </p>
+                                            <p class="text-xs text-gray-500">PNG, JPG, JPEG (MAX. 2MB)</p>
+                                        </div>
+                                        <input id="product_image" name="product_image" type="file" class="hidden" accept="image/*" onchange="previewImage(this)">
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Image Preview -->
+                            <div id="image-preview" class="hidden">
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-gray-700">Preview</label>
+                                    <div class="relative inline-block">
+                                        <img id="preview-img" src="" alt="Product Preview" class="w-32 h-32 object-cover rounded-lg border border-gray-200">
+                                        <button type="button" onclick="removeImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Current Image Display (for editing) -->
+                            <div id="current-image" class="hidden">
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-gray-700">Current Image</label>
+                                    <div class="relative inline-block">
+                                        <img id="current-img" src="" alt="Current Product" class="w-32 h-32 object-cover rounded-lg border border-gray-200">
+                                        <button type="button" onclick="removeCurrentImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Description -->
                     <div class="space-y-6">
                         <div class="flex items-center space-x-3 mb-6">
@@ -790,6 +844,18 @@ function openEditModal(id) {
                 $('#description').val(product.description);
                 $('#is_active').prop('checked', product.is_active == 1);
                 
+                // Handle product image
+                if (product.img && product.img !== '-' && product.img !== '') {
+                    $('#current-img').attr('src', 'uploads/products/' + product.img);
+                    $('#current-image').removeClass('hidden');
+                } else {
+                    $('#current-image').addClass('hidden');
+                }
+                
+                // Reset new image preview
+                $('#image-preview').addClass('hidden');
+                $('#product_image').val('');
+                
                 $('#product-modal').removeClass('hidden');
                 $('body').addClass('overflow-hidden');
             } catch (e) {
@@ -805,6 +871,61 @@ function openEditModal(id) {
 function closeModal() {
     $('#product-modal').addClass('hidden');
     $('body').removeClass('overflow-hidden');
+    // Reset image previews when closing modal
+    resetImagePreviews();
+}
+
+// Image handling functions
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        // Validate file size (2MB max)
+        if (file.size > 2 * 1024 * 1024) {
+            showAlert('File size must be less than 2MB', 'error');
+            input.value = '';
+            return;
+        }
+        
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+            showAlert('Please select a valid image file (JPG, JPEG, PNG)', 'error');
+            input.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            $('#preview-img').attr('src', e.target.result);
+            $('#image-preview').removeClass('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function removeImage() {
+    $('#product_image').val('');
+    $('#image-preview').addClass('hidden');
+    $('#preview-img').attr('src', '');
+}
+
+function removeCurrentImage() {
+    $('#current-image').addClass('hidden');
+    $('#current-img').attr('src', '');
+    // Add hidden input to indicate image should be removed
+    if ($('#remove_current_image').length === 0) {
+        $('#product-form').append('<input type="hidden" id="remove_current_image" name="remove_current_image" value="1">');
+    }
+}
+
+function resetImagePreviews() {
+    $('#product_image').val('');
+    $('#image-preview').addClass('hidden');
+    $('#current-image').addClass('hidden');
+    $('#preview-img').attr('src', '');
+    $('#current-img').attr('src', '');
+    $('#remove_current_image').remove();
 }
 
 // Save product

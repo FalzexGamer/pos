@@ -36,11 +36,13 @@ while ($product = mysqli_fetch_array($query)) {
     
     $html .= '
     <div class="group relative backdrop-blur-sm bg-white/70 rounded-2xl shadow-lg border border-white/20 p-6 cursor-pointer hover:shadow-xl hover:scale-105 transition-all duration-300 transform" onclick="addToCart(' . $product['id'] . ')">
-        <!-- Product Icon -->
+        <!-- Product Image/Icon -->
         <div class="flex items-center justify-center mb-4">
-            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <i class="fas fa-box text-white text-2xl"></i>
-            </div>
+            ' . ($product['img'] && $product['img'] !== '-' ? 
+                '<img src="uploads/products/' . htmlspecialchars($product['img']) . '" alt="' . htmlspecialchars($product['name']) . '" class="w-16 h-16 rounded-2xl object-cover border border-gray-200 group-hover:scale-110 transition-transform duration-300">' :
+                '<div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-box text-white text-2xl"></i>
+                </div>') . '
         </div>
         
         <!-- Product Info -->

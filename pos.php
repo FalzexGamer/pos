@@ -22,7 +22,7 @@ $categories_query = mysqli_query($conn, "SELECT * FROM categories WHERE is_activ
 $categories = [];
 while ($category = mysqli_fetch_array($categories_query)) {
     $category_id = $category['id'];
-    $products_query = mysqli_query($conn, "SELECT id, name, sku, selling_price, stock_quantity FROM products WHERE category_id = $category_id AND is_active = 1 ORDER BY name");
+    $products_query = mysqli_query($conn, "SELECT id, name, sku, selling_price, stock_quantity, img FROM products WHERE category_id = $category_id AND is_active = 1 ORDER BY name");
     $products = [];
     while ($product = mysqli_fetch_array($products_query)) {
         $products[] = $product;
@@ -128,22 +128,28 @@ while ($category = mysqli_fetch_array($categories_query)) {
                     <?php if (empty($category['products'])): ?>
                         <div class="text-sm text-gray-500 italic px-4 py-2 bg-gray-50 rounded-lg">No products in this category</div>
                     <?php else: ?>
-                        <?php foreach ($category['products'] as $product): ?>
-                        <button onclick="addProductToCartFromSidebar(<?= $product['id'] ?>)" 
-                                class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-green-50 hover:text-green-600 transition-colors border border-gray-100 hover:border-green-200">
-                            <div class="flex items-center">
-                                <i class="fas fa-box w-4 h-4 mr-2 text-green-500"></i>
-                                <div class="text-left">
-                                    <div class="font-medium"><?= htmlspecialchars($product['name']) ?></div>
-                                    <div class="text-xs text-gray-400"><?= htmlspecialchars($product['sku']) ?></div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                            <?php foreach ($category['products'] as $product): ?>
+                            <button onclick="addProductToCartFromSidebar(<?= $product['id'] ?>)" 
+                                    class="flex items-center p-2 text-sm text-gray-600 rounded-lg hover:bg-green-50 hover:text-green-600 transition-colors border border-gray-100 hover:border-green-200">
+                                <div class="flex items-center w-full">
+                                    <?php if ($product['img'] && $product['img'] !== '-'): ?>
+                                        <img src="uploads/products/<?= htmlspecialchars($product['img']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-cover flex-shrink-0 mr-2">
+                                    <?php else: ?>
+                                        <div class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0 mr-2">
+                                            <i class="fas fa-box text-white text-xs sm:text-sm"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                    <div class="text-left flex-1 min-w-0">
+                                        <div class="font-medium text-xs sm:text-sm truncate"><?= htmlspecialchars($product['name']) ?></div>
+                                        <div class="text-xs text-gray-400 truncate"><?= htmlspecialchars($product['sku']) ?></div>
+                                        <div class="font-semibold text-green-600 text-xs sm:text-sm">RM <?= number_format($product['selling_price'], 2) ?></div>
+                                        <div class="text-xs text-gray-400">Stock: <?= $product['stock_quantity'] ?></div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-semibold text-green-600">RM <?= number_format($product['selling_price'], 2) ?></div>
-                                <div class="text-xs text-gray-400">Stock: <?= $product['stock_quantity'] ?></div>
-                            </div>
-                        </button>
-                        <?php endforeach; ?>
+                            </button>
+                            <?php endforeach; ?>
+                        </div>
                     <?php endif; ?>
                 </div>
                 <?php endforeach; ?>
