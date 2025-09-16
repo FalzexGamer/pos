@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Sep 11, 2025 at 05:45 AM
+-- Generation Time: Sep 14, 2025 at 03:52 AM
 -- Server version: 8.0.31
 -- PHP Version: 8.0.26
 
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `cart` (
   KEY `idx_cart_product` (`product_id`),
   KEY `idx_cart_sku` (`sku`),
   KEY `idx_cart_created` (`created_at`)
-) ENGINE=MyISAM AUTO_INCREMENT=132 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=136 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `cart`
@@ -121,7 +121,7 @@ INSERT INTO `cart` (`id`, `user_id`, `product_id`, `sku`, `quantity`, `price`, `
 (114, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-10 12:38:49', '2025-09-10 12:39:12'),
 (128, 1, 2, 'PROD002', 10, '25.00', '250.00', 'ordered', '2025-09-10 23:38:57', '2025-09-10 23:39:17'),
 (129, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-10 23:46:01', '2025-09-10 23:46:30'),
-(131, 1, 6, 'asa', 2, '20.00', '40.00', 'active', '2025-09-11 10:10:37', '2025-09-11 10:10:38');
+(135, 1, 6, 'asa', 1, '20.00', '20.00', 'ordered', '2025-09-14 09:31:19', '2025-09-14 09:31:28');
 
 -- --------------------------------------------------------
 
@@ -148,7 +148,13 @@ INSERT INTO `categories` (`id`, `name`, `description`, `is_active`, `created_at`
 (1, 'Electronics', 'Electronic devices and accessories', 1, '2025-08-17 02:55:52', '2025-08-17 02:55:52'),
 (2, 'Clothing', 'Apparel and fashion items', 1, '2025-08-17 02:55:52', '2025-08-18 07:34:38'),
 (3, 'Food & Beverages', 'Food and drink products', 1, '2025-08-17 02:55:52', '2025-08-17 02:55:52'),
-(4, 'Home & Garden', 'Home improvement and garden items', 1, '2025-08-17 02:55:52', '2025-08-25 08:21:58');
+(4, 'Home & Garden', 'Home improvement and garden items', 1, '2025-08-17 02:55:52', '2025-08-25 08:21:58'),
+(5, 'Health & Beauty', 'Health and beauty products', 1, '2025-08-17 02:55:52', '2025-08-17 02:55:52'),
+(6, 'Sports & Fitness', 'Sports equipment and fitness gear', 1, '2025-08-17 02:55:52', '2025-08-17 02:55:52'),
+(7, 'Books & Stationery', 'Books, office supplies and stationery', 1, '2025-08-17 02:55:52', '2025-08-17 02:55:52'),
+(8, 'Toys & Games', 'Children toys and games', 1, '2025-08-17 02:55:52', '2025-08-17 02:55:52'),
+(9, 'Automotive', 'Car accessories and automotive parts', 1, '2025-08-17 02:55:52', '2025-08-17 02:55:52'),
+(10, 'Pet Supplies', 'Pet food, toys and accessories', 1, '2025-08-17 02:55:52', '2025-08-17 02:55:52');
 
 -- --------------------------------------------------------
 
@@ -312,11 +318,46 @@ CREATE TABLE IF NOT EXISTS `products` (
 --
 
 INSERT INTO `products` (`id`, `sku`, `barcode`, `name`, `description`, `category_id`, `supplier_id`, `uom_id`, `cost_price`, `selling_price`, `stock_quantity`, `min_stock_level`, `max_stock_level`, `is_active`, `created_at`, `updated_at`, `img`) VALUES
-(1, 'PROD001', '1234567890123', 'Laptop', 'High-performance laptop', 1, 1, 1, '2500.00', '4000.00', 0, 2, 0, 1, '2025-08-17 02:55:52', '2025-09-11 05:45:37', '-'),
-(2, 'PROD002', '1234567890124', 'T-Shirt', 'Cotton t-shirt', 2, 2, 1, '15.00', '25.00', 41, 10, 0, 1, '2025-08-17 02:55:52', '2025-09-11 05:45:40', '-'),
-(3, 'PROD003', '1234567890125', 'Rice', 'Premium rice 5kg', 3, 1, 3, '20.00', '30.00', 0, 20, 0, 1, '2025-08-17 02:55:52', '2025-09-11 05:45:43', '-'),
-(4, 'TEST', '12345678', 'TEST', '', 3, 1, 4, '100.00', '200.00', 951, 100, 0, 1, '2025-08-18 07:11:03', '2025-09-11 05:45:46', '-'),
-(6, 'asa', '13437', 'dad', '', 1, 2, 3, '10.00', '20.00', 100, 30, 0, 1, '2025-08-25 08:22:39', '2025-09-11 05:45:48', '-');
+(1, 'PROD001', '1234567890123', 'Dell Laptop XPS 13', 'High-performance laptop with Intel i7 processor', 1, 1, 1, '2500.00', '4000.00', 5, 2, 50, 1, '2025-08-17 02:55:52', '2025-09-11 06:38:33', '_1757570029.png'),
+(2, 'PROD002', '1234567890124', 'Cotton T-Shirt', 'Premium cotton t-shirt in various colors', 2, 2, 1, '15.00', '25.00', 41, 10, 100, 1, '2025-08-17 02:55:52', '2025-09-11 06:38:33', 'asa_1757570041.png'),
+(3, 'PROD003', '1234567890125', 'Premium Rice 5kg', 'High-quality jasmine rice 5kg bag', 3, 1, 2, '20.00', '30.00', 25, 20, 200, 1, '2025-08-17 02:55:52', '2025-09-11 06:45:51', 'asa_1757570041.png'),
+(4, 'PROD004', '1234567890126', 'iPhone 15 Pro', 'Latest iPhone with advanced camera system', 1, 1, 1, '800.00', '1200.00', 8, 3, 30, 1, '2025-08-18 07:11:03', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(5, 'PROD005', '1234567890127', 'Nike Air Max', 'Comfortable running shoes', 6, 2, 1, '80.00', '120.00', 15, 5, 50, 1, '2025-08-18 07:12:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(6, 'PROD006', '1234567890128', 'Organic Coffee Beans', 'Premium organic coffee beans 500g', 3, 1, 2, '15.00', '25.00', 30, 10, 100, 1, '2025-08-18 07:13:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(7, 'PROD007', '1234567890129', 'Samsung 55" Smart TV', '4K Ultra HD Smart TV with HDR', 1, 1, 1, '600.00', '900.00', 3, 2, 20, 1, '2025-08-18 07:14:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(8, 'PROD008', '1234567890130', 'Denim Jeans', 'Classic blue denim jeans', 2, 2, 1, '25.00', '45.00', 20, 8, 80, 1, '2025-08-18 07:15:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(9, 'PROD009', '1234567890131', 'Kitchen Knife Set', 'Professional 6-piece knife set', 4, 1, 1, '40.00', '70.00', 12, 5, 40, 1, '2025-08-18 07:16:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(10, 'PROD010', '1234567890132', 'Shampoo & Conditioner', 'Moisturizing hair care set', 5, 2, 1, '8.00', '15.00', 25, 10, 100, 1, '2025-08-18 07:17:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(11, 'PROD011', '1234567890133', 'Yoga Mat', 'Non-slip premium yoga mat', 6, 2, 1, '20.00', '35.00', 18, 5, 50, 1, '2025-08-18 07:18:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(12, 'PROD012', '1234567890134', 'Notebook Set', 'Premium A4 notebooks 5-pack', 7, 1, 1, '12.00', '20.00', 35, 15, 150, 1, '2025-08-18 07:19:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(13, 'PROD013', '1234567890135', 'LEGO Building Set', 'Creative building blocks for kids', 8, 2, 1, '30.00', '50.00', 22, 8, 60, 1, '2025-08-18 07:20:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(14, 'PROD014', '1234567890136', 'Car Air Freshener', 'Long-lasting car air freshener', 9, 1, 1, '3.00', '6.00', 50, 20, 200, 1, '2025-08-18 07:21:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(15, 'PROD015', '1234567890137', 'Dog Food 10kg', 'Premium dry dog food', 10, 2, 2, '35.00', '55.00', 16, 5, 40, 1, '2025-08-18 07:22:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(16, 'PROD016', '1234567890138', 'Wireless Headphones', 'Noise-cancelling wireless headphones', 1, 1, 1, '60.00', '100.00', 14, 5, 50, 1, '2025-08-18 07:23:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(17, 'PROD017', '1234567890139', 'Hoodie Sweatshirt', 'Comfortable cotton hoodie', 2, 2, 1, '22.00', '40.00', 28, 10, 80, 1, '2025-08-18 07:24:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(18, 'PROD018', '1234567890140', 'Fresh Milk 1L', 'Fresh whole milk 1 liter', 3, 1, 3, '2.50', '4.00', 40, 20, 200, 1, '2025-08-18 07:25:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(19, 'PROD019', '1234567890141', 'Garden Hose', 'Flexible garden hose 50ft', 4, 1, 1, '25.00', '45.00', 8, 3, 25, 1, '2025-08-18 07:26:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(20, 'PROD020', '1234567890142', 'Face Cream', 'Anti-aging face cream 50ml', 5, 2, 1, '18.00', '32.00', 20, 8, 60, 1, '2025-08-18 07:27:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(21, 'AUTO001', '2000000000001', 'Car Air Freshener', 'Long-lasting car air freshener', 9, 1, 1, '3.00', '6.00', 50, 20, 200, 1, '2025-08-18 08:00:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(22, 'AUTO002', '2000000000002', 'Engine Oil 5W-30', 'Premium synthetic engine oil 5L', 9, 1, 3, '25.00', '45.00', 30, 10, 100, 1, '2025-08-18 08:01:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(23, 'AUTO003', '2000000000003', 'Car Battery', '12V 60Ah car battery', 9, 2, 1, '80.00', '140.00', 12, 5, 30, 1, '2025-08-18 08:02:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(24, 'AUTO004', '2000000000004', 'Tire Pressure Gauge', 'Digital tire pressure gauge', 9, 1, 1, '8.00', '15.00', 25, 10, 80, 1, '2025-08-18 08:03:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(25, 'AUTO005', '2000000000005', 'Car Floor Mats', 'Rubber car floor mats set of 4', 9, 2, 1, '15.00', '28.00', 20, 8, 60, 1, '2025-08-18 08:04:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(26, 'AUTO006', '2000000000006', 'Windshield Wiper Blades', 'Premium windshield wiper blades pair', 9, 1, 1, '12.00', '22.00', 35, 15, 100, 1, '2025-08-18 08:05:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(27, 'AUTO007', '2000000000007', 'Car Phone Mount', 'Magnetic car phone mount', 9, 2, 1, '6.00', '12.00', 40, 20, 150, 1, '2025-08-18 08:06:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(28, 'AUTO008', '2000000000008', 'Car Charger USB', 'Dual USB car charger 2.4A', 9, 1, 1, '4.00', '8.00', 60, 25, 200, 1, '2025-08-18 08:07:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(29, 'AUTO009', '2000000000009', 'Car Seat Covers', 'Neoprene car seat covers set', 9, 2, 1, '35.00', '65.00', 15, 5, 40, 1, '2025-08-18 08:08:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(30, 'AUTO010', '2000000000010', 'Car Wax Polish', 'Premium car wax polish 500ml', 9, 1, 1, '18.00', '32.00', 22, 8, 70, 1, '2025-08-18 08:09:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(31, 'AUTO011', '2000000000011', 'Jump Starter Pack', 'Portable car jump starter 10000mAh', 9, 2, 1, '45.00', '80.00', 8, 3, 25, 1, '2025-08-18 08:10:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(32, 'AUTO012', '2000000000012', 'Car Vacuum Cleaner', '12V portable car vacuum cleaner', 9, 1, 1, '25.00', '45.00', 18, 6, 50, 1, '2025-08-18 08:11:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(33, 'AUTO013', '2000000000013', 'Tire Repair Kit', 'Complete tire repair kit with tools', 9, 2, 1, '20.00', '35.00', 16, 5, 40, 1, '2025-08-18 08:12:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(34, 'AUTO014', '2000000000014', 'Car Dashboard Camera', 'HD 1080p car dash cam', 9, 1, 1, '60.00', '110.00', 10, 4, 30, 1, '2025-08-18 08:13:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(35, 'AUTO015', '2000000000015', 'Car Sunshade', 'Foldable car sunshade windshield', 9, 2, 1, '12.00', '22.00', 28, 10, 80, 1, '2025-08-18 08:14:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(36, 'AUTO016', '2000000000016', 'Brake Fluid DOT 4', 'High-performance brake fluid 1L', 9, 1, 3, '8.00', '15.00', 32, 12, 100, 1, '2025-08-18 08:15:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(37, 'AUTO017', '2000000000017', 'Car Emergency Kit', 'Complete car emergency kit', 9, 2, 1, '30.00', '55.00', 14, 5, 35, 1, '2025-08-18 08:16:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(38, 'AUTO018', '2000000000018', 'Car Air Filter', 'High-flow air filter replacement', 9, 1, 1, '15.00', '28.00', 24, 8, 60, 1, '2025-08-18 08:17:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(39, 'AUTO019', '2000000000019', 'Car LED Headlight Bulbs', 'Ultra-bright LED headlight bulbs pair', 9, 2, 1, '35.00', '65.00', 12, 4, 30, 1, '2025-08-18 08:18:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(40, 'AUTO020', '2000000000020', 'Car Trunk Organizer', 'Collapsible car trunk organizer', 9, 1, 1, '22.00', '40.00', 18, 6, 45, 1, '2025-08-18 08:19:00', '2025-09-11 06:45:54', 'asa_1757570041.png');
 
 -- --------------------------------------------------------
 
@@ -349,7 +390,7 @@ CREATE TABLE IF NOT EXISTS `sales` (
   KEY `idx_sales_invoice` (`invoice_number`),
   KEY `idx_sales_date` (`created_at`),
   KEY `fk_sales_payment_method` (`payment_method_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `sales`
@@ -416,7 +457,8 @@ INSERT INTO `sales` (`id`, `invoice_number`, `session_id`, `member_id`, `user_id
 (58, '202509090010395', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'Bank Transfer', 5, 'refunded', '\nRefunded on 2025-09-11 01:36:40 - Reason: as - By: System Administrator', '2025-09-09 03:48:42', '2025-09-10 17:36:40'),
 (60, '202509100010024', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'Bank Transfer', 5, 'refunded', '\nRefunded on 2025-09-11 01:36:02 - Reason: sa - By: System Administrator', '2025-09-10 04:39:12', '2025-09-10 17:36:02'),
 (61, '202509100010962', 10, NULL, 1, '250.00', '0.00', '15.00', '265.00', 'Bank Transfer', 5, 'refunded', '\nRefunded on 2025-09-11 01:35:55 - Reason: as - By: System Administrator', '2025-09-10 15:39:17', '2025-09-10 17:35:55'),
-(62, '202509100010896', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'cash', NULL, 'refunded', '\nRefunded on 2025-09-11 01:35:17 - Reason: sa - By: System Administrator', '2025-09-10 15:46:30', '2025-09-10 17:35:16');
+(62, '202509100010896', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'cash', NULL, 'refunded', '\nRefunded on 2025-09-11 01:35:17 - Reason: sa - By: System Administrator', '2025-09-10 15:46:30', '2025-09-10 17:35:16'),
+(63, '202509140010996', 10, NULL, 1, '20.00', '0.00', '1.20', '21.20', 'cash', NULL, 'paid', NULL, '2025-09-14 01:31:28', '2025-09-14 01:31:28');
 
 -- --------------------------------------------------------
 
@@ -448,7 +490,7 @@ CREATE TABLE IF NOT EXISTS `sales_sessions` (
 
 INSERT INTO `sales_sessions` (`id`, `user_id`, `session_start`, `session_end`, `opening_amount`, `closing_amount`, `total_sales`, `total_refunds`, `status`, `notes`, `created_at`, `updated_at`) VALUES
 (11, 2, '2025-09-10 01:40:06', NULL, '0.00', '0.00', '0.00', '0.00', 'open', NULL, '2025-09-10 01:40:06', '2025-09-10 01:40:06'),
-(10, 1, '2025-09-02 02:26:35', NULL, '1000.00', '0.00', '12688.20', '901.00', 'open', '', '2025-09-02 02:26:35', '2025-09-10 17:36:40');
+(10, 1, '2025-09-02 02:26:35', NULL, '1000.00', '0.00', '12709.40', '901.00', 'open', '', '2025-09-02 02:26:35', '2025-09-14 01:31:28');
 
 -- --------------------------------------------------------
 
@@ -469,7 +511,7 @@ CREATE TABLE IF NOT EXISTS `sale_items` (
   PRIMARY KEY (`id`),
   KEY `sale_id` (`sale_id`),
   KEY `product_id` (`product_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `sale_items`
@@ -545,7 +587,8 @@ INSERT INTO `sale_items` (`id`, `sale_id`, `product_id`, `quantity`, `unit_price
 (67, 58, 4, 1, '200.00', '0.00', '200.00', '2025-09-09 03:48:42'),
 (68, 60, 4, 1, '200.00', '0.00', '200.00', '2025-09-10 04:39:12'),
 (69, 61, 2, 10, '25.00', '0.00', '250.00', '2025-09-10 15:39:17'),
-(70, 62, 4, 1, '200.00', '0.00', '200.00', '2025-09-10 15:46:30');
+(70, 62, 4, 1, '200.00', '0.00', '200.00', '2025-09-10 15:46:30'),
+(71, 63, 6, 1, '20.00', '0.00', '20.00', '2025-09-14 01:31:28');
 
 -- --------------------------------------------------------
 
@@ -568,7 +611,7 @@ CREATE TABLE IF NOT EXISTS `stock_movements` (
   KEY `created_by` (`created_by`),
   KEY `idx_stock_movements_product` (`product_id`),
   KEY `idx_stock_movements_date` (`created_at`)
-) ENGINE=MyISAM AUTO_INCREMENT=90 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=91 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `stock_movements`
@@ -663,7 +706,8 @@ INSERT INTO `stock_movements` (`id`, `product_id`, `movement_type`, `quantity`, 
 (86, 4, 'in', 1, 'adjustment', 58, 'Refund for sale #202509090010395', 1, '2025-09-10 17:36:40'),
 (87, 8, 'in', 100, 'adjustment', 8, 'Initial stock', 1, '2025-09-10 18:19:53'),
 (88, 6, 'in', 10, 'adjustment', 6, 'Stock adjustment (increase)', 1, '2025-09-10 18:25:01'),
-(89, 6, 'in', 90, 'adjustment', 6, 'Stock adjustment (increase)', 1, '2025-09-10 18:32:12');
+(89, 6, 'in', 90, 'adjustment', 6, 'Stock adjustment (increase)', 1, '2025-09-10 18:32:12'),
+(90, 6, 'out', 1, 'sale', 63, NULL, 1, '2025-09-14 01:31:28');
 
 -- --------------------------------------------------------
 
@@ -792,7 +836,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `full_name`, `email`, `phone`, `role`, `is_active`, `last_login`, `created_at`, `updated_at`) VALUES
-(1, 'admin', 'admin123', 'System Administrator', 'admin@possystem.com', '0123456789', 'admin', 1, '2025-09-11 04:15:24', '2025-08-17 02:55:52', '2025-09-11 04:15:24'),
+(1, 'admin', 'admin123', 'System Administrator', 'admin@possystem.com', '0123456789', 'admin', 1, '2025-09-14 01:26:07', '2025-08-17 02:55:52', '2025-09-14 01:26:07'),
 (2, 'cashier', 'cashier123', 'Cashier User', 'cashier@possystem.com', NULL, 'cashier', 1, '2025-09-10 01:39:21', '2025-08-17 02:55:52', '2025-09-10 01:39:21');
 
 -- --------------------------------------------------------

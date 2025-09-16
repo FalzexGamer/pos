@@ -5,7 +5,7 @@
 //     die("Connection failed: " . $conn->connect_error);
 // }
 
-$conn = mysqli_connect('localhost', 'root', '', 'pos_system');
+$conn = mysqli_connect('localhost', 'root', '', 'pos');
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);

@@ -92,17 +92,17 @@ while ($category = mysqli_fetch_array($categories_query)) {
                 <!-- Search results will be loaded here -->
             </div>
             
-            <!-- Categories Grid - 4 columns on desktop, 2 on mobile -->
-            <div id="categories-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3">
+            <!-- Categories Grid - 8 columns on desktop, 2 on mobile -->
+            <div id="categories-grid" class="grid grid-cols-2 lg:grid-cols-8 gap-2 lg:gap-3">
                 <?php foreach ($categories as $category): ?>
-                <button class="category-card flex flex-col items-center justify-center p-3 lg:p-4 bg-white border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" 
+                <button class="category-card flex flex-col items-center justify-center p-2 lg:p-3 bg-white border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1" 
                         onclick="toggleCategory('category-<?= $category['id'] ?>')"
                         data-category-id="<?= $category['id'] ?>">
-                    <div class="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-2">
-                        <i class="fas fa-folder text-white text-sm lg:text-base"></i>
+                    <div class="w-6 h-6 lg:w-8 lg:h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-1">
+                        <i class="fas fa-folder text-white text-xs lg:text-sm"></i>
                     </div>
-                    <span class="text-xs lg:text-sm font-medium text-gray-700 text-center leading-tight"><?= htmlspecialchars($category['name']) ?></span>
-                    <span class="text-xs text-gray-500 mt-1"><?= count($category['products']) ?> items</span>
+                    <span class="text-xs font-medium text-gray-700 text-center leading-tight"><?= htmlspecialchars($category['name']) ?></span>
+                    <span class="text-xs text-gray-500 mt-0.5"><?= count($category['products']) ?> items</span>
                 </button>
                 <?php endforeach; ?>
             </div>
@@ -128,7 +128,7 @@ while ($category = mysqli_fetch_array($categories_query)) {
                     <?php if (empty($category['products'])): ?>
                         <div class="text-sm text-gray-500 italic px-4 py-2 bg-gray-50 rounded-lg">No products in this category</div>
                     <?php else: ?>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                             <?php foreach ($category['products'] as $product): ?>
                             <button onclick="addProductToCartFromSidebar(<?= $product['id'] ?>)" 
                                     class="flex items-center p-2 text-sm text-gray-600 rounded-lg hover:bg-green-50 hover:text-green-600 transition-colors border border-gray-100 hover:border-green-200">
