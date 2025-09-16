@@ -21,7 +21,7 @@ try {
     $search_term = mysqli_real_escape_string($conn, $search_term);
     
     // Search in products table by name, SKU, or barcode
-    $query = "SELECT p.id, p.name, p.sku, p.barcode, p.selling_price, p.stock_quantity, 
+    $query = "SELECT p.id, p.name, p.sku, p.barcode, p.selling_price, p.stock_quantity, p.img,
                      c.name as category_name, c.id as category_id
               FROM products p 
               LEFT JOIN categories c ON p.category_id = c.id 
