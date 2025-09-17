@@ -7,10 +7,18 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 $product_id = $_POST['product_id'] ?? 0;
+$quantity = $_POST['quantity'] ?? 1; // Default to 1 if not specified
 $user_id = $_SESSION['user_id'] ?? 0;
 
 if (!$product_id || !$user_id) {
     echo "ERROR: Invalid product ID or user not authenticated";
+    exit;
+}
+
+// Validate quantity
+$quantity = intval($quantity);
+if ($quantity <= 0) {
+    echo "ERROR: Invalid quantity";
     exit;
 }
 
@@ -43,7 +51,7 @@ $existing_item = mysqli_fetch_array($result_existing);
 
 if ($existing_item) {
     // Update existing item quantity
-    $new_quantity = $existing_item['quantity'] + 1;
+    $new_quantity = $existing_item['quantity'] + $quantity;
     $new_subtotal = $new_quantity * $existing_item['price'];
     $cart_id = intval($existing_item['id']);
     
@@ -62,12 +70,12 @@ if ($existing_item) {
 } else {
     // Add new item to cart
     $price = floatval($product['selling_price']);
-    $subtotal = $price;
+    $subtotal = $price * $quantity;
     $sku = mysqli_real_escape_string($conn, $product['sku']);
     
     $insert_query = "
         INSERT INTO cart (user_id, product_id, sku, quantity, price, subtotal) 
-        VALUES ($user_id, $product_id, '$sku', 1, $price, $subtotal) 
+        VALUES ($user_id, $product_id, '$sku', $quantity, $price, $subtotal) 
     ";
     $insert_result = mysqli_query($conn, $insert_query);
     

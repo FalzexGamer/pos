@@ -209,6 +209,9 @@ while ($category = mysqli_fetch_array($categories_query)) {
                             <div class="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                         </div>
                     </div>
+                    <button onclick="openQRScanner()" class="inline-flex items-center justify-center px-4 lg:px-6 py-2 lg:py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm lg:text-base">
+                        <i class="fas fa-qrcode mr-2"></i><span class="hidden sm:inline">Scan QR</span><span class="sm:hidden">QR</span>
+                    </button>
                     <button onclick="clearCart()" class="inline-flex items-center justify-center px-4 lg:px-6 py-2 lg:py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm lg:text-base">
                         <i class="fas fa-trash mr-2"></i><span class="hidden sm:inline">Clear Cart</span><span class="sm:hidden">Clear</span>
                     </button>
@@ -744,6 +747,87 @@ while ($category = mysqli_fetch_array($categories_query)) {
     </div>
 </div>
 
+<!-- QR Scanner Modal -->
+<div id="qr-scanner-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-2 sm:p-4">
+        <div class="backdrop-blur-md bg-white/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col border border-white/20">
+            <div class="p-4 sm:p-6 border-b border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50 flex-shrink-0">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-2 sm:space-x-3">
+                        <div class="p-2 sm:p-3 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl">
+                            <i class="fas fa-qrcode text-white text-lg sm:text-xl"></i>
+                        </div>
+                        <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Scan Customer Order QR</h3>
+                    </div>
+                    <button onclick="closeQRScanner()" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200">
+                        <i class="fas fa-times text-lg sm:text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4 sm:p-6 flex-1 overflow-y-auto">
+                <div class="space-y-4">
+                    <!-- Manual QR Code Input -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-gray-700">Or Enter QR Code Data Manually</label>
+                        <textarea id="manual-qr-input" 
+                                  placeholder="Paste QR code data here or scan using camera..."
+                                  class="w-full px-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-sm lg:text-base"
+                                  rows="4"></textarea>
+                        <button onclick="processQRData()" 
+                                class="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium text-sm lg:text-base">
+                            <i class="fas fa-search mr-2"></i>
+                            Process QR Code
+                        </button>
+                    </div>
+                    
+                    <!-- Camera Scanner (for devices with camera) -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-gray-700">Camera Scanner</label>
+                        <div id="camera-container" class="relative">
+                            <video id="qr-video" class="w-full h-64 bg-gray-100 rounded-xl object-cover" style="display: none;"></video>
+                            <canvas id="qr-canvas" style="display: none;"></canvas>
+                            <div id="camera-placeholder" class="w-full h-64 bg-gray-100 rounded-xl flex items-center justify-center">
+                                <div class="text-center">
+                                    <i class="fas fa-camera text-4xl text-gray-400 mb-2"></i>
+                                    <p class="text-gray-500">Camera scanner will appear here</p>
+                                    <button onclick="startCameraScanner()" 
+                                            class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                                        <i class="fas fa-play mr-2"></i>
+                                        Start Camera
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="qr-processing" class="hidden text-center py-6 lg:py-8">
+                    <div class="w-6 h-6 lg:w-8 lg:h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                    <p class="text-gray-500 text-sm lg:text-base">Processing QR code...</p>
+                </div>
+                
+                <!-- Error State -->
+                <div id="qr-error" class="hidden text-center py-6 lg:py-8">
+                    <div class="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-exclamation-triangle text-xl lg:text-2xl text-red-400"></i>
+                    </div>
+                    <h3 class="text-base lg:text-lg font-medium text-gray-900 mb-2">Invalid QR Code</h3>
+                    <p class="text-xs lg:text-sm text-gray-500">Please scan a valid customer order QR code</p>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="p-4 sm:p-6 border-t border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-gray-100/50 flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 flex-shrink-0">
+                <button onclick="closeQRScanner()" class="px-4 lg:px-6 py-2 lg:py-3 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium text-sm lg:text-base">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Payment Method Selection Modal -->
 <div id="payment-method-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50">
     <div class="flex items-center justify-center min-h-screen p-2 sm:p-4">
@@ -945,7 +1029,7 @@ function loadCart() {
     });
 }
 
-// Process product entry (barcode, SKU, or search)
+// Process product entry (barcode, SKU, order number, or search)
 function processProductEntry(entry) {
     if (isProcessing) return; // Prevent multiple simultaneous requests
     
@@ -955,6 +1039,13 @@ function processProductEntry(entry) {
     $('#entry-loading').removeClass('hidden');
     $('#entry-status').addClass('hidden');
     
+    // Check if entry looks like an order number (starts with 'ORD' or contains order-like pattern)
+    if (isOrderNumber(entry)) {
+        processOrderNumberEntry(entry);
+        return;
+    }
+    
+    // Regular product search
     $.ajax({
         url: 'ajax/find-product.php',
         type: 'POST',
@@ -1018,6 +1109,131 @@ function processProductEntry(entry) {
             // Refocus on product entry
             $('#product-entry').focus();
         }
+    });
+}
+
+// Check if entry looks like an order number
+function isOrderNumber(entry) {
+    // Check if it starts with 'ORD' or matches order number pattern
+    return entry.toUpperCase().startsWith('ORD') || 
+           /^[A-Z]{3}\d{8,}$/.test(entry.toUpperCase()) ||
+           /^ORD\d+$/.test(entry.toUpperCase());
+}
+
+// Process order number entry
+function processOrderNumberEntry(orderNumber) {
+    $.ajax({
+        url: 'ajax/get-order-items.php',
+        type: 'POST',
+        data: { order_number: orderNumber },
+        success: function(response) {
+            try {
+                const data = JSON.parse(response);
+                if (data.success && data.items && data.items.length > 0) {
+                    // Confirm before adding all items to cart
+                    if (confirm(`Found ${data.items.length} items in order ${orderNumber}. Add all items to cart?`)) {
+                        addOrderItemsToCart(data.items, orderNumber);
+                    } else {
+                        // Clear the entry input
+                        $('#product-entry').val('');
+                        showEntryFeedback('cancelled');
+                    }
+                } else {
+                    showAlert(data.message || 'Order not found or has no items', 'error');
+                    showEntryFeedback('error');
+                    $('#product-entry').val('');
+                }
+            } catch (e) {
+                console.error('Error parsing order response:', e);
+                showAlert('Error processing order: ' + response, 'error');
+                showEntryFeedback('error');
+                $('#product-entry').val('');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+            console.error('Response:', xhr.responseText);
+            showAlert('Error processing order: ' + error, 'error');
+            showEntryFeedback('error');
+            $('#product-entry').val('');
+        },
+        complete: function() {
+            // Hide loading status
+            $('#entry-loading').addClass('hidden');
+            $('#entry-status').addClass('hidden');
+            isProcessing = false;
+            
+            // Refocus on product entry
+            $('#product-entry').focus();
+        }
+    });
+}
+
+// Add all items from an order to cart
+function addOrderItemsToCart(items, orderNumber) {
+    let itemsProcessed = 0;
+    let itemsAdded = 0;
+    const totalItems = items.length;
+    
+    // Show progress
+    showAlert(`Adding ${totalItems} items from order ${orderNumber}...`, 'info');
+    
+    items.forEach(item => {
+        // Add each product to cart with its quantity
+        $.ajax({
+            url: 'ajax/add-to-cart.php',
+            type: 'POST',
+            data: { 
+                product_id: item.product_id,
+                quantity: item.quantity 
+            },
+            success: function(response) {
+                itemsProcessed++;
+                if (response.trim().startsWith('SUCCESS:')) {
+                    itemsAdded++;
+                }
+                
+                // Check if all items have been processed
+                if (itemsProcessed === totalItems) {
+                    // All items processed, update cart and show result
+                    updateCart();
+                    
+                    if (itemsAdded === totalItems) {
+                        showAlert(`Successfully added all ${totalItems} items from order ${orderNumber}`, 'success');
+                        showEntryFeedback('success');
+                        playBeepSound();
+                    } else if (itemsAdded > 0) {
+                        showAlert(`Added ${itemsAdded} out of ${totalItems} items from order ${orderNumber}`, 'warning');
+                        showEntryFeedback('warning');
+                    } else {
+                        showAlert(`Failed to add items from order ${orderNumber}`, 'error');
+                        showEntryFeedback('error');
+                    }
+                    
+                    // Clear the entry input
+                    $('#product-entry').val('');
+                }
+            },
+            error: function() {
+                itemsProcessed++;
+                
+                // Check if all items have been processed
+                if (itemsProcessed === totalItems) {
+                    updateCart();
+                    
+                    if (itemsAdded > 0) {
+                        showAlert(`Added ${itemsAdded} out of ${totalItems} items from order ${orderNumber}`, 'warning');
+                        showEntryFeedback('warning');
+                    } else {
+                        showAlert(`Failed to add items from order ${orderNumber}`, 'error');
+                        showEntryFeedback('error');
+                    }
+                    
+                    // Clear the entry input
+                    $('#product-entry').val('');
+                }
+            }
+        });
     });
 }
 
@@ -1117,6 +1333,16 @@ function showEntryFeedback(type) {
         entryInput.addClass('border-red-500 bg-red-50');
         setTimeout(() => {
             entryInput.removeClass('border-red-500 bg-red-50');
+        }, 1000);
+    } else if (type === 'warning') {
+        entryInput.addClass('border-yellow-500 bg-yellow-50');
+        setTimeout(() => {
+            entryInput.removeClass('border-yellow-500 bg-yellow-50');
+        }, 1000);
+    } else if (type === 'cancelled') {
+        entryInput.addClass('border-gray-400 bg-gray-50');
+        setTimeout(() => {
+            entryInput.removeClass('border-gray-400 bg-gray-50');
         }, 1000);
     }
 }
@@ -1850,6 +2076,9 @@ $(document).on('keydown', function(e) {
         if (!$('#payment-method-modal').hasClass('hidden')) {
             closePaymentMethodModal();
         }
+        if (!$('#qr-scanner-modal').hasClass('hidden')) {
+            closeQRScanner();
+        }
     }
 });
 
@@ -2240,6 +2469,183 @@ function clearSearch() {
     
     hideSearchResults();
 }
+
+// QR Scanner Functions
+let qrStream = null;
+let qrScanning = false;
+
+function openQRScanner() {
+    $('#qr-scanner-modal').removeClass('hidden');
+    $('body').addClass('overflow-hidden');
+    resetQRScannerState();
+}
+
+function closeQRScanner() {
+    $('#qr-scanner-modal').addClass('hidden');
+    $('body').removeClass('overflow-hidden');
+    stopCameraScanner();
+    resetQRScannerState();
+}
+
+function resetQRScannerState() {
+    $('#qr-processing').addClass('hidden');
+    $('#qr-error').addClass('hidden');
+    $('#manual-qr-input').val('');
+}
+
+function startCameraScanner() {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(function(stream) {
+                qrStream = stream;
+                const video = document.getElementById('qr-video');
+                const placeholder = document.getElementById('camera-placeholder');
+                
+                video.srcObject = stream;
+                video.style.display = 'block';
+                placeholder.style.display = 'none';
+                
+                video.play();
+                qrScanning = true;
+                
+                // Start QR code detection
+                detectQRCode();
+            })
+            .catch(function(err) {
+                console.error('Camera access error:', err);
+                showAlert('Camera access denied or not available', 'error');
+            });
+    } else {
+        showAlert('Camera not supported on this device', 'error');
+    }
+}
+
+function stopCameraScanner() {
+    if (qrStream) {
+        qrStream.getTracks().forEach(track => track.stop());
+        qrStream = null;
+    }
+    
+    const video = document.getElementById('qr-video');
+    const placeholder = document.getElementById('camera-placeholder');
+    
+    video.style.display = 'none';
+    placeholder.style.display = 'flex';
+    qrScanning = false;
+}
+
+function detectQRCode() {
+    if (!qrScanning) return;
+    
+    const video = document.getElementById('qr-video');
+    const canvas = document.getElementById('qr-canvas');
+    const context = canvas.getContext('2d');
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Simple QR detection - in a real implementation, you'd use a QR library like jsQR
+    // For now, we'll use a timeout-based approach
+    setTimeout(() => {
+        if (qrScanning) {
+            detectQRCode();
+        }
+    }, 100);
+}
+
+function processQRData() {
+    const qrData = $('#manual-qr-input').val().trim();
+    
+    if (!qrData) {
+        showAlert('Please enter QR code data', 'error');
+        return;
+    }
+    
+    // Show processing state
+    $('#qr-processing').removeClass('hidden');
+    $('#qr-error').addClass('hidden');
+    
+    // Process the QR data
+    $.ajax({
+        url: 'ajax/process-qr-order.php',
+        type: 'POST',
+        data: { qr_data: qrData },
+        success: function(response) {
+            $('#qr-processing').addClass('hidden');
+            
+            try {
+                const data = JSON.parse(response);
+                if (data.success) {
+                    // Successfully loaded order
+                    closeQRScanner();
+                    loadOrderFromQR(data.order_data);
+                    showAlert('Order loaded successfully!', 'success');
+                } else {
+                    $('#qr-error').removeClass('hidden');
+                    showAlert(data.message || 'Invalid QR code', 'error');
+                }
+            } catch (e) {
+                $('#qr-error').removeClass('hidden');
+                showAlert('Error processing QR code', 'error');
+            }
+        },
+        error: function() {
+            $('#qr-processing').addClass('hidden');
+            $('#qr-error').removeClass('hidden');
+            showAlert('Error processing QR code', 'error');
+        }
+    });
+}
+
+function loadOrderFromQR(orderData) {
+    // Clear current cart first
+    if (confirm('This will clear your current cart. Load the customer order?')) {
+        // Clear cart
+        $.ajax({
+            url: 'ajax/clear-cart.php',
+            type: 'POST',
+            success: function() {
+                // Add each item from the QR order to the cart
+                let itemsProcessed = 0;
+                const totalItems = orderData.items.length;
+                
+                orderData.items.forEach(item => {
+                    // Add product to cart
+                    $.ajax({
+                        url: 'ajax/add-to-cart.php',
+                        type: 'POST',
+                        data: { 
+                            product_id: item.product_id,
+                            quantity: item.quantity 
+                        },
+                        success: function() {
+                            itemsProcessed++;
+                            if (itemsProcessed === totalItems) {
+                                // All items added, update cart display
+                                updateCart();
+                                showAlert(`Loaded ${totalItems} items from customer order`, 'success');
+                            }
+                        },
+                        error: function() {
+                            itemsProcessed++;
+                            if (itemsProcessed === totalItems) {
+                                updateCart();
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    }
+}
+
+// Handle QR scanner modal clicks
+$(document).on('click', '#qr-scanner-modal', function(e) {
+    if (e.target === this) {
+        closeQRScanner();
+    }
+});
 </script>
 
 <?php include 'include/footer.php'; ?>

@@ -2,10 +2,10 @@
 -- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: Sep 14, 2025 at 03:52 AM
--- Server version: 8.0.31
--- PHP Version: 8.0.26
+-- Host: localhost:3306
+-- Generation Time: Sep 16, 2025 at 04:03 PM
+-- Server version: 8.0.30
+-- PHP Version: 8.2.0
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `pos_system`
+-- Database: `pos`
 --
 
 -- --------------------------------------------------------
@@ -27,9 +27,8 @@ SET time_zone = "+00:00";
 -- Table structure for table `cart`
 --
 
-DROP TABLE IF EXISTS `cart`;
-CREATE TABLE IF NOT EXISTS `cart` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `cart` (
+  `id` int NOT NULL,
   `user_id` int NOT NULL DEFAULT '0',
   `product_id` int NOT NULL DEFAULT '0',
   `sku` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
@@ -38,13 +37,8 @@ CREATE TABLE IF NOT EXISTS `cart` (
   `subtotal` decimal(10,2) NOT NULL DEFAULT '0.00',
   `status` enum('active','ordered','abandoned') DEFAULT 'active',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_cart_user_status` (`user_id`,`status`),
-  KEY `idx_cart_product` (`product_id`),
-  KEY `idx_cart_sku` (`sku`),
-  KEY `idx_cart_created` (`created_at`)
-) ENGINE=MyISAM AUTO_INCREMENT=136 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `cart`
@@ -121,7 +115,9 @@ INSERT INTO `cart` (`id`, `user_id`, `product_id`, `sku`, `quantity`, `price`, `
 (114, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-10 12:38:49', '2025-09-10 12:39:12'),
 (128, 1, 2, 'PROD002', 10, '25.00', '250.00', 'ordered', '2025-09-10 23:38:57', '2025-09-10 23:39:17'),
 (129, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-10 23:46:01', '2025-09-10 23:46:30'),
-(135, 1, 6, 'asa', 1, '20.00', '20.00', 'ordered', '2025-09-14 09:31:19', '2025-09-14 09:31:28');
+(135, 1, 6, 'asa', 1, '20.00', '20.00', 'ordered', '2025-09-14 09:31:19', '2025-09-14 09:31:28'),
+(137, 1, 9, 'PROD009', 3, '70.00', '210.00', 'active', '2025-09-16 23:51:14', '2025-09-16 23:51:15'),
+(138, 1, 36, 'AUTO016', 4, '15.00', '60.00', 'active', '2025-09-16 23:51:19', '2025-09-16 23:51:19');
 
 -- --------------------------------------------------------
 
@@ -129,16 +125,14 @@ INSERT INTO `cart` (`id`, `user_id`, `product_id`, `sku`, `quantity`, `price`, `
 -- Table structure for table `categories`
 --
 
-DROP TABLE IF EXISTS `categories`;
-CREATE TABLE IF NOT EXISTS `categories` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `categories` (
+  `id` int NOT NULL,
   `name` varchar(100) NOT NULL,
   `description` text,
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `categories`
@@ -162,9 +156,8 @@ INSERT INTO `categories` (`id`, `name`, `description`, `is_active`, `created_at`
 -- Table structure for table `company_settings`
 --
 
-DROP TABLE IF EXISTS `company_settings`;
-CREATE TABLE IF NOT EXISTS `company_settings` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `company_settings` (
+  `id` int NOT NULL,
   `company_name` varchar(255) NOT NULL,
   `address` text,
   `phone` varchar(50) DEFAULT NULL,
@@ -174,9 +167,8 @@ CREATE TABLE IF NOT EXISTS `company_settings` (
   `currency` varchar(10) DEFAULT 'MYR',
   `logo` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `company_settings`
@@ -188,12 +180,30 @@ INSERT INTO `company_settings` (`id`, `company_name`, `address`, `phone`, `email
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `customer_cart`
+--
+
+CREATE TABLE `customer_cart` (
+  `id` int NOT NULL,
+  `table_id` int NOT NULL DEFAULT '0',
+  `product_id` int NOT NULL DEFAULT '0',
+  `sku` varchar(150) NOT NULL DEFAULT '-',
+  `quantity` int NOT NULL DEFAULT '1',
+  `price` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `subtotal` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `status` enum('active','ordered','abandoned','paid') NOT NULL DEFAULT 'active',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `members`
 --
 
-DROP TABLE IF EXISTS `members`;
-CREATE TABLE IF NOT EXISTS `members` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `members` (
+  `id` int NOT NULL,
   `member_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
   `phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '-',
@@ -204,12 +214,8 @@ CREATE TABLE IF NOT EXISTS `members` (
   `total_spent` decimal(10,2) DEFAULT '0.00',
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `member_code` (`member_code`),
-  KEY `membership_tier_id` (`membership_tier_id`),
-  KEY `idx_members_code` (`member_code`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `members`
@@ -225,17 +231,15 @@ INSERT INTO `members` (`id`, `member_code`, `name`, `phone`, `email`, `address`,
 -- Table structure for table `membership_tiers`
 --
 
-DROP TABLE IF EXISTS `membership_tiers`;
-CREATE TABLE IF NOT EXISTS `membership_tiers` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `membership_tiers` (
+  `id` int NOT NULL,
   `name` varchar(100) NOT NULL,
   `discount_percentage` decimal(5,2) DEFAULT '0.00',
   `description` text,
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `membership_tiers`
@@ -252,16 +256,14 @@ INSERT INTO `membership_tiers` (`id`, `name`, `discount_percentage`, `descriptio
 -- Table structure for table `payment_methods`
 --
 
-DROP TABLE IF EXISTS `payment_methods`;
-CREATE TABLE IF NOT EXISTS `payment_methods` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `payment_methods` (
+  `id` int NOT NULL,
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
   `description` text,
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `payment_methods`
@@ -284,9 +286,8 @@ INSERT INTO `payment_methods` (`id`, `name`, `description`, `is_active`, `create
 -- Table structure for table `products`
 --
 
-DROP TABLE IF EXISTS `products`;
-CREATE TABLE IF NOT EXISTS `products` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `products` (
+  `id` int NOT NULL,
   `sku` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
   `barcode` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '-',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
@@ -302,16 +303,8 @@ CREATE TABLE IF NOT EXISTS `products` (
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `img` varchar(150) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `sku` (`sku`),
-  UNIQUE KEY `barcode` (`barcode`),
-  KEY `category_id` (`category_id`),
-  KEY `supplier_id` (`supplier_id`),
-  KEY `uom_id` (`uom_id`),
-  KEY `idx_products_sku` (`sku`),
-  KEY `idx_products_barcode` (`barcode`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `img` varchar(150) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `products`
@@ -324,7 +317,7 @@ INSERT INTO `products` (`id`, `sku`, `barcode`, `name`, `description`, `category
 (4, 'PROD004', '1234567890126', 'iPhone 15 Pro', 'Latest iPhone with advanced camera system', 1, 1, 1, '800.00', '1200.00', 8, 3, 30, 1, '2025-08-18 07:11:03', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (5, 'PROD005', '1234567890127', 'Nike Air Max', 'Comfortable running shoes', 6, 2, 1, '80.00', '120.00', 15, 5, 50, 1, '2025-08-18 07:12:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (6, 'PROD006', '1234567890128', 'Organic Coffee Beans', 'Premium organic coffee beans 500g', 3, 1, 2, '15.00', '25.00', 30, 10, 100, 1, '2025-08-18 07:13:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(7, 'PROD007', '1234567890129', 'Samsung 55" Smart TV', '4K Ultra HD Smart TV with HDR', 1, 1, 1, '600.00', '900.00', 3, 2, 20, 1, '2025-08-18 07:14:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(7, 'PROD007', '1234567890129', 'Samsung 55\" Smart TV', '4K Ultra HD Smart TV with HDR', 1, 1, 1, '600.00', '900.00', 3, 2, 20, 1, '2025-08-18 07:14:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (8, 'PROD008', '1234567890130', 'Denim Jeans', 'Classic blue denim jeans', 2, 2, 1, '25.00', '45.00', 20, 8, 80, 1, '2025-08-18 07:15:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (9, 'PROD009', '1234567890131', 'Kitchen Knife Set', 'Professional 6-piece knife set', 4, 1, 1, '40.00', '70.00', 12, 5, 40, 1, '2025-08-18 07:16:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (10, 'PROD010', '1234567890132', 'Shampoo & Conditioner', 'Moisturizing hair care set', 5, 2, 1, '8.00', '15.00', 25, 10, 100, 1, '2025-08-18 07:17:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
@@ -365,9 +358,8 @@ INSERT INTO `products` (`id`, `sku`, `barcode`, `name`, `description`, `category
 -- Table structure for table `sales`
 --
 
-DROP TABLE IF EXISTS `sales`;
-CREATE TABLE IF NOT EXISTS `sales` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `sales` (
+  `id` int NOT NULL,
   `invoice_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
   `session_id` int DEFAULT '0',
   `member_id` int DEFAULT '0',
@@ -381,16 +373,8 @@ CREATE TABLE IF NOT EXISTS `sales` (
   `payment_status` enum('paid','pending','refunded') DEFAULT 'paid',
   `notes` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `invoice_number` (`invoice_number`),
-  KEY `session_id` (`session_id`),
-  KEY `member_id` (`member_id`),
-  KEY `user_id` (`user_id`),
-  KEY `idx_sales_invoice` (`invoice_number`),
-  KEY `idx_sales_date` (`created_at`),
-  KEY `fk_sales_payment_method` (`payment_method_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `sales`
@@ -466,9 +450,8 @@ INSERT INTO `sales` (`id`, `invoice_number`, `session_id`, `member_id`, `user_id
 -- Table structure for table `sales_sessions`
 --
 
-DROP TABLE IF EXISTS `sales_sessions`;
-CREATE TABLE IF NOT EXISTS `sales_sessions` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `sales_sessions` (
+  `id` int NOT NULL,
   `user_id` int NOT NULL DEFAULT '0',
   `session_start` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `session_end` timestamp NULL DEFAULT NULL,
@@ -479,10 +462,8 @@ CREATE TABLE IF NOT EXISTS `sales_sessions` (
   `status` enum('open','closed') DEFAULT 'open',
   `notes` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `sales_sessions`
@@ -498,20 +479,16 @@ INSERT INTO `sales_sessions` (`id`, `user_id`, `session_start`, `session_end`, `
 -- Table structure for table `sale_items`
 --
 
-DROP TABLE IF EXISTS `sale_items`;
-CREATE TABLE IF NOT EXISTS `sale_items` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `sale_items` (
+  `id` int NOT NULL,
   `sale_id` int NOT NULL,
   `product_id` int NOT NULL,
   `quantity` int NOT NULL,
   `unit_price` decimal(10,2) NOT NULL,
   `discount_amount` decimal(10,2) DEFAULT '0.00',
   `total_price` decimal(10,2) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `sale_id` (`sale_id`),
-  KEY `product_id` (`product_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `sale_items`
@@ -596,9 +573,8 @@ INSERT INTO `sale_items` (`id`, `sale_id`, `product_id`, `quantity`, `unit_price
 -- Table structure for table `stock_movements`
 --
 
-DROP TABLE IF EXISTS `stock_movements`;
-CREATE TABLE IF NOT EXISTS `stock_movements` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `stock_movements` (
+  `id` int NOT NULL,
   `product_id` int NOT NULL DEFAULT '0',
   `movement_type` enum('in','out','adjustment') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `quantity` int NOT NULL DEFAULT '0',
@@ -606,12 +582,8 @@ CREATE TABLE IF NOT EXISTS `stock_movements` (
   `reference_id` int DEFAULT '0',
   `notes` text,
   `created_by` int NOT NULL DEFAULT '0',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `created_by` (`created_by`),
-  KEY `idx_stock_movements_product` (`product_id`),
-  KEY `idx_stock_movements_date` (`created_at`)
-) ENGINE=MyISAM AUTO_INCREMENT=91 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `stock_movements`
@@ -715,19 +687,15 @@ INSERT INTO `stock_movements` (`id`, `product_id`, `movement_type`, `quantity`, 
 -- Table structure for table `stock_take_items`
 --
 
-DROP TABLE IF EXISTS `stock_take_items`;
-CREATE TABLE IF NOT EXISTS `stock_take_items` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `stock_take_items` (
+  `id` int NOT NULL,
   `session_id` int NOT NULL,
   `product_id` int NOT NULL,
   `system_quantity` int NOT NULL,
   `counted_quantity` int NOT NULL,
   `difference` int NOT NULL,
   `notes` text,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `session_id` (`session_id`),
-  KEY `product_id` (`product_id`)
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -736,9 +704,8 @@ CREATE TABLE IF NOT EXISTS `stock_take_items` (
 -- Table structure for table `stock_take_sessions`
 --
 
-DROP TABLE IF EXISTS `stock_take_sessions`;
-CREATE TABLE IF NOT EXISTS `stock_take_sessions` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `stock_take_sessions` (
+  `id` int NOT NULL,
   `session_name` varchar(255) NOT NULL,
   `start_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` timestamp NULL DEFAULT NULL,
@@ -746,10 +713,8 @@ CREATE TABLE IF NOT EXISTS `stock_take_sessions` (
   `created_by` int NOT NULL,
   `notes` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `created_by` (`created_by`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -757,9 +722,8 @@ CREATE TABLE IF NOT EXISTS `stock_take_sessions` (
 -- Table structure for table `suppliers`
 --
 
-DROP TABLE IF EXISTS `suppliers`;
-CREATE TABLE IF NOT EXISTS `suppliers` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `suppliers` (
+  `id` int NOT NULL,
   `name` varchar(255) NOT NULL,
   `contact_person` varchar(100) DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,
@@ -767,9 +731,8 @@ CREATE TABLE IF NOT EXISTS `suppliers` (
   `address` text,
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `suppliers`
@@ -785,17 +748,15 @@ INSERT INTO `suppliers` (`id`, `name`, `contact_person`, `phone`, `email`, `addr
 -- Table structure for table `uom`
 --
 
-DROP TABLE IF EXISTS `uom`;
-CREATE TABLE IF NOT EXISTS `uom` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `uom` (
+  `id` int NOT NULL,
   `name` varchar(50) NOT NULL,
   `abbreviation` varchar(10) DEFAULT NULL,
   `description` text,
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `uom`
@@ -814,9 +775,8 @@ INSERT INTO `uom` (`id`, `name`, `abbreviation`, `description`, `is_active`, `cr
 -- Table structure for table `users`
 --
 
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `users` (
+  `id` int NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `full_name` varchar(100) NOT NULL,
@@ -826,17 +786,15 @@ CREATE TABLE IF NOT EXISTS `users` (
   `is_active` tinyint(1) DEFAULT '1',
   `last_login` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `full_name`, `email`, `phone`, `role`, `is_active`, `last_login`, `created_at`, `updated_at`) VALUES
-(1, 'admin', 'admin123', 'System Administrator', 'admin@possystem.com', '0123456789', 'admin', 1, '2025-09-14 01:26:07', '2025-08-17 02:55:52', '2025-09-14 01:26:07'),
+(1, 'admin', 'admin123', 'System Administrator', 'admin@possystem.com', '0123456789', 'admin', 1, '2025-09-16 15:37:03', '2025-08-17 02:55:52', '2025-09-16 15:37:03'),
 (2, 'cashier', 'cashier123', 'Cashier User', 'cashier@possystem.com', NULL, 'cashier', 1, '2025-09-10 01:39:21', '2025-08-17 02:55:52', '2025-09-10 01:39:21');
 
 -- --------------------------------------------------------
@@ -845,9 +803,8 @@ INSERT INTO `users` (`id`, `username`, `password`, `full_name`, `email`, `phone`
 -- Table structure for table `vouchers`
 --
 
-DROP TABLE IF EXISTS `vouchers`;
-CREATE TABLE IF NOT EXISTS `vouchers` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `vouchers` (
+  `id` int NOT NULL,
   `code` varchar(50) NOT NULL,
   `type` enum('percentage','fixed') NOT NULL,
   `value` decimal(10,2) NOT NULL,
@@ -859,10 +816,269 @@ CREATE TABLE IF NOT EXISTS `vouchers` (
   `valid_until` timestamp NULL DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `code` (`code`)
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `cart`
+--
+ALTER TABLE `cart`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_cart_user_status` (`user_id`,`status`),
+  ADD KEY `idx_cart_product` (`product_id`),
+  ADD KEY `idx_cart_sku` (`sku`),
+  ADD KEY `idx_cart_created` (`created_at`);
+
+--
+-- Indexes for table `categories`
+--
+ALTER TABLE `categories`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `company_settings`
+--
+ALTER TABLE `company_settings`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `customer_cart`
+--
+ALTER TABLE `customer_cart`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `table_id` (`table_id`),
+  ADD KEY `product_id` (`product_id`),
+  ADD KEY `sku` (`sku`),
+  ADD KEY `status` (`status`),
+  ADD KEY `created_at` (`created_at`);
+
+--
+-- Indexes for table `members`
+--
+ALTER TABLE `members`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `member_code` (`member_code`),
+  ADD KEY `membership_tier_id` (`membership_tier_id`),
+  ADD KEY `idx_members_code` (`member_code`);
+
+--
+-- Indexes for table `membership_tiers`
+--
+ALTER TABLE `membership_tiers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `payment_methods`
+--
+ALTER TABLE `payment_methods`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `products`
+--
+ALTER TABLE `products`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `sku` (`sku`),
+  ADD UNIQUE KEY `barcode` (`barcode`),
+  ADD KEY `category_id` (`category_id`),
+  ADD KEY `supplier_id` (`supplier_id`),
+  ADD KEY `uom_id` (`uom_id`),
+  ADD KEY `idx_products_sku` (`sku`),
+  ADD KEY `idx_products_barcode` (`barcode`);
+
+--
+-- Indexes for table `sales`
+--
+ALTER TABLE `sales`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `invoice_number` (`invoice_number`),
+  ADD KEY `session_id` (`session_id`),
+  ADD KEY `member_id` (`member_id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `idx_sales_invoice` (`invoice_number`),
+  ADD KEY `idx_sales_date` (`created_at`),
+  ADD KEY `fk_sales_payment_method` (`payment_method_id`);
+
+--
+-- Indexes for table `sales_sessions`
+--
+ALTER TABLE `sales_sessions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `sale_items`
+--
+ALTER TABLE `sale_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `sale_id` (`sale_id`),
+  ADD KEY `product_id` (`product_id`);
+
+--
+-- Indexes for table `stock_movements`
+--
+ALTER TABLE `stock_movements`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `created_by` (`created_by`),
+  ADD KEY `idx_stock_movements_product` (`product_id`),
+  ADD KEY `idx_stock_movements_date` (`created_at`);
+
+--
+-- Indexes for table `stock_take_items`
+--
+ALTER TABLE `stock_take_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `session_id` (`session_id`),
+  ADD KEY `product_id` (`product_id`);
+
+--
+-- Indexes for table `stock_take_sessions`
+--
+ALTER TABLE `stock_take_sessions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `created_by` (`created_by`);
+
+--
+-- Indexes for table `suppliers`
+--
+ALTER TABLE `suppliers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `uom`
+--
+ALTER TABLE `uom`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`);
+
+--
+-- Indexes for table `vouchers`
+--
+ALTER TABLE `vouchers`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `code` (`code`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `cart`
+--
+ALTER TABLE `cart`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=139;
+
+--
+-- AUTO_INCREMENT for table `categories`
+--
+ALTER TABLE `categories`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `company_settings`
+--
+ALTER TABLE `company_settings`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `customer_cart`
+--
+ALTER TABLE `customer_cart`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `members`
+--
+ALTER TABLE `members`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `membership_tiers`
+--
+ALTER TABLE `membership_tiers`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `payment_methods`
+--
+ALTER TABLE `payment_methods`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+
+--
+-- AUTO_INCREMENT for table `products`
+--
+ALTER TABLE `products`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+
+--
+-- AUTO_INCREMENT for table `sales`
+--
+ALTER TABLE `sales`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+
+--
+-- AUTO_INCREMENT for table `sales_sessions`
+--
+ALTER TABLE `sales_sessions`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `sale_items`
+--
+ALTER TABLE `sale_items`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
+
+--
+-- AUTO_INCREMENT for table `stock_movements`
+--
+ALTER TABLE `stock_movements`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
+
+--
+-- AUTO_INCREMENT for table `stock_take_items`
+--
+ALTER TABLE `stock_take_items`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `stock_take_sessions`
+--
+ALTER TABLE `stock_take_sessions`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `suppliers`
+--
+ALTER TABLE `suppliers`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `uom`
+--
+ALTER TABLE `uom`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `vouchers`
+--
+ALTER TABLE `vouchers`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

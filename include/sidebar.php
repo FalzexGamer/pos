@@ -24,6 +24,12 @@
                 <span>Point of Sale</span>
             </a>
 
+            <!-- Customer Orders -->
+            <a href="order-list.php" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                <i class="fas fa-list-alt w-5 h-5 mr-3"></i>
+                <span>Customer Orders</span>
+            </a>
+
             <!-- Sales -->
             <div class="space-y-1">
                 <button class="w-full flex items-center justify-between px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors" onclick="toggleSubmenu('sales-submenu')">
