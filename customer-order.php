@@ -4,6 +4,16 @@ include 'include/conn.php';
 // Get table ID from URL parameter (default to 1 if not provided)
 $table_id = isset($_GET['table']) ? (int)$_GET['table'] : 1;
 
+// Validate table ID (must be positive number)
+if ($table_id <= 0) {
+    $table_id = 1;
+}
+
+// Also support 't' parameter as alternative
+if (isset($_GET['t']) && (int)$_GET['t'] > 0) {
+    $table_id = (int)$_GET['t'];
+}
+
 // Get categories and products
 $categories_query = mysqli_query($conn, "SELECT * FROM categories WHERE is_active = 1 ORDER BY name");
 $categories = [];
@@ -297,6 +307,7 @@ $company = mysqli_fetch_array($company_query);
             </div>
         </div>
     </div>
+
 
     <script>
         let customerCart = [];
@@ -605,6 +616,7 @@ $company = mysqli_fetch_array($company_query);
                 }, 300);
             }, 3000);
         }
+
 
         // Initialize page
         $(document).ready(function() {

@@ -34,7 +34,7 @@ try {
               FROM customer_cart cc 
               LEFT JOIN products p ON cc.product_id = p.id 
               LEFT JOIN categories c ON p.category_id = c.id
-              WHERE cc.order_id = '$order_number'
+              WHERE cc.order_number = '$order_number'
               AND cc.status IN ('active', 'ordered', 'preparing', 'ready', 'served')
               ORDER BY cc.created_at ASC";
     
@@ -81,8 +81,8 @@ try {
                             MAX(cc.updated_at) as updated_at,
                             GROUP_CONCAT(DISTINCT cc.status) as statuses
                          FROM customer_cart cc 
-                         WHERE cc.order_id = '$order_number'
-                         GROUP BY cc.order_id, cc.table_id";
+                         WHERE cc.order_number = '$order_number'
+                         GROUP BY cc.order_number, cc.table_id";
     
     $order_info_result = mysqli_query($conn, $order_info_query);
     $order_info = null;

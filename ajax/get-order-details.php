@@ -16,7 +16,7 @@ try {
               FROM customer_cart cc 
               LEFT JOIN products p ON cc.product_id = p.id 
               LEFT JOIN categories c ON p.category_id = c.id
-              WHERE cc.order_id = '" . mysqli_real_escape_string($conn, $order_number) . "'
+              WHERE cc.order_number = '" . mysqli_real_escape_string($conn, $order_number) . "'
               ORDER BY cc.created_at ASC";
     
     $result = mysqli_query($conn, $query);

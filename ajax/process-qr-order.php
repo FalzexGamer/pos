@@ -10,23 +10,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     try {
-        // Try to decode the QR data as JSON
+        // Check if QR data is a simple order number or JSON format
         $order_data = json_decode($qr_data, true);
         
-        if (!$order_data) {
-            throw new Exception('Invalid QR code format');
+        if ($order_data) {
+            // Old JSON format - extract order_id
+            if (!isset($order_data['order_id'])) {
+                throw new Exception('Invalid QR code format - missing order_id');
+            }
+            $order_number = $order_data['order_id'];
+        } else {
+            // New simple format - QR data is just the order number
+            $order_number = trim($qr_data);
         }
         
-        // Validate required fields
-        if (!isset($order_data['order_id']) || !isset($order_data['items']) || !isset($order_data['table_id'])) {
-            throw new Exception('Missing required order information');
+        // Validate order number format
+        if (empty($order_number) || !preg_match('/^ORD\d+$/', $order_number)) {
+            throw new Exception('Invalid order number format');
         }
         
-        // Verify the order exists in the database
-        $order_id = $order_data['order_id'];
-        $table_id = $order_data['table_id'];
-        
-        $verify_query = "SELECT COUNT(*) as count FROM customer_cart WHERE order_id = '$order_id' AND table_id = $table_id";
+        // Verify the order exists in the database using order_number
+        $verify_query = "SELECT COUNT(*) as count FROM customer_cart WHERE order_number = '$order_number'";
         $verify_result = mysqli_query($conn, $verify_query);
         $verify_count = mysqli_fetch_array($verify_result)['count'];
         
@@ -38,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $order_details_query = "
             SELECT 
                 cc.order_id,
+                cc.order_number,
                 cc.table_id,
                 cc.product_id,
                 p.name as product_name,
@@ -49,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 cc.created_at
             FROM customer_cart cc
             JOIN products p ON cc.product_id = p.id
-            WHERE cc.order_id = '$order_id' AND cc.table_id = $table_id
+            WHERE cc.order_number = '$order_number'
             ORDER BY cc.created_at ASC
         ";
         
@@ -78,7 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'success' => true,
             'message' => 'Order loaded successfully',
             'order_data' => [
-                'order_id' => $order_id,
+                'order_id' => $order_number,
+                'order_number' => $order_number,
                 'table_id' => $table_id,
                 'items' => $order_items,
                 'subtotal' => $total_subtotal,

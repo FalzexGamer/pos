@@ -310,7 +310,7 @@ function viewOrderDetails(orderId) {
     $.ajax({
         url: 'ajax/get-order-details.php',
         type: 'GET',
-        data: { order_id: orderId },
+        data: { order_number: orderId },
         success: function(response) {
             try {
                 const data = JSON.parse(response);
@@ -351,7 +351,7 @@ function updateOrderStatus(orderId, status) {
         url: 'ajax/update-order-status.php',
         type: 'POST',
         data: {
-            order_id: orderId,
+            order_number: orderId,
             status: status
         },
         success: function(response) {
@@ -381,7 +381,7 @@ function deleteOrder(orderId) {
     $.ajax({
         url: 'ajax/delete-customer-order.php',
         type: 'POST',
-        data: { order_id: orderId },
+        data: { order_number: orderId },
         success: function(response) {
             try {
                 const data = JSON.parse(response);

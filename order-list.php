@@ -37,21 +37,7 @@ $company = mysqli_fetch_array($company_query);
 
         <!-- Filter Section -->
         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
-                    <select id="status-filter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="ordered">Ordered</option>
-                        <option value="preparing">Preparing</option>
-                        <option value="ready">Ready</option>
-                        <option value="served">Served</option>
-                        <option value="paid">Paid</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="abandoned">Abandoned</option>
-                    </select>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Table</label>
                     <select id="table-filter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -153,7 +139,6 @@ $company = mysqli_fetch_array($company_query);
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Table</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -237,7 +222,7 @@ $(document).ready(function() {
     loadOrderList();
     
     // Filter change events
-    $('#status-filter, #table-filter, #date-filter').on('change', function() {
+    $('#table-filter, #date-filter').on('change', function() {
         loadOrderList();
     });
     
@@ -256,7 +241,6 @@ $(document).ready(function() {
 });
 
 function loadOrderList() {
-    const status = $('#status-filter').val();
     const table = $('#table-filter').val();
     const dateRange = $('#date-filter').val();
     const search = $('#search-input').val();
@@ -265,7 +249,6 @@ function loadOrderList() {
         url: 'ajax/get-order-list.php',
         type: 'GET',
         data: {
-            status: status,
             table_id: table,
             date_range: dateRange,
             search: search
@@ -294,12 +277,11 @@ function displayOrders(orders) {
     tbody.empty();
     
     if (orders.length === 0) {
-        tbody.html('<tr><td colspan="8" class="text-center">No orders found</td></tr>');
+        tbody.html('<tr><td colspan="7" class="text-center">No orders found</td></tr>');
         return;
     }
     
     orders.forEach(order => {
-        const statusBadge = getStatusBadge(order.status);
         const createdDate = new Date(order.created_at).toLocaleString();
         const updatedDate = new Date(order.last_updated_at).toLocaleString();
         
@@ -326,16 +308,12 @@ function displayOrders(orders) {
                     <div class="text-sm font-medium text-gray-900">RM ${parseFloat(order.total_amount).toFixed(2)}</div>
                     <div class="text-sm text-gray-500">RM ${parseFloat(order.subtotal).toFixed(2)} + Tax</div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${createdDate}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${updatedDate}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div class="flex items-center space-x-2">
                         <button onclick="viewOrderDetails('${order.order_number}')" class="text-blue-600 hover:text-blue-900 p-1 rounded" title="View Details">
                             <i class="fas fa-eye"></i>
-                        </button>
-                        <button onclick="updateOrderStatus('${order.order_number}', '${getNextStatus(order.status)}')" class="text-green-600 hover:text-green-900 p-1 rounded" title="Next Status">
-                            <i class="fas fa-arrow-right"></i>
                         </button>
                         <button onclick="printOrder('${order.order_number}')" class="text-indigo-600 hover:text-indigo-900 p-1 rounded" title="Print">
                             <i class="fas fa-print"></i>
@@ -352,32 +330,7 @@ function displayOrders(orders) {
     });
 }
 
-function getStatusBadge(status) {
-    const badges = {
-        'active': '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span>',
-        'ordered': '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Ordered</span>',
-        'preparing': '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800">Preparing</span>',
-        'ready': '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Ready</span>',
-        'served': '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">Served</span>',
-        'paid': '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Paid</span>',
-        'cancelled': '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Cancelled</span>',
-        'abandoned': '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Abandoned</span>'
-    };
-    
-    return badges[status] || '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Unknown</span>';
-}
 
-function getNextStatus(currentStatus) {
-    const statusFlow = {
-        'active': 'ordered',
-        'ordered': 'preparing',
-        'preparing': 'ready',
-        'ready': 'served',
-        'served': 'paid'
-    };
-    
-    return statusFlow[currentStatus] || 'paid';
-}
 
 function updateSummary(summary) {
     $('#active-count').text(summary.active || 0);
@@ -460,7 +413,7 @@ function deleteOrder(orderNumber) {
     }
     
     $.ajax({
-        url: 'ajax/delete-order.php',
+        url: 'ajax/delete-customer-order.php',
         type: 'POST',
         data: { order_number: orderNumber },
         success: function(response) {
@@ -488,13 +441,11 @@ function refreshOrders() {
 }
 
 function exportOrders() {
-    const status = $('#status-filter').val();
     const table = $('#table-filter').val();
     const dateRange = $('#date-filter').val();
     const search = $('#search-input').val();
     
     const params = new URLSearchParams({
-        status: status,
         table_id: table,
         date_range: dateRange,
         search: search,

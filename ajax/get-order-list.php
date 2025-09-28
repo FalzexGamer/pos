@@ -42,14 +42,14 @@ try {
     
     if (!empty($search)) {
         $search = mysqli_real_escape_string($conn, $search);
-        $where_conditions[] = "(cc.order_id LIKE '%$search%' OR p.name LIKE '%$search%' OR cc.sku LIKE '%$search%')";
+        $where_conditions[] = "(cc.order_number LIKE '%$search%' OR p.name LIKE '%$search%' OR cc.sku LIKE '%$search%')";
     }
     
     $where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
     
-    // Get orders grouped by order_id (distinct order_id for each order)
+    // Get orders grouped by order_number (distinct order_number for each order)
     $query = "SELECT 
-                cc.order_id as order_number,
+                cc.order_number,
                 cc.table_id,
                 COUNT(*) as total_items,
                 SUM(cc.subtotal) as subtotal,
@@ -77,8 +77,8 @@ try {
               FROM customer_cart cc 
               LEFT JOIN products p ON cc.product_id = p.id 
               $where_clause
-              AND cc.order_id IS NOT NULL
-              GROUP BY cc.order_id, cc.table_id
+              AND cc.order_number IS NOT NULL
+              GROUP BY cc.order_number, cc.table_id
               ORDER BY MAX(cc.created_at) DESC";
     
     $result = mysqli_query($conn, $query);
@@ -101,7 +101,7 @@ try {
     
     while ($row = mysqli_fetch_assoc($result)) {
         $orders[] = [
-            'order_number' => $row['order_number'], // This is now the order_id
+            'order_number' => $row['order_number'], // This is now the order_number
             'table_id' => $row['table_id'],
             'total_items' => (int)$row['total_items'],
             'subtotal' => (float)$row['subtotal'],

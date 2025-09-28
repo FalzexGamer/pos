@@ -9,7 +9,7 @@ function generateQRCode($data, $size = 200) {
 
 // Function to generate unique order ID
 function generateOrderId() {
-    return 'ORD' . date('Ymd') . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
+    return 'ORD' . date('YmdHi') . str_pad(mt_rand(1, 99), 2, '0', STR_PAD_LEFT);
 }
 
 // Check if request method is POST and required data is present
@@ -55,9 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table_id']) && isset(
             // Update stock
             mysqli_query($conn, "UPDATE products SET stock_quantity = stock_quantity - $quantity WHERE id = $product_id");
             
-            // Insert into customer_cart with order_id
-            $insert_query = "INSERT INTO customer_cart (order_id, table_id, product_id, sku, quantity, price, subtotal, status, created_at) 
-                            VALUES ('$order_id', $table_id, $product_id, '{$product['sku']}', $quantity, $price, $item_subtotal, 'ordered', NOW())";
+            // Insert into customer_cart with order_id and order_number
+            $insert_query = "INSERT INTO customer_cart (order_id, order_number, table_id, product_id, sku, quantity, price, subtotal, status, created_at) 
+                            VALUES ('$order_id', '$order_id', $table_id, $product_id, '{$product['sku']}', $quantity, $price, $item_subtotal, 'ordered', NOW())";
             
             if (!mysqli_query($conn, $insert_query)) {
                 throw new Exception("Failed to insert cart item: " . mysqli_error($conn));
@@ -81,8 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table_id']) && isset(
             'status' => 'ordered'
         ];
         
-        // Generate QR code data
-        $qr_data = json_encode($order_data);
+        // Generate QR code data - use order_number for scanning
+        $qr_data = $order_id; // Just the order number, not full JSON
         $qr_code_url = generateQRCode($qr_data, 300);
         
         // Commit transaction

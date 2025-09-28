@@ -8,11 +8,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Get POST data
-$order_id = isset($_POST['order_id']) ? (int)$_POST['order_id'] : 0;
+$order_number = isset($_POST['order_number']) ? trim($_POST['order_number']) : '';
 $status = isset($_POST['status']) ? $_POST['status'] : '';
 
-if ($order_id <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Invalid order ID']);
+if (empty($order_number)) {
+    echo json_encode(['success' => false, 'message' => 'Invalid order number']);
     exit;
 }
 
@@ -22,8 +22,11 @@ if (!in_array($status, ['active', 'ordered', 'paid', 'abandoned'])) {
 }
 
 try {
+    // Sanitize order number
+    $order_number = mysqli_real_escape_string($conn, $order_number);
+    
     // Check if order exists
-    $check_query = "SELECT * FROM customer_cart WHERE id = $order_id";
+    $check_query = "SELECT * FROM customer_cart WHERE order_number = '$order_number' LIMIT 1";
     $check_result = mysqli_query($conn, $check_query);
     
     if (!$check_result || mysqli_num_rows($check_result) === 0) {
@@ -32,8 +35,8 @@ try {
     
     $order = mysqli_fetch_assoc($check_result);
     
-    // Update order status
-    $update_query = "UPDATE customer_cart SET status = '" . mysqli_real_escape_string($conn, $status) . "' WHERE id = $order_id";
+    // Update order status for all items with this order_number
+    $update_query = "UPDATE customer_cart SET status = '" . mysqli_real_escape_string($conn, $status) . "' WHERE order_number = '$order_number'";
     
     if (!mysqli_query($conn, $update_query)) {
         throw new Exception("Failed to update order status: " . mysqli_error($conn));
