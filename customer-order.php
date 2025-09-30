@@ -467,7 +467,7 @@ $company = mysqli_fetch_array($company_query);
                 return;
             }
             
-            if (confirm('Place this order?')) {
+            if (confirm('Place this order and proceed to payment?')) {
                 // Send order to server
                 $.ajax({
                     url: 'ajax/submit-customer-order.php',
@@ -482,13 +482,18 @@ $company = mysqli_fetch_array($company_query);
                             if (data.success) {
                                 customerCart = [];
                                 updateCustomerCartDisplay();
-                                showSuccessModal(data.receipt_data);
-                                showToast('Order placed successfully!', 'success');
+                                showToast('Order placed successfully! Redirecting to payment...', 'success');
+                                
+                                // Redirect to payment gateway with order number
+                                setTimeout(function() {
+                                    window.location.href = 'paymentgateway.php?order_number=' + encodeURIComponent(data.receipt_data.order_id);
+                                }, 1000);
                             } else {
                                 showToast(data.message || 'Failed to place order', 'error');
                             }
                         } catch (e) {
                             showToast('Error processing order', 'error');
+                            console.error(e);
                         }
                     },
                     error: function() {
