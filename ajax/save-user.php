@@ -75,8 +75,28 @@ if (!empty($errors)) {
     exit;
 }
 
+// Get permissions
+$permissions = isset($_POST['permissions']) ? $_POST['permissions'] : [];
+
+// Build permission fields for SQL
+$permissionFields = [
+    'access_dashboard', 'access_pos', 'access_sales', 'access_opening_closing',
+    'access_products', 'access_categories', 'access_suppliers', 'access_uom',
+    'access_stock_take', 'access_inventory_report', 'access_members',
+    'access_customer_orders', 'access_customer_order', 'access_sales_report',
+    'access_member_report', 'access_profit_loss'
+];
+
+$permissionValues = [];
+foreach ($permissionFields as $field) {
+    $value = in_array($field, $permissions) ? 1 : 0;
+    $permissionValues[] = "$field = $value";
+}
+
+$permissionSql = implode(', ', $permissionValues);
+
 // Insert new user
-$insertQuery = "INSERT INTO users (username, password, full_name, email, phone, role, is_active, created_at, updated_at) 
+$insertQuery = "INSERT INTO users (username, password, full_name, email, phone, role, is_active, $permissionSql, created_at, updated_at) 
                 VALUES ('$username', '$password', '$full_name', '$email', '$phone', '$role', $is_active, NOW(), NOW())";
 
 if (mysqli_query($conn, $insertQuery)) {

@@ -68,6 +68,26 @@ if (!empty($errors)) {
     exit;
 }
 
+// Get permissions
+$permissions = isset($_POST['permissions']) ? $_POST['permissions'] : [];
+
+// Build permission fields for SQL
+$permissionFields = [
+    'access_dashboard', 'access_pos', 'access_sales', 'access_opening_closing',
+    'access_products', 'access_categories', 'access_suppliers', 'access_uom',
+    'access_stock_take', 'access_inventory_report', 'access_members',
+    'access_customer_orders', 'access_customer_order', 'access_sales_report',
+    'access_member_report', 'access_profit_loss'
+];
+
+$permissionValues = [];
+foreach ($permissionFields as $field) {
+    $value = in_array($field, $permissions) ? 1 : 0;
+    $permissionValues[] = "$field = $value";
+}
+
+$permissionSql = implode(', ', $permissionValues);
+
 // Update user
 $updateQuery = "UPDATE users SET 
                 username = '$username',
@@ -76,6 +96,7 @@ $updateQuery = "UPDATE users SET
                 phone = '$phone',
                 role = '$role',
                 is_active = $is_active,
+                $permissionSql,
                 updated_at = NOW()
                 WHERE id = $id";
 

@@ -2,10 +2,10 @@
 -- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Sep 16, 2025 at 04:03 PM
--- Server version: 8.0.30
--- PHP Version: 8.2.0
+-- Host: 127.0.0.1:3306
+-- Generation Time: Oct 05, 2025 at 04:08 AM
+-- Server version: 8.0.31
+-- PHP Version: 8.0.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,11 +24,22 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Stand-in structure for view `access_level_summary`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `access_level_summary`;
+CREATE TABLE IF NOT EXISTS `access_level_summary` (
+);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `cart`
 --
 
-CREATE TABLE `cart` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `cart`;
+CREATE TABLE IF NOT EXISTS `cart` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL DEFAULT '0',
   `product_id` int NOT NULL DEFAULT '0',
   `sku` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
@@ -37,87 +48,27 @@ CREATE TABLE `cart` (
   `subtotal` decimal(10,2) NOT NULL DEFAULT '0.00',
   `status` enum('active','ordered','abandoned') DEFAULT 'active',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_cart_user_status` (`user_id`,`status`),
+  KEY `idx_cart_product` (`product_id`),
+  KEY `idx_cart_sku` (`sku`),
+  KEY `idx_cart_created` (`created_at`)
+) ENGINE=MyISAM AUTO_INCREMENT=234 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `cart`
 --
 
 INSERT INTO `cart` (`id`, `user_id`, `product_id`, `sku`, `quantity`, `price`, `subtotal`, `status`, `created_at`, `updated_at`) VALUES
-(13, 1, 2, 'PROD002', 1, '25.00', '25.00', 'ordered', '2025-08-17 12:25:35', '2025-08-17 16:10:20'),
-(12, 1, 1, 'PROD001', 2, '4000.00', '8000.00', 'ordered', '2025-08-17 11:51:41', '2025-08-17 16:10:20'),
-(4, 1, 3, 'PROD003', 2, '30.00', '60.00', 'ordered', '2025-08-17 11:11:00', '2025-08-17 11:12:00'),
-(8, 1, 3, 'PROD003', 2, '30.00', '60.00', 'ordered', '2025-08-17 11:18:52', '2025-08-17 11:31:07'),
-(14, 2, 1, 'PROD001', 1, '4000.00', '4000.00', 'ordered', '2025-08-17 14:43:28', '2025-08-17 14:43:34'),
-(15, 1, 1, 'PROD001', 2, '4000.00', '8000.00', 'ordered', '2025-08-18 16:18:41', '2025-08-18 16:20:28'),
-(16, 1, 3, 'PROD003', 1, '30.00', '30.00', 'ordered', '2025-08-18 16:19:34', '2025-08-18 16:20:28'),
-(17, 1, 1, 'PROD00', 2, '4000.00', '8000.00', 'ordered', '2025-08-20 10:42:34', '2025-08-20 10:43:00'),
-(19, 1, 1, 'PROD00', 2, '4000.00', '8000.00', 'ordered', '2025-08-21 09:32:32', '2025-08-21 09:36:24'),
-(20, 1, 2, 'PROD002', 1, '25.00', '25.00', 'ordered', '2025-08-21 09:36:00', '2025-08-21 09:36:24'),
-(21, 1, 3, 'PROD003', 1, '30.00', '30.00', 'ordered', '2025-08-21 09:36:08', '2025-08-21 09:36:24'),
-(27, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-08-21 10:10:11', '2025-08-21 10:10:48'),
-(26, 1, 1, 'PROD001', 3, '4000.00', '12000.00', 'ordered', '2025-08-21 10:09:50', '2025-08-21 10:10:48'),
-(25, 1, 2, 'PROD002', 1, '25.00', '25.00', 'ordered', '2025-08-21 10:09:38', '2025-08-21 10:10:48'),
-(56, 1, 6, 'asas', 1, '200.00', '200.00', 'ordered', '2025-08-29 10:22:34', '2025-08-29 10:22:39'),
-(55, 1, 6, 'asas', 1, '200.00', '200.00', 'ordered', '2025-08-29 10:21:53', '2025-08-29 10:22:00'),
-(43, 1, 3, 'PROD003', 1, '30.00', '30.00', 'ordered', '2025-08-25 14:55:36', '2025-08-25 14:55:40'),
-(54, 1, 6, 'asas', 1, '200.00', '200.00', 'ordered', '2025-08-27 16:08:41', '2025-08-29 00:23:53'),
-(57, 1, 2, 'PROD002', 4, '25.00', '100.00', 'ordered', '2025-08-29 10:23:10', '2025-08-29 10:23:18'),
-(58, 1, 6, 'asas', 1, '200.00', '200.00', 'ordered', '2025-08-29 14:20:47', '2025-08-29 14:23:30'),
-(61, 1, 2, 'PROD002', 1, '25.00', '25.00', 'ordered', '2025-09-02 10:01:29', '2025-09-02 10:32:20'),
-(62, 1, 6, 'asas', 1, '200.00', '200.00', 'ordered', '2025-09-02 10:37:17', '2025-09-02 10:37:40'),
-(63, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-02 13:01:45', '2025-09-02 13:01:51'),
-(64, 1, 6, 'asas', 1, '200.00', '200.00', 'ordered', '2025-09-02 13:04:48', '2025-09-02 13:04:58'),
-(66, 1, 6, 'asas', 1, '200.00', '200.00', 'ordered', '2025-09-03 13:20:14', '2025-09-03 14:46:47'),
-(67, 1, 6, 'asas', 1, '200.00', '200.00', 'ordered', '2025-09-03 14:52:40', '2025-09-03 14:53:03'),
-(68, 1, 3, 'PROD003', 1, '30.00', '30.00', 'ordered', '2025-09-03 14:53:44', '2025-09-03 14:53:50'),
-(69, 1, 6, 'asas', 1, '200.00', '200.00', 'ordered', '2025-09-03 14:54:34', '2025-09-03 14:54:37'),
-(70, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-03 15:01:36', '2025-09-03 15:01:45'),
-(71, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-03 15:02:20', '2025-09-03 15:02:26'),
-(72, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-03 15:05:38', '2025-09-03 15:05:44'),
-(73, 1, 4, 'TEST', 2, '200.00', '400.00', 'ordered', '2025-09-03 15:06:41', '2025-09-03 15:09:38'),
-(74, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-03 15:11:26', '2025-09-03 15:17:17'),
-(75, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-03 15:18:47', '2025-09-03 15:18:50'),
-(76, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-03 15:19:48', '2025-09-03 15:19:56'),
-(77, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-03 15:20:14', '2025-09-03 15:20:19'),
-(78, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-03 15:21:48', '2025-09-03 15:21:54'),
-(79, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-03 15:27:40', '2025-09-03 16:14:24'),
-(80, 1, 3, 'PROD003', 1, '30.00', '30.00', 'ordered', '2025-09-03 16:10:59', '2025-09-03 16:14:24'),
-(81, 1, 3, 'PROD003', 1, '30.00', '30.00', 'ordered', '2025-09-03 16:14:49', '2025-09-03 16:14:58'),
-(82, 1, 6, 'asas', 1, '200.00', '200.00', 'ordered', '2025-09-03 16:14:55', '2025-09-03 16:14:58'),
-(84, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-03 16:17:49', '2025-09-03 16:18:35'),
-(85, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-03 16:19:03', '2025-09-03 16:19:05'),
-(86, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-03 16:19:24', '2025-09-03 16:19:27'),
-(87, 1, 3, 'PROD003', 1, '30.00', '30.00', 'ordered', '2025-09-04 11:05:07', '2025-09-04 11:05:51'),
-(88, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-04 11:10:24', '2025-09-04 12:08:58'),
-(89, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-04 12:18:09', '2025-09-04 12:20:00'),
-(90, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-04 12:34:45', '2025-09-04 12:36:43'),
-(91, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-06 23:49:28', '2025-09-06 23:49:32'),
-(92, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-06 23:52:47', '2025-09-06 23:52:50'),
-(93, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-06 23:55:55', '2025-09-06 23:55:58'),
-(94, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-07 00:02:15', '2025-09-07 00:02:22'),
-(95, 1, 4, 'TEST', 3, '200.00', '600.00', 'ordered', '2025-09-07 00:06:09', '2025-09-07 00:06:16'),
-(96, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-07 00:13:50', '2025-09-07 00:13:55'),
-(97, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-07 09:13:12', '2025-09-07 11:10:53'),
-(98, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-07 11:12:25', '2025-09-07 11:12:28'),
-(99, 1, 4, 'TEST', 2, '200.00', '400.00', 'ordered', '2025-09-07 15:01:00', '2025-09-07 15:02:56'),
-(100, 1, 4, 'TEST', 3, '200.00', '600.00', 'ordered', '2025-09-07 16:01:22', '2025-09-07 16:01:33'),
-(101, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-07 16:04:54', '2025-09-07 16:05:05'),
-(102, 1, 2, 'PROD002', 1, '25.00', '25.00', 'ordered', '2025-09-07 16:04:58', '2025-09-07 16:05:05'),
-(103, 1, 4, 'TEST', 3, '200.00', '600.00', 'ordered', '2025-09-07 16:16:14', '2025-09-08 09:48:08'),
-(104, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-08 09:49:19', '2025-09-08 09:49:27'),
-(105, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-08 12:10:17', '2025-09-08 12:46:20'),
-(107, 1, 4, 'TEST', 17, '200.00', '3400.00', 'ordered', '2025-09-08 13:09:00', '2025-09-08 16:21:01'),
-(108, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-09 09:55:33', '2025-09-09 09:55:40'),
-(109, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-09 09:58:18', '2025-09-09 09:58:25'),
-(110, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-09 11:48:35', '2025-09-09 11:48:42'),
-(114, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-10 12:38:49', '2025-09-10 12:39:12'),
-(128, 1, 2, 'PROD002', 10, '25.00', '250.00', 'ordered', '2025-09-10 23:38:57', '2025-09-10 23:39:17'),
-(129, 1, 4, 'TEST', 1, '200.00', '200.00', 'ordered', '2025-09-10 23:46:01', '2025-09-10 23:46:30'),
-(135, 1, 6, 'asa', 1, '20.00', '20.00', 'ordered', '2025-09-14 09:31:19', '2025-09-14 09:31:28'),
-(137, 1, 9, 'PROD009', 3, '70.00', '210.00', 'active', '2025-09-16 23:51:14', '2025-09-16 23:51:15'),
-(138, 1, 36, 'AUTO016', 4, '15.00', '60.00', 'active', '2025-09-16 23:51:19', '2025-09-16 23:51:19');
+(233, 1, 7, 'PROD007', 1, '900.00', '900.00', 'active', '2025-09-23 12:21:15', '2025-09-23 12:21:15'),
+(232, 1, 4, 'PROD004', 1, '1200.00', '1200.00', 'active', '2025-09-23 12:21:13', '2025-09-23 12:21:13'),
+(230, 1, 36, 'AUTO016', 1, '15.00', '15.00', 'ordered', '2025-09-18 16:37:56', '2025-09-18 16:38:10'),
+(229, 1, 38, 'AUTO018', 1, '28.00', '28.00', 'ordered', '2025-09-18 16:37:56', '2025-09-18 16:38:10'),
+(228, 1, 5, 'PROD005', 1, '120.00', '120.00', 'ordered', '2025-09-18 13:05:13', '2025-09-18 13:05:19'),
+(227, 1, 11, 'PROD011', 1, '35.00', '35.00', 'ordered', '2025-09-18 13:05:13', '2025-09-18 13:05:19'),
+(226, 1, 36, 'AUTO016', 2, '15.00', '30.00', 'ordered', '2025-09-18 13:01:12', '2025-09-18 13:01:18'),
+(225, 1, 36, 'AUTO016', 2, '15.00', '30.00', 'ordered', '2025-09-18 12:59:01', '2025-09-18 12:59:06');
 
 -- --------------------------------------------------------
 
@@ -125,14 +76,16 @@ INSERT INTO `cart` (`id`, `user_id`, `product_id`, `sku`, `quantity`, `price`, `
 -- Table structure for table `categories`
 --
 
-CREATE TABLE `categories` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `categories`;
+CREATE TABLE IF NOT EXISTS `categories` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` text,
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `categories`
@@ -156,8 +109,9 @@ INSERT INTO `categories` (`id`, `name`, `description`, `is_active`, `created_at`
 -- Table structure for table `company_settings`
 --
 
-CREATE TABLE `company_settings` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `company_settings`;
+CREATE TABLE IF NOT EXISTS `company_settings` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `company_name` varchar(255) NOT NULL,
   `address` text,
   `phone` varchar(50) DEFAULT NULL,
@@ -167,15 +121,18 @@ CREATE TABLE `company_settings` (
   `currency` varchar(10) DEFAULT 'MYR',
   `logo` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `toyyibpay_secret_key` varchar(255) DEFAULT NULL,
+  `toyyibpay_category_code` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `company_settings`
 --
 
-INSERT INTO `company_settings` (`id`, `company_name`, `address`, `phone`, `email`, `website`, `tax_number`, `currency`, `logo`, `created_at`, `updated_at`) VALUES
-(1, 'pos System', '123 Main Street, Kuala Lumpur', '+60 12-345 6789', 'info@possystem.com', '', '', 'USD', 'uploads/company/logo_1757382924.png', '2025-08-17 02:55:52', '2025-09-10 03:05:01');
+INSERT INTO `company_settings` (`id`, `company_name`, `address`, `phone`, `email`, `website`, `tax_number`, `currency`, `logo`, `created_at`, `updated_at`, `toyyibpay_secret_key`, `toyyibpay_category_code`) VALUES
+(1, 'pos System', '123 Main Street, Kuala Lumpur', '+60 12-345 6789', 'info@possystem.com', '', '', 'USD', 'uploads/company/logo_1757382924.png', '2025-08-17 02:55:52', '2025-09-28 02:48:58', 'c3alqk05-mwhy-aib7-fya0-1lg7zaquxd57', NULL);
 
 -- --------------------------------------------------------
 
@@ -183,18 +140,173 @@ INSERT INTO `company_settings` (`id`, `company_name`, `address`, `phone`, `email
 -- Table structure for table `customer_cart`
 --
 
-CREATE TABLE `customer_cart` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `customer_cart`;
+CREATE TABLE IF NOT EXISTS `customer_cart` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `table_id` int NOT NULL DEFAULT '0',
+  `order_number` varchar(50) DEFAULT NULL,
+  `order_id` int DEFAULT NULL,
   `product_id` int NOT NULL DEFAULT '0',
   `sku` varchar(150) NOT NULL DEFAULT '-',
   `quantity` int NOT NULL DEFAULT '1',
   `price` decimal(10,2) NOT NULL DEFAULT '0.00',
   `subtotal` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `status` enum('active','ordered','abandoned','paid') NOT NULL DEFAULT 'active',
+  `special_instructions` text,
+  `ordered_at` datetime DEFAULT NULL,
+  `preparing_at` datetime DEFAULT NULL,
+  `ready_at` datetime DEFAULT NULL,
+  `served_at` datetime DEFAULT NULL,
+  `status` enum('active','ordered','preparing','ready','served','paid','cancelled','abandoned') NOT NULL DEFAULT 'active',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `payment_bill_code` varchar(255) DEFAULT NULL,
+  `payment_status` enum('pending','completed','failed','cancelled') DEFAULT NULL,
+  `payment_reference` varchar(255) DEFAULT NULL,
+  `payment_amount` decimal(10,2) DEFAULT NULL,
+  `payment_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `table_id` (`table_id`),
+  KEY `product_id` (`product_id`),
+  KEY `sku` (`sku`),
+  KEY `status` (`status`),
+  KEY `created_at` (`created_at`),
+  KEY `idx_order_number` (`order_number`),
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_customer_cart_table_status` (`table_id`,`status`),
+  KEY `idx_customer_cart_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `customer_cart`
+--
+
+INSERT INTO `customer_cart` (`id`, `table_id`, `order_number`, `order_id`, `product_id`, `sku`, `quantity`, `price`, `subtotal`, `special_instructions`, `ordered_at`, `preparing_at`, `ready_at`, `served_at`, `status`, `created_at`, `updated_at`, `payment_bill_code`, `payment_status`, `payment_reference`, `payment_amount`, `payment_date`) VALUES
+(25, 10, NULL, 0, 36, 'AUTO016', 1, '15.00', '15.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 10:38:04', '2025-09-18 10:38:04', NULL, NULL, NULL, NULL, NULL),
+(28, 10, 'ORD20250918024725', 0, 36, 'AUTO016', 1, '15.00', '15.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 10:47:38', '2025-09-18 10:47:38', NULL, NULL, NULL, NULL, NULL),
+(29, 10, 'ORD20250918024725', 0, 25, 'AUTO005', 2, '28.00', '56.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 10:47:38', '2025-09-18 10:47:38', NULL, NULL, NULL, NULL, NULL),
+(30, 10, 'ORD20250918024725', 0, 23, 'AUTO003', 1, '150.00', '150.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 10:47:38', '2025-09-30 11:03:48', NULL, NULL, NULL, NULL, NULL),
+(31, 10, 'ORD20250918030647', 0, 36, 'AUTO016', 1, '15.00', '15.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 11:06:15', '2025-09-18 11:06:15', NULL, NULL, NULL, NULL, NULL),
+(32, 10, 'ORD20250918030647', 0, 23, 'AUTO003', 1, '140.00', '140.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 11:06:15', '2025-09-18 11:06:15', NULL, NULL, NULL, NULL, NULL),
+(33, 10, 'ORD20250918030647', 0, 25, 'AUTO005', 1, '28.00', '28.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 11:06:15', '2025-09-18 11:06:15', NULL, NULL, NULL, NULL, NULL),
+(34, 10, 'ORD20250918031094', 0, 36, 'AUTO016', 1, '15.00', '15.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 11:10:43', '2025-09-18 11:10:43', NULL, NULL, NULL, NULL, NULL),
+(35, 10, 'ORD20250918031094', 0, 21, 'AUTO001', 1, '6.00', '6.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 11:10:43', '2025-09-18 11:10:43', NULL, NULL, NULL, NULL, NULL),
+(36, 10, 'ORD20250918031094', 0, 34, 'AUTO014', 1, '110.00', '110.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 11:10:43', '2025-09-18 11:10:43', NULL, NULL, NULL, NULL, NULL),
+(37, 10, 'ORD20250918045651', 0, 16, 'PROD016', 2, '100.00', '200.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 12:56:35', '2025-09-18 12:56:35', NULL, NULL, NULL, NULL, NULL),
+(38, 10, 'ORD20250918045651', 0, 1, 'PROD001', 1, '4000.00', '4000.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 12:56:35', '2025-09-18 12:56:35', NULL, NULL, NULL, NULL, NULL),
+(39, 10, 'ORD20250918045651', 0, 4, 'PROD004', 1, '1200.00', '1200.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 12:56:35', '2025-09-18 12:56:35', NULL, NULL, NULL, NULL, NULL),
+(40, 10, 'ORD20250918045884', 0, 36, 'AUTO016', 2, '15.00', '30.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 12:58:12', '2025-09-18 12:58:12', NULL, NULL, NULL, NULL, NULL),
+(41, 10, 'ORD20250918050459', 0, 11, 'PROD011', 1, '35.00', '35.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 13:04:51', '2025-09-18 13:04:51', NULL, NULL, NULL, NULL, NULL),
+(42, 10, 'ORD20250918050459', 0, 5, 'PROD005', 1, '120.00', '120.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 13:04:51', '2025-09-18 13:04:51', NULL, NULL, NULL, NULL, NULL),
+(43, 1, 'ORD20250918083720', 0, 36, 'AUTO016', 1, '15.00', '15.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 16:37:28', '2025-09-18 16:37:28', NULL, NULL, NULL, NULL, NULL),
+(44, 1, 'ORD20250918083720', 0, 38, 'AUTO018', 1, '28.00', '28.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 16:37:28', '2025-09-18 16:37:28', NULL, NULL, NULL, NULL, NULL),
+(45, 1, 'ORD20250918084057', 0, 36, 'AUTO016', 1, '15.00', '15.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 16:40:37', '2025-09-18 16:40:37', NULL, NULL, NULL, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `customer_orders`
+--
+
+DROP TABLE IF EXISTS `customer_orders`;
+CREATE TABLE IF NOT EXISTS `customer_orders` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `order_number` varchar(50) NOT NULL,
+  `table_id` int NOT NULL DEFAULT '0',
+  `customer_name` varchar(255) DEFAULT NULL,
+  `customer_phone` varchar(50) DEFAULT NULL,
+  `customer_email` varchar(255) DEFAULT NULL,
+  `subtotal` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `tax_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `discount_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `total_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `status` enum('pending','confirmed','preparing','ready','served','paid','cancelled') NOT NULL DEFAULT 'pending',
+  `payment_method` varchar(100) DEFAULT NULL,
+  `payment_status` enum('pending','paid','refunded') NOT NULL DEFAULT 'pending',
+  `notes` text,
+  `estimated_ready_time` datetime DEFAULT NULL,
+  `ready_time` datetime DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `order_number` (`order_number`),
+  KEY `table_id` (`table_id`),
+  KEY `status` (`status`),
+  KEY `payment_status` (`payment_status`),
+  KEY `created_at` (`created_at`),
+  KEY `idx_customer_orders_table_status` (`table_id`,`status`),
+  KEY `idx_customer_orders_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `customer_order_details`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `customer_order_details`;
+CREATE TABLE IF NOT EXISTS `customer_order_details` (
+`category_name` varchar(100)
+,`created_at` datetime
+,`id` int
+,`order_number` varchar(50)
+,`price` decimal(10,2)
+,`product_id` int
+,`product_image` varchar(150)
+,`product_name` varchar(255)
+,`quantity` int
+,`sku` varchar(150)
+,`special_instructions` text
+,`status` enum('active','ordered','preparing','ready','served','paid','cancelled','abandoned')
+,`subtotal` decimal(10,2)
+,`table_id` int
+,`updated_at` datetime
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `customer_order_items`
+--
+
+DROP TABLE IF EXISTS `customer_order_items`;
+CREATE TABLE IF NOT EXISTS `customer_order_items` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `order_id` int NOT NULL,
+  `product_id` int NOT NULL,
+  `product_name` varchar(255) NOT NULL,
+  `sku` varchar(100) NOT NULL,
+  `quantity` int NOT NULL DEFAULT '1',
+  `unit_price` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `subtotal` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `special_instructions` text,
+  `status` enum('pending','preparing','ready','served','cancelled') NOT NULL DEFAULT 'pending',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `order_id` (`order_id`),
+  KEY `product_id` (`product_id`),
+  KEY `status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `customer_order_summary`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `customer_order_summary`;
+CREATE TABLE IF NOT EXISTS `customer_order_summary` (
+`last_updated_at` datetime
+,`order_created_at` datetime
+,`order_number` varchar(50)
+,`overall_status` varchar(11)
+,`statuses` text
+,`subtotal` decimal(32,2)
+,`table_id` int
+,`tax_amount` decimal(35,4)
+,`total_amount` decimal(35,4)
+,`total_items` bigint
+);
 
 -- --------------------------------------------------------
 
@@ -202,8 +314,9 @@ CREATE TABLE `customer_cart` (
 -- Table structure for table `members`
 --
 
-CREATE TABLE `members` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `members`;
+CREATE TABLE IF NOT EXISTS `members` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `member_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
   `phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '-',
@@ -214,8 +327,12 @@ CREATE TABLE `members` (
   `total_spent` decimal(10,2) DEFAULT '0.00',
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `member_code` (`member_code`),
+  KEY `membership_tier_id` (`membership_tier_id`),
+  KEY `idx_members_code` (`member_code`)
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `members`
@@ -231,15 +348,17 @@ INSERT INTO `members` (`id`, `member_code`, `name`, `phone`, `email`, `address`,
 -- Table structure for table `membership_tiers`
 --
 
-CREATE TABLE `membership_tiers` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `membership_tiers`;
+CREATE TABLE IF NOT EXISTS `membership_tiers` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `discount_percentage` decimal(5,2) DEFAULT '0.00',
   `description` text,
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `membership_tiers`
@@ -256,14 +375,16 @@ INSERT INTO `membership_tiers` (`id`, `name`, `discount_percentage`, `descriptio
 -- Table structure for table `payment_methods`
 --
 
-CREATE TABLE `payment_methods` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `payment_methods`;
+CREATE TABLE IF NOT EXISTS `payment_methods` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
   `description` text,
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `payment_methods`
@@ -286,8 +407,9 @@ INSERT INTO `payment_methods` (`id`, `name`, `description`, `is_active`, `create
 -- Table structure for table `products`
 --
 
-CREATE TABLE `products` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `products`;
+CREATE TABLE IF NOT EXISTS `products` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `sku` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
   `barcode` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '-',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
@@ -303,53 +425,61 @@ CREATE TABLE `products` (
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `img` varchar(150) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `img` varchar(150) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sku` (`sku`),
+  UNIQUE KEY `barcode` (`barcode`),
+  KEY `category_id` (`category_id`),
+  KEY `supplier_id` (`supplier_id`),
+  KEY `uom_id` (`uom_id`),
+  KEY `idx_products_sku` (`sku`),
+  KEY `idx_products_barcode` (`barcode`)
+) ENGINE=MyISAM AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `products`
 --
 
 INSERT INTO `products` (`id`, `sku`, `barcode`, `name`, `description`, `category_id`, `supplier_id`, `uom_id`, `cost_price`, `selling_price`, `stock_quantity`, `min_stock_level`, `max_stock_level`, `is_active`, `created_at`, `updated_at`, `img`) VALUES
-(1, 'PROD001', '1234567890123', 'Dell Laptop XPS 13', 'High-performance laptop with Intel i7 processor', 1, 1, 1, '2500.00', '4000.00', 5, 2, 50, 1, '2025-08-17 02:55:52', '2025-09-11 06:38:33', '_1757570029.png'),
+(1, 'PROD001', '1234567890123', 'Dell Laptop XPS 13', 'High-performance laptop with Intel i7 processor', 1, 1, 1, '2500.00', '4000.00', 4, 2, 50, 1, '2025-08-17 02:55:52', '2025-09-18 04:56:35', '_1757570029.png'),
 (2, 'PROD002', '1234567890124', 'Cotton T-Shirt', 'Premium cotton t-shirt in various colors', 2, 2, 1, '15.00', '25.00', 41, 10, 100, 1, '2025-08-17 02:55:52', '2025-09-11 06:38:33', 'asa_1757570041.png'),
 (3, 'PROD003', '1234567890125', 'Premium Rice 5kg', 'High-quality jasmine rice 5kg bag', 3, 1, 2, '20.00', '30.00', 25, 20, 200, 1, '2025-08-17 02:55:52', '2025-09-11 06:45:51', 'asa_1757570041.png'),
-(4, 'PROD004', '1234567890126', 'iPhone 15 Pro', 'Latest iPhone with advanced camera system', 1, 1, 1, '800.00', '1200.00', 8, 3, 30, 1, '2025-08-18 07:11:03', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(5, 'PROD005', '1234567890127', 'Nike Air Max', 'Comfortable running shoes', 6, 2, 1, '80.00', '120.00', 15, 5, 50, 1, '2025-08-18 07:12:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(4, 'PROD004', '1234567890126', 'iPhone 15 Pro', 'Latest iPhone with advanced camera system', 1, 1, 1, '800.00', '1200.00', 7, 3, 30, 1, '2025-08-18 07:11:03', '2025-09-18 04:56:35', 'asa_1757570041.png'),
+(5, 'PROD005', '1234567890127', 'Nike Air Max', 'Comfortable running shoes', 6, 2, 1, '80.00', '120.00', 13, 5, 50, 1, '2025-08-18 07:12:00', '2025-09-18 05:05:19', 'asa_1757570041.png'),
 (6, 'PROD006', '1234567890128', 'Organic Coffee Beans', 'Premium organic coffee beans 500g', 3, 1, 2, '15.00', '25.00', 30, 10, 100, 1, '2025-08-18 07:13:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (7, 'PROD007', '1234567890129', 'Samsung 55\" Smart TV', '4K Ultra HD Smart TV with HDR', 1, 1, 1, '600.00', '900.00', 3, 2, 20, 1, '2025-08-18 07:14:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (8, 'PROD008', '1234567890130', 'Denim Jeans', 'Classic blue denim jeans', 2, 2, 1, '25.00', '45.00', 20, 8, 80, 1, '2025-08-18 07:15:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (9, 'PROD009', '1234567890131', 'Kitchen Knife Set', 'Professional 6-piece knife set', 4, 1, 1, '40.00', '70.00', 12, 5, 40, 1, '2025-08-18 07:16:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (10, 'PROD010', '1234567890132', 'Shampoo & Conditioner', 'Moisturizing hair care set', 5, 2, 1, '8.00', '15.00', 25, 10, 100, 1, '2025-08-18 07:17:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(11, 'PROD011', '1234567890133', 'Yoga Mat', 'Non-slip premium yoga mat', 6, 2, 1, '20.00', '35.00', 18, 5, 50, 1, '2025-08-18 07:18:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(11, 'PROD011', '1234567890133', 'Yoga Mat', 'Non-slip premium yoga mat', 6, 2, 1, '20.00', '35.00', 16, 5, 50, 1, '2025-08-18 07:18:00', '2025-09-18 05:05:19', 'asa_1757570041.png'),
 (12, 'PROD012', '1234567890134', 'Notebook Set', 'Premium A4 notebooks 5-pack', 7, 1, 1, '12.00', '20.00', 35, 15, 150, 1, '2025-08-18 07:19:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (13, 'PROD013', '1234567890135', 'LEGO Building Set', 'Creative building blocks for kids', 8, 2, 1, '30.00', '50.00', 22, 8, 60, 1, '2025-08-18 07:20:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(14, 'PROD014', '1234567890136', 'Car Air Freshener', 'Long-lasting car air freshener', 9, 1, 1, '3.00', '6.00', 50, 20, 200, 1, '2025-08-18 07:21:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(14, 'PROD014', '1234567890136', 'Car Air Freshener', 'Long-lasting car air freshener', 9, 1, 1, '3.00', '6.00', 37, 20, 200, 1, '2025-08-18 07:21:00', '2025-09-18 02:41:08', 'asa_1757570041.png'),
 (15, 'PROD015', '1234567890137', 'Dog Food 10kg', 'Premium dry dog food', 10, 2, 2, '35.00', '55.00', 16, 5, 40, 1, '2025-08-18 07:22:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(16, 'PROD016', '1234567890138', 'Wireless Headphones', 'Noise-cancelling wireless headphones', 1, 1, 1, '60.00', '100.00', 14, 5, 50, 1, '2025-08-18 07:23:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(16, 'PROD016', '1234567890138', 'Wireless Headphones', 'Noise-cancelling wireless headphones', 1, 1, 1, '60.00', '100.00', 12, 5, 50, 1, '2025-08-18 07:23:00', '2025-09-18 04:56:35', 'asa_1757570041.png'),
 (17, 'PROD017', '1234567890139', 'Hoodie Sweatshirt', 'Comfortable cotton hoodie', 2, 2, 1, '22.00', '40.00', 28, 10, 80, 1, '2025-08-18 07:24:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (18, 'PROD018', '1234567890140', 'Fresh Milk 1L', 'Fresh whole milk 1 liter', 3, 1, 3, '2.50', '4.00', 40, 20, 200, 1, '2025-08-18 07:25:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (19, 'PROD019', '1234567890141', 'Garden Hose', 'Flexible garden hose 50ft', 4, 1, 1, '25.00', '45.00', 8, 3, 25, 1, '2025-08-18 07:26:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (20, 'PROD020', '1234567890142', 'Face Cream', 'Anti-aging face cream 50ml', 5, 2, 1, '18.00', '32.00', 20, 8, 60, 1, '2025-08-18 07:27:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(21, 'AUTO001', '2000000000001', 'Car Air Freshener', 'Long-lasting car air freshener', 9, 1, 1, '3.00', '6.00', 50, 20, 200, 1, '2025-08-18 08:00:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(21, 'AUTO001', '2000000000001', 'Car Air Freshener', 'Long-lasting car air freshener', 9, 1, 1, '3.00', '6.00', 47, 20, 200, 1, '2025-08-18 08:00:00', '2025-09-18 03:10:43', 'asa_1757570041.png'),
 (22, 'AUTO002', '2000000000002', 'Engine Oil 5W-30', 'Premium synthetic engine oil 5L', 9, 1, 3, '25.00', '45.00', 30, 10, 100, 1, '2025-08-18 08:01:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(23, 'AUTO003', '2000000000003', 'Car Battery', '12V 60Ah car battery', 9, 2, 1, '80.00', '140.00', 12, 5, 30, 1, '2025-08-18 08:02:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(23, 'AUTO003', '2000000000003', 'Car Battery', '12V 60Ah car battery', 9, 2, 1, '80.00', '140.00', 6, 5, 30, 1, '2025-08-18 08:02:00', '2025-09-18 03:06:15', 'asa_1757570041.png'),
 (24, 'AUTO004', '2000000000004', 'Tire Pressure Gauge', 'Digital tire pressure gauge', 9, 1, 1, '8.00', '15.00', 25, 10, 80, 1, '2025-08-18 08:03:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(25, 'AUTO005', '2000000000005', 'Car Floor Mats', 'Rubber car floor mats set of 4', 9, 2, 1, '15.00', '28.00', 20, 8, 60, 1, '2025-08-18 08:04:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(25, 'AUTO005', '2000000000005', 'Car Floor Mats', 'Rubber car floor mats set of 4', 9, 2, 1, '15.00', '28.00', 12, 8, 60, 1, '2025-08-18 08:04:00', '2025-09-18 03:06:15', 'asa_1757570041.png'),
 (26, 'AUTO006', '2000000000006', 'Windshield Wiper Blades', 'Premium windshield wiper blades pair', 9, 1, 1, '12.00', '22.00', 35, 15, 100, 1, '2025-08-18 08:05:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(27, 'AUTO007', '2000000000007', 'Car Phone Mount', 'Magnetic car phone mount', 9, 2, 1, '6.00', '12.00', 40, 20, 150, 1, '2025-08-18 08:06:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(27, 'AUTO007', '2000000000007', 'Car Phone Mount', 'Magnetic car phone mount', 9, 2, 1, '6.00', '12.00', 37, 20, 150, 1, '2025-08-18 08:06:00', '2025-09-18 02:34:48', 'asa_1757570041.png'),
 (28, 'AUTO008', '2000000000008', 'Car Charger USB', 'Dual USB car charger 2.4A', 9, 1, 1, '4.00', '8.00', 60, 25, 200, 1, '2025-08-18 08:07:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (29, 'AUTO009', '2000000000009', 'Car Seat Covers', 'Neoprene car seat covers set', 9, 2, 1, '35.00', '65.00', 15, 5, 40, 1, '2025-08-18 08:08:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (30, 'AUTO010', '2000000000010', 'Car Wax Polish', 'Premium car wax polish 500ml', 9, 1, 1, '18.00', '32.00', 22, 8, 70, 1, '2025-08-18 08:09:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (31, 'AUTO011', '2000000000011', 'Jump Starter Pack', 'Portable car jump starter 10000mAh', 9, 2, 1, '45.00', '80.00', 8, 3, 25, 1, '2025-08-18 08:10:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (32, 'AUTO012', '2000000000012', 'Car Vacuum Cleaner', '12V portable car vacuum cleaner', 9, 1, 1, '25.00', '45.00', 18, 6, 50, 1, '2025-08-18 08:11:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (33, 'AUTO013', '2000000000013', 'Tire Repair Kit', 'Complete tire repair kit with tools', 9, 2, 1, '20.00', '35.00', 16, 5, 40, 1, '2025-08-18 08:12:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(34, 'AUTO014', '2000000000014', 'Car Dashboard Camera', 'HD 1080p car dash cam', 9, 1, 1, '60.00', '110.00', 10, 4, 30, 1, '2025-08-18 08:13:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(34, 'AUTO014', '2000000000014', 'Car Dashboard Camera', 'HD 1080p car dash cam', 9, 1, 1, '60.00', '110.00', 9, 4, 30, 1, '2025-08-18 08:13:00', '2025-09-18 03:10:43', 'asa_1757570041.png'),
 (35, 'AUTO015', '2000000000015', 'Car Sunshade', 'Foldable car sunshade windshield', 9, 2, 1, '12.00', '22.00', 28, 10, 80, 1, '2025-08-18 08:14:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(36, 'AUTO016', '2000000000016', 'Brake Fluid DOT 4', 'High-performance brake fluid 1L', 9, 1, 3, '8.00', '15.00', 32, 12, 100, 1, '2025-08-18 08:15:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(36, 'AUTO016', '2000000000016', 'Brake Fluid DOT 4', 'High-performance brake fluid 1L', 9, 1, 3, '8.00', '15.00', 0, 12, 100, 1, '2025-08-18 08:15:00', '2025-09-18 08:40:37', 'asa_1757570041.png'),
 (37, 'AUTO017', '2000000000017', 'Car Emergency Kit', 'Complete car emergency kit', 9, 2, 1, '30.00', '55.00', 14, 5, 35, 1, '2025-08-18 08:16:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(38, 'AUTO018', '2000000000018', 'Car Air Filter', 'High-flow air filter replacement', 9, 1, 1, '15.00', '28.00', 24, 8, 60, 1, '2025-08-18 08:17:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(39, 'AUTO019', '2000000000019', 'Car LED Headlight Bulbs', 'Ultra-bright LED headlight bulbs pair', 9, 2, 1, '35.00', '65.00', 12, 4, 30, 1, '2025-08-18 08:18:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
+(38, 'AUTO018', '2000000000018', 'Car Air Filter', 'High-flow air filter replacement', 9, 1, 1, '15.00', '28.00', 4, 8, 60, 1, '2025-08-18 08:17:00', '2025-09-18 08:38:10', 'asa_1757570041.png'),
+(39, 'AUTO019', '2000000000019', 'Car LED Headlight Bulbs', 'Ultra-bright LED headlight bulbs pair', 9, 2, 1, '35.00', '65.00', 6, 4, 30, 1, '2025-08-18 08:18:00', '2025-09-18 02:34:48', 'asa_1757570041.png'),
 (40, 'AUTO020', '2000000000020', 'Car Trunk Organizer', 'Collapsible car trunk organizer', 9, 1, 1, '22.00', '40.00', 18, 6, 45, 1, '2025-08-18 08:19:00', '2025-09-11 06:45:54', 'asa_1757570041.png');
 
 -- --------------------------------------------------------
@@ -358,8 +488,9 @@ INSERT INTO `products` (`id`, `sku`, `barcode`, `name`, `description`, `category
 -- Table structure for table `sales`
 --
 
-CREATE TABLE `sales` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `sales`;
+CREATE TABLE IF NOT EXISTS `sales` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `invoice_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
   `session_id` int DEFAULT '0',
   `member_id` int DEFAULT '0',
@@ -373,76 +504,28 @@ CREATE TABLE `sales` (
   `payment_status` enum('paid','pending','refunded') DEFAULT 'paid',
   `notes` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `invoice_number` (`invoice_number`),
+  KEY `session_id` (`session_id`),
+  KEY `member_id` (`member_id`),
+  KEY `user_id` (`user_id`),
+  KEY `idx_sales_invoice` (`invoice_number`),
+  KEY `idx_sales_date` (`created_at`),
+  KEY `fk_sales_payment_method` (`payment_method_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `sales`
 --
 
 INSERT INTO `sales` (`id`, `invoice_number`, `session_id`, `member_id`, `user_id`, `subtotal`, `discount_amount`, `tax_amount`, `total_amount`, `payment_method`, `payment_method_id`, `payment_status`, `notes`, `created_at`, `updated_at`) VALUES
-(1, '202508170001400', 1, NULL, 1, '60.00', '0.00', '3.60', '63.60', 'cash', 1, 'paid', NULL, '2025-08-17 03:12:00', '2025-09-04 04:19:47'),
-(2, '202508170001720', 1, NULL, 1, '60.00', '0.00', '3.60', '63.60', 'ewallet', 4, 'paid', NULL, '2025-08-17 03:31:07', '2025-09-04 04:19:47'),
-(3, '202508170002044', 2, NULL, 2, '4000.00', '0.00', '240.00', '4240.00', 'cash', 1, 'paid', NULL, '2025-08-17 06:43:34', '2025-09-04 04:19:47'),
-(4, '202508170001620', 1, NULL, 1, '8025.00', '0.00', '481.50', '8506.50', 'cash', 1, 'paid', NULL, '2025-08-17 08:10:20', '2025-09-04 04:19:47'),
-(5, '202508180001905', 1, 1, 1, '8030.00', '401.50', '457.71', '8086.21', 'cash', 1, 'paid', NULL, '2025-08-18 08:20:28', '2025-09-04 04:19:47'),
-(6, '202508200001962', 1, 1, 1, '8000.00', '400.00', '456.00', '8056.00', 'cash', 1, 'paid', NULL, '2025-08-20 02:43:00', '2025-09-04 04:19:47'),
-(7, '202508210001373', 1, NULL, 1, '8055.00', '0.00', '483.30', '8538.30', 'cash', 1, 'paid', NULL, '2025-08-21 01:36:24', '2025-09-04 04:19:47'),
-(8, '202508210001945', 1, NULL, 1, '12225.00', '0.00', '733.50', '12958.50', 'cash', 1, 'paid', NULL, '2025-08-21 02:10:48', '2025-09-04 04:19:47'),
-(9, '202508250001112', 1, NULL, 1, '30.00', '0.00', '1.80', '31.80', 'cash', 1, 'paid', NULL, '2025-08-25 06:55:40', '2025-09-04 04:19:47'),
-(10, '202508290001689', 1, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'cash', 1, 'paid', NULL, '2025-08-28 16:23:53', '2025-09-04 04:19:47'),
-(11, '202508290003643', 3, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'cash', 1, 'paid', NULL, '2025-08-29 02:22:00', '2025-09-04 04:19:47'),
-(12, '202508290003190', 3, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'card', 2, 'paid', NULL, '2025-08-29 02:22:39', '2025-09-04 04:19:47'),
-(13, '202508290003665', 3, NULL, 1, '100.00', '0.00', '6.00', '106.00', 'ewallet', 4, 'paid', NULL, '2025-08-29 02:23:18', '2025-09-04 04:19:47'),
-(14, '202508290004276', 4, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'card', 2, 'paid', NULL, '2025-08-29 06:23:30', '2025-09-04 04:19:47'),
-(15, '202509020010867', 10, NULL, 1, '25.00', '0.00', '1.50', '26.50', 'cash', 1, 'paid', NULL, '2025-09-02 02:32:20', '2025-09-04 04:19:47'),
-(16, '202509020010217', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'cash', 1, 'paid', NULL, '2025-09-02 02:37:40', '2025-09-04 04:19:47'),
-(17, '202509020010014', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'cash', 1, 'paid', NULL, '2025-09-02 05:01:51', '2025-09-04 04:19:47'),
-(18, '202509020010783', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'cash', 1, 'paid', NULL, '2025-09-02 05:04:58', '2025-09-04 04:19:47'),
-(19, '202509030010674', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', '', NULL, 'paid', NULL, '2025-09-03 06:46:47', '2025-09-03 06:46:47'),
-(20, '202509030010055', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', '', NULL, 'paid', NULL, '2025-09-03 06:53:03', '2025-09-03 06:53:03'),
-(21, '202509030010056', 10, NULL, 1, '30.00', '0.00', '1.80', '31.80', '', NULL, 'paid', NULL, '2025-09-03 06:53:50', '2025-09-03 06:53:50'),
-(22, '202509030010919', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'cash', 1, 'paid', NULL, '2025-09-03 06:54:37', '2025-09-04 04:19:47'),
-(23, '202509030010097', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', '', NULL, 'paid', NULL, '2025-09-03 07:01:45', '2025-09-03 07:01:45'),
-(24, '202509030010481', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', '', NULL, 'paid', NULL, '2025-09-03 07:02:26', '2025-09-03 07:02:26'),
-(25, '202509030010401', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', '', NULL, 'paid', NULL, '2025-09-03 07:05:44', '2025-09-03 07:05:44'),
-(26, '202509030010864', 10, NULL, 1, '400.00', '0.00', '24.00', '424.00', '', NULL, 'paid', NULL, '2025-09-03 07:09:37', '2025-09-03 07:09:37'),
-(27, '202509030010363', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'card', 2, 'paid', NULL, '2025-09-03 07:17:17', '2025-09-04 04:19:47'),
-(28, '202509030010288', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'ewallet', 4, 'paid', NULL, '2025-09-03 07:18:50', '2025-09-04 04:19:47'),
-(29, '202509030010315', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'card', 2, 'paid', NULL, '2025-09-03 07:19:56', '2025-09-04 04:19:47'),
-(30, '202509030010797', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'ewallet', 4, 'paid', NULL, '2025-09-03 07:20:19', '2025-09-04 04:19:47'),
-(31, '202509030010319', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', '', NULL, 'paid', NULL, '2025-09-03 07:21:54', '2025-09-03 07:21:54'),
-(32, '202509030010340', 10, NULL, 1, '230.00', '0.00', '13.80', '243.80', 'cash', 1, 'paid', NULL, '2025-09-03 08:14:24', '2025-09-04 04:19:47'),
-(33, '202509030010159', 10, NULL, 1, '230.00', '0.00', '13.80', '243.80', 'cash', 1, 'paid', NULL, '2025-09-03 08:14:58', '2025-09-04 04:19:47'),
-(34, '202509030010848', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'card', 2, 'paid', NULL, '2025-09-03 08:18:35', '2025-09-04 04:19:47'),
-(35, '202509030010149', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'cash', 1, 'paid', NULL, '2025-09-03 08:19:05', '2025-09-04 04:19:47'),
-(36, '202509030010269', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'cash', 1, 'paid', NULL, '2025-09-03 08:19:27', '2025-09-04 04:19:47'),
-(37, '202509040010669', 10, NULL, 1, '30.00', '0.00', '1.80', '31.80', 'ewallet', 4, 'paid', NULL, '2025-09-04 03:05:51', '2025-09-04 04:19:47'),
-(38, '202509040010629', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'cash', 1, 'paid', NULL, '2025-09-04 04:08:58', '2025-09-04 04:19:47'),
-(39, '202509040010390', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'card', 2, 'paid', NULL, '2025-09-04 04:20:00', '2025-09-04 04:20:00'),
-(40, '202509040010068', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', '', 5, 'paid', NULL, '2025-09-04 04:36:43', '2025-09-04 04:36:43'),
-(41, '202509060010736', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', '', 5, 'paid', NULL, '2025-09-06 15:49:32', '2025-09-06 15:49:32'),
-(42, '202509060010076', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', '', 5, 'paid', NULL, '2025-09-06 15:52:50', '2025-09-06 15:52:50'),
-(43, '202509060010676', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', '', 7, 'paid', NULL, '2025-09-06 15:55:58', '2025-09-06 15:55:58'),
-(44, '202509070010951', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'online', 4, 'paid', NULL, '2025-09-06 16:02:22', '2025-09-06 16:02:22'),
-(45, '202509070010950', 10, NULL, 1, '600.00', '0.00', '36.00', '636.00', 'Mobile Money', 6, 'paid', NULL, '2025-09-06 16:06:16', '2025-09-06 16:06:16'),
-(46, '202509070010375', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'Check', 7, 'paid', NULL, '2025-09-06 16:13:55', '2025-09-06 16:13:55'),
-(47, '202509070010662', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'Gift Card', 8, 'paid', NULL, '2025-09-07 03:10:53', '2025-09-07 03:10:53'),
-(48, '202509070010097', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'cash', NULL, 'paid', NULL, '2025-09-07 03:12:28', '2025-09-07 03:12:28'),
-(49, '202509070010091', 10, NULL, 1, '400.00', '0.00', '24.00', '424.00', 'Gift Card', 8, 'refunded', '\nRefunded on 2025-09-07 15:51:38 - Reason: test - By: System Administrator', '2025-09-07 07:02:56', '2025-09-07 07:51:38'),
-(50, '202509070010698', 10, NULL, 1, '600.00', '0.00', '36.00', '636.00', 'Mobile Money', 6, 'refunded', '\nRefunded on 2025-09-07 16:16:03 - Reason: BARE PUNOH - By: System Administrator', '2025-09-07 08:01:33', '2025-09-07 08:16:03'),
-(51, '202509070010912', 10, NULL, 1, '225.00', '0.00', '13.50', '238.50', 'Debit Card', 3, 'paid', NULL, '2025-09-07 08:05:05', '2025-09-07 08:05:05'),
-(52, '202509080010536', 10, NULL, 1, '600.00', '0.00', '36.00', '636.00', 'Bank Transfer', 5, 'paid', NULL, '2025-09-08 01:48:08', '2025-09-08 01:48:08'),
-(53, '202509080010142', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'Mobile Money', 6, 'paid', NULL, '2025-09-08 01:49:27', '2025-09-08 01:49:27'),
-(54, '202509080010253', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'ADMIN', 19, 'paid', NULL, '2025-09-08 04:46:20', '2025-09-08 04:46:20'),
-(55, '202509080010223', 10, NULL, 1, '3400.00', '0.00', '204.00', '3604.00', 'Debit Card', 3, 'paid', NULL, '2025-09-08 08:21:01', '2025-09-08 08:21:01'),
-(56, '202509090010812', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'Check', 7, 'paid', NULL, '2025-09-09 01:55:40', '2025-09-09 01:55:40'),
-(57, '202509090010568', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'Check', 7, 'paid', NULL, '2025-09-09 01:58:25', '2025-09-09 01:58:25'),
-(58, '202509090010395', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'Bank Transfer', 5, 'refunded', '\nRefunded on 2025-09-11 01:36:40 - Reason: as - By: System Administrator', '2025-09-09 03:48:42', '2025-09-10 17:36:40'),
-(60, '202509100010024', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'Bank Transfer', 5, 'refunded', '\nRefunded on 2025-09-11 01:36:02 - Reason: sa - By: System Administrator', '2025-09-10 04:39:12', '2025-09-10 17:36:02'),
-(61, '202509100010962', 10, NULL, 1, '250.00', '0.00', '15.00', '265.00', 'Bank Transfer', 5, 'refunded', '\nRefunded on 2025-09-11 01:35:55 - Reason: as - By: System Administrator', '2025-09-10 15:39:17', '2025-09-10 17:35:55'),
-(62, '202509100010896', 10, NULL, 1, '200.00', '0.00', '12.00', '212.00', 'cash', NULL, 'refunded', '\nRefunded on 2025-09-11 01:35:17 - Reason: sa - By: System Administrator', '2025-09-10 15:46:30', '2025-09-10 17:35:16'),
-(63, '202509140010996', 10, NULL, 1, '20.00', '0.00', '1.20', '21.20', 'cash', NULL, 'paid', NULL, '2025-09-14 01:31:28', '2025-09-14 01:31:28');
+(68, '202509180010434', 10, NULL, 1, '155.00', '0.00', '9.30', '164.30', 'cash', NULL, 'paid', NULL, '2025-09-18 05:05:19', '2025-09-18 05:05:19'),
+(69, '202509180010484', 10, NULL, 1, '43.00', '0.00', '2.58', '45.58', 'cash', NULL, 'paid', NULL, '2025-09-18 08:38:10', '2025-09-18 08:38:10'),
+(66, '202509180010277', 10, NULL, 1, '30.00', '0.00', '1.80', '31.80', 'cash', NULL, 'paid', NULL, '2025-09-18 04:59:05', '2025-09-18 04:59:05'),
+(67, '202509180010144', 10, NULL, 1, '30.00', '0.00', '1.80', '31.80', 'cash', NULL, 'paid', NULL, '2025-09-18 05:01:18', '2025-09-18 05:01:18'),
+(65, '202509180010247', 10, NULL, 1, '781.00', '0.00', '46.86', '827.86', 'cash', NULL, 'paid', NULL, '2025-09-18 02:34:48', '2025-09-18 02:34:48'),
+(64, '202509180010692', 10, NULL, 1, '373.00', '0.00', '22.38', '395.38', 'E-Wallet', 4, 'paid', NULL, '2025-09-18 02:27:29', '2025-09-18 02:27:29');
 
 -- --------------------------------------------------------
 
@@ -450,8 +533,9 @@ INSERT INTO `sales` (`id`, `invoice_number`, `session_id`, `member_id`, `user_id
 -- Table structure for table `sales_sessions`
 --
 
-CREATE TABLE `sales_sessions` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `sales_sessions`;
+CREATE TABLE IF NOT EXISTS `sales_sessions` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL DEFAULT '0',
   `session_start` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `session_end` timestamp NULL DEFAULT NULL,
@@ -462,8 +546,10 @@ CREATE TABLE `sales_sessions` (
   `status` enum('open','closed') DEFAULT 'open',
   `notes` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `sales_sessions`
@@ -471,7 +557,8 @@ CREATE TABLE `sales_sessions` (
 
 INSERT INTO `sales_sessions` (`id`, `user_id`, `session_start`, `session_end`, `opening_amount`, `closing_amount`, `total_sales`, `total_refunds`, `status`, `notes`, `created_at`, `updated_at`) VALUES
 (11, 2, '2025-09-10 01:40:06', NULL, '0.00', '0.00', '0.00', '0.00', 'open', NULL, '2025-09-10 01:40:06', '2025-09-10 01:40:06'),
-(10, 1, '2025-09-02 02:26:35', NULL, '1000.00', '0.00', '12709.40', '901.00', 'open', '', '2025-09-02 02:26:35', '2025-09-14 01:31:28');
+(10, 1, '2025-09-02 02:26:35', NULL, '1000.00', '0.00', '14206.12', '901.00', 'open', '', '2025-09-02 02:26:35', '2025-09-18 08:38:10'),
+(13, 1523, '2025-09-22 06:30:36', NULL, '0.00', '0.00', '0.00', '0.00', 'open', NULL, '2025-09-22 06:30:36', '2025-09-22 06:30:36');
 
 -- --------------------------------------------------------
 
@@ -479,16 +566,20 @@ INSERT INTO `sales_sessions` (`id`, `user_id`, `session_start`, `session_end`, `
 -- Table structure for table `sale_items`
 --
 
-CREATE TABLE `sale_items` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `sale_items`;
+CREATE TABLE IF NOT EXISTS `sale_items` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `sale_id` int NOT NULL,
   `product_id` int NOT NULL,
   `quantity` int NOT NULL,
   `unit_price` decimal(10,2) NOT NULL,
   `discount_amount` decimal(10,2) DEFAULT '0.00',
   `total_price` decimal(10,2) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `sale_id` (`sale_id`),
+  KEY `product_id` (`product_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=92 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `sale_items`
@@ -565,7 +656,27 @@ INSERT INTO `sale_items` (`id`, `sale_id`, `product_id`, `quantity`, `unit_price
 (68, 60, 4, 1, '200.00', '0.00', '200.00', '2025-09-10 04:39:12'),
 (69, 61, 2, 10, '25.00', '0.00', '250.00', '2025-09-10 15:39:17'),
 (70, 62, 4, 1, '200.00', '0.00', '200.00', '2025-09-10 15:46:30'),
-(71, 63, 6, 1, '20.00', '0.00', '20.00', '2025-09-14 01:31:28');
+(71, 63, 6, 1, '20.00', '0.00', '20.00', '2025-09-14 01:31:28'),
+(72, 64, 36, 3, '15.00', '0.00', '45.00', '2025-09-18 02:27:29'),
+(73, 64, 38, 5, '28.00', '0.00', '140.00', '2025-09-18 02:27:29'),
+(74, 64, 39, 2, '65.00', '0.00', '130.00', '2025-09-18 02:27:29'),
+(75, 64, 27, 1, '12.00', '0.00', '12.00', '2025-09-18 02:27:29'),
+(76, 64, 14, 3, '6.00', '0.00', '18.00', '2025-09-18 02:27:29'),
+(77, 64, 25, 1, '28.00', '0.00', '28.00', '2025-09-18 02:27:29'),
+(78, 65, 36, 7, '15.00', '0.00', '105.00', '2025-09-18 02:34:48'),
+(79, 65, 38, 6, '28.00', '0.00', '168.00', '2025-09-18 02:34:48'),
+(80, 65, 14, 4, '6.00', '0.00', '24.00', '2025-09-18 02:34:48'),
+(81, 65, 27, 1, '12.00', '0.00', '12.00', '2025-09-18 02:34:48'),
+(82, 65, 39, 2, '65.00', '0.00', '130.00', '2025-09-18 02:34:48'),
+(83, 65, 25, 2, '28.00', '0.00', '56.00', '2025-09-18 02:34:48'),
+(84, 65, 23, 2, '140.00', '0.00', '280.00', '2025-09-18 02:34:48'),
+(85, 65, 21, 1, '6.00', '0.00', '6.00', '2025-09-18 02:34:48'),
+(86, 66, 36, 2, '15.00', '0.00', '30.00', '2025-09-18 04:59:05'),
+(87, 67, 36, 2, '15.00', '0.00', '30.00', '2025-09-18 05:01:18'),
+(88, 68, 5, 1, '120.00', '0.00', '120.00', '2025-09-18 05:05:19'),
+(89, 68, 11, 1, '35.00', '0.00', '35.00', '2025-09-18 05:05:19'),
+(90, 69, 36, 1, '15.00', '0.00', '15.00', '2025-09-18 08:38:10'),
+(91, 69, 38, 1, '28.00', '0.00', '28.00', '2025-09-18 08:38:10');
 
 -- --------------------------------------------------------
 
@@ -573,8 +684,9 @@ INSERT INTO `sale_items` (`id`, `sale_id`, `product_id`, `quantity`, `unit_price
 -- Table structure for table `stock_movements`
 --
 
-CREATE TABLE `stock_movements` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `stock_movements`;
+CREATE TABLE IF NOT EXISTS `stock_movements` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `product_id` int NOT NULL DEFAULT '0',
   `movement_type` enum('in','out','adjustment') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `quantity` int NOT NULL DEFAULT '0',
@@ -582,8 +694,12 @@ CREATE TABLE `stock_movements` (
   `reference_id` int DEFAULT '0',
   `notes` text,
   `created_by` int NOT NULL DEFAULT '0',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `created_by` (`created_by`),
+  KEY `idx_stock_movements_product` (`product_id`),
+  KEY `idx_stock_movements_date` (`created_at`)
+) ENGINE=MyISAM AUTO_INCREMENT=111 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `stock_movements`
@@ -679,7 +795,27 @@ INSERT INTO `stock_movements` (`id`, `product_id`, `movement_type`, `quantity`, 
 (87, 8, 'in', 100, 'adjustment', 8, 'Initial stock', 1, '2025-09-10 18:19:53'),
 (88, 6, 'in', 10, 'adjustment', 6, 'Stock adjustment (increase)', 1, '2025-09-10 18:25:01'),
 (89, 6, 'in', 90, 'adjustment', 6, 'Stock adjustment (increase)', 1, '2025-09-10 18:32:12'),
-(90, 6, 'out', 1, 'sale', 63, NULL, 1, '2025-09-14 01:31:28');
+(90, 6, 'out', 1, 'sale', 63, NULL, 1, '2025-09-14 01:31:28'),
+(91, 36, 'out', 3, 'sale', 64, NULL, 1, '2025-09-18 02:27:29'),
+(92, 38, 'out', 5, 'sale', 64, NULL, 1, '2025-09-18 02:27:29'),
+(93, 39, 'out', 2, 'sale', 64, NULL, 1, '2025-09-18 02:27:29'),
+(94, 27, 'out', 1, 'sale', 64, NULL, 1, '2025-09-18 02:27:29'),
+(95, 14, 'out', 3, 'sale', 64, NULL, 1, '2025-09-18 02:27:29'),
+(96, 25, 'out', 1, 'sale', 64, NULL, 1, '2025-09-18 02:27:29'),
+(97, 36, 'out', 7, 'sale', 65, NULL, 1, '2025-09-18 02:34:48'),
+(98, 38, 'out', 6, 'sale', 65, NULL, 1, '2025-09-18 02:34:48'),
+(99, 14, 'out', 4, 'sale', 65, NULL, 1, '2025-09-18 02:34:48'),
+(100, 27, 'out', 1, 'sale', 65, NULL, 1, '2025-09-18 02:34:48'),
+(101, 39, 'out', 2, 'sale', 65, NULL, 1, '2025-09-18 02:34:48'),
+(102, 25, 'out', 2, 'sale', 65, NULL, 1, '2025-09-18 02:34:48'),
+(103, 23, 'out', 2, 'sale', 65, NULL, 1, '2025-09-18 02:34:48'),
+(104, 21, 'out', 1, 'sale', 65, NULL, 1, '2025-09-18 02:34:48'),
+(105, 36, 'out', 2, 'sale', 66, NULL, 1, '2025-09-18 04:59:05'),
+(106, 36, 'out', 2, 'sale', 67, NULL, 1, '2025-09-18 05:01:18'),
+(107, 5, 'out', 1, 'sale', 68, NULL, 1, '2025-09-18 05:05:19'),
+(108, 11, 'out', 1, 'sale', 68, NULL, 1, '2025-09-18 05:05:19'),
+(109, 36, 'out', 1, 'sale', 69, NULL, 1, '2025-09-18 08:38:10'),
+(110, 38, 'out', 1, 'sale', 69, NULL, 1, '2025-09-18 08:38:10');
 
 -- --------------------------------------------------------
 
@@ -687,15 +823,19 @@ INSERT INTO `stock_movements` (`id`, `product_id`, `movement_type`, `quantity`, 
 -- Table structure for table `stock_take_items`
 --
 
-CREATE TABLE `stock_take_items` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `stock_take_items`;
+CREATE TABLE IF NOT EXISTS `stock_take_items` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `session_id` int NOT NULL,
   `product_id` int NOT NULL,
   `system_quantity` int NOT NULL,
   `counted_quantity` int NOT NULL,
   `difference` int NOT NULL,
   `notes` text,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `session_id` (`session_id`),
+  KEY `product_id` (`product_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -704,8 +844,9 @@ CREATE TABLE `stock_take_items` (
 -- Table structure for table `stock_take_sessions`
 --
 
-CREATE TABLE `stock_take_sessions` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `stock_take_sessions`;
+CREATE TABLE IF NOT EXISTS `stock_take_sessions` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `session_name` varchar(255) NOT NULL,
   `start_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `end_date` timestamp NULL DEFAULT NULL,
@@ -713,8 +854,10 @@ CREATE TABLE `stock_take_sessions` (
   `created_by` int NOT NULL,
   `notes` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `created_by` (`created_by`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -722,8 +865,9 @@ CREATE TABLE `stock_take_sessions` (
 -- Table structure for table `suppliers`
 --
 
-CREATE TABLE `suppliers` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `suppliers`;
+CREATE TABLE IF NOT EXISTS `suppliers` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `contact_person` varchar(100) DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,
@@ -731,8 +875,9 @@ CREATE TABLE `suppliers` (
   `address` text,
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `suppliers`
@@ -748,15 +893,17 @@ INSERT INTO `suppliers` (`id`, `name`, `contact_person`, `phone`, `email`, `addr
 -- Table structure for table `uom`
 --
 
-CREATE TABLE `uom` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `uom`;
+CREATE TABLE IF NOT EXISTS `uom` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `abbreviation` varchar(10) DEFAULT NULL,
   `description` text,
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `uom`
@@ -775,8 +922,9 @@ INSERT INTO `uom` (`id`, `name`, `abbreviation`, `description`, `is_active`, `cr
 -- Table structure for table `users`
 --
 
-CREATE TABLE `users` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `full_name` varchar(100) NOT NULL,
@@ -786,16 +934,34 @@ CREATE TABLE `users` (
   `is_active` tinyint(1) DEFAULT '1',
   `last_login` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `access_dashboard` tinyint(1) DEFAULT '1' COMMENT 'Access to Dashboard',
+  `access_pos` tinyint(1) DEFAULT '1' COMMENT 'Access to Point of Sale',
+  `access_sales` tinyint(1) DEFAULT '1' COMMENT 'Access to Sales History',
+  `access_opening_closing` tinyint(1) DEFAULT '0' COMMENT 'Access to Opening/Closing Cash',
+  `access_products` tinyint(1) DEFAULT '0' COMMENT 'Access to Products Management',
+  `access_categories` tinyint(1) DEFAULT '0' COMMENT 'Access to Categories Management',
+  `access_suppliers` tinyint(1) DEFAULT '0' COMMENT 'Access to Suppliers Management',
+  `access_uom` tinyint(1) DEFAULT '0' COMMENT 'Access to Unit of Measure Management',
+  `access_stock_take` tinyint(1) DEFAULT '0' COMMENT 'Access to Stock Take',
+  `access_inventory_report` tinyint(1) DEFAULT '0' COMMENT 'Access to Inventory Reports',
+  `access_members` tinyint(1) DEFAULT '0' COMMENT 'Access to Members Management',
+  `access_customer_orders` tinyint(1) DEFAULT '0' COMMENT 'Access to Customer Orders',
+  `access_customer_order` tinyint(1) DEFAULT '0' COMMENT 'Access to Customer Order Entry',
+  `access_sales_report` tinyint(1) DEFAULT '0' COMMENT 'Access to Sales Reports',
+  `access_member_report` tinyint(1) DEFAULT '0' COMMENT 'Access to Member Reports',
+  `access_profit_loss` tinyint(1) DEFAULT '0' COMMENT 'Access to Profit & Loss Reports',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `full_name`, `email`, `phone`, `role`, `is_active`, `last_login`, `created_at`, `updated_at`) VALUES
-(1, 'admin', 'admin123', 'System Administrator', 'admin@possystem.com', '0123456789', 'admin', 1, '2025-09-16 15:37:03', '2025-08-17 02:55:52', '2025-09-16 15:37:03'),
-(2, 'cashier', 'cashier123', 'Cashier User', 'cashier@possystem.com', NULL, 'cashier', 1, '2025-09-10 01:39:21', '2025-08-17 02:55:52', '2025-09-10 01:39:21');
+INSERT INTO `users` (`id`, `username`, `password`, `full_name`, `email`, `phone`, `role`, `is_active`, `last_login`, `created_at`, `updated_at`, `access_dashboard`, `access_pos`, `access_sales`, `access_opening_closing`, `access_products`, `access_categories`, `access_suppliers`, `access_uom`, `access_stock_take`, `access_inventory_report`, `access_members`, `access_customer_orders`, `access_customer_order`, `access_sales_report`, `access_member_report`, `access_profit_loss`) VALUES
+(1, 'admin', 'admin123', 'System Administrator', 'admin@possystem.com', '0123456789', 'admin', 1, '2025-10-05 03:25:00', '2025-08-17 02:55:52', '2025-10-05 03:25:00', 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(2, 'cashier', 'cashier123', 'Cashier User', 'cashier@possystem.com', NULL, 'cashier', 1, '2025-10-05 03:24:21', '2025-08-17 02:55:52', '2025-10-05 03:24:21', 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -803,8 +969,9 @@ INSERT INTO `users` (`id`, `username`, `password`, `full_name`, `email`, `phone`
 -- Table structure for table `vouchers`
 --
 
-CREATE TABLE `vouchers` (
-  `id` int NOT NULL,
+DROP TABLE IF EXISTS `vouchers`;
+CREATE TABLE IF NOT EXISTS `vouchers` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `code` varchar(50) NOT NULL,
   `type` enum('percentage','fixed') NOT NULL,
   `value` decimal(10,2) NOT NULL,
@@ -816,269 +983,40 @@ CREATE TABLE `vouchers` (
   `valid_until` timestamp NULL DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code` (`code`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Indexes for dumped tables
---
+-- --------------------------------------------------------
 
 --
--- Indexes for table `cart`
+-- Structure for view `access_level_summary`
 --
-ALTER TABLE `cart`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_cart_user_status` (`user_id`,`status`),
-  ADD KEY `idx_cart_product` (`product_id`),
-  ADD KEY `idx_cart_sku` (`sku`),
-  ADD KEY `idx_cart_created` (`created_at`);
+DROP TABLE IF EXISTS `access_level_summary`;
+
+DROP VIEW IF EXISTS `access_level_summary`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `access_level_summary`  AS SELECT `al`.`id` AS `id`, `al`.`level_name` AS `level_name`, `al`.`level_key` AS `level_key`, `al`.`description` AS `description`, `al`.`status` AS `status`, count(distinct `u`.`id`) AS `user_count`, count(distinct `alp`.`permission`) AS `permissions_count`, group_concat(distinct `alp`.`permission` order by `alp`.`permission` ASC separator ', ') AS `permissions_list`, `al`.`created_at` AS `created_at`, `al`.`updated_at` AS `updated_at` FROM ((`access_level` `al` left join `users` `u` on((`al`.`level_key` = `u`.`role`))) left join `access_level_permissions` `alp` on((`al`.`id` = `alp`.`access_level_id`))) GROUP BY `al`.`id`, `al`.`level_name`, `al`.`level_key`, `al`.`description`, `al`.`status`, `al`.`created_at`, `al`.`updated_at` ORDER BY `al`.`level_name` ASC  ;
+
+-- --------------------------------------------------------
 
 --
--- Indexes for table `categories`
+-- Structure for view `customer_order_details`
 --
-ALTER TABLE `categories`
-  ADD PRIMARY KEY (`id`);
+DROP TABLE IF EXISTS `customer_order_details`;
+
+DROP VIEW IF EXISTS `customer_order_details`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `customer_order_details`  AS SELECT `cc`.`id` AS `id`, `cc`.`order_number` AS `order_number`, `cc`.`table_id` AS `table_id`, `cc`.`product_id` AS `product_id`, `p`.`name` AS `product_name`, `p`.`img` AS `product_image`, `cc`.`sku` AS `sku`, `cc`.`quantity` AS `quantity`, `cc`.`price` AS `price`, `cc`.`subtotal` AS `subtotal`, `cc`.`status` AS `status`, `cc`.`special_instructions` AS `special_instructions`, `cc`.`created_at` AS `created_at`, `cc`.`updated_at` AS `updated_at`, `c`.`name` AS `category_name` FROM ((`customer_cart` `cc` left join `products` `p` on((`cc`.`product_id` = `p`.`id`))) left join `categories` `c` on((`p`.`category_id` = `c`.`id`))) WHERE (`cc`.`order_number` is not null) ORDER BY `cc`.`order_number` ASC, `cc`.`created_at` ASC  ;
+
+-- --------------------------------------------------------
 
 --
--- Indexes for table `company_settings`
+-- Structure for view `customer_order_summary`
 --
-ALTER TABLE `company_settings`
-  ADD PRIMARY KEY (`id`);
+DROP TABLE IF EXISTS `customer_order_summary`;
 
---
--- Indexes for table `customer_cart`
---
-ALTER TABLE `customer_cart`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `table_id` (`table_id`),
-  ADD KEY `product_id` (`product_id`),
-  ADD KEY `sku` (`sku`),
-  ADD KEY `status` (`status`),
-  ADD KEY `created_at` (`created_at`);
-
---
--- Indexes for table `members`
---
-ALTER TABLE `members`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `member_code` (`member_code`),
-  ADD KEY `membership_tier_id` (`membership_tier_id`),
-  ADD KEY `idx_members_code` (`member_code`);
-
---
--- Indexes for table `membership_tiers`
---
-ALTER TABLE `membership_tiers`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `payment_methods`
---
-ALTER TABLE `payment_methods`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `products`
---
-ALTER TABLE `products`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `sku` (`sku`),
-  ADD UNIQUE KEY `barcode` (`barcode`),
-  ADD KEY `category_id` (`category_id`),
-  ADD KEY `supplier_id` (`supplier_id`),
-  ADD KEY `uom_id` (`uom_id`),
-  ADD KEY `idx_products_sku` (`sku`),
-  ADD KEY `idx_products_barcode` (`barcode`);
-
---
--- Indexes for table `sales`
---
-ALTER TABLE `sales`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `invoice_number` (`invoice_number`),
-  ADD KEY `session_id` (`session_id`),
-  ADD KEY `member_id` (`member_id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `idx_sales_invoice` (`invoice_number`),
-  ADD KEY `idx_sales_date` (`created_at`),
-  ADD KEY `fk_sales_payment_method` (`payment_method_id`);
-
---
--- Indexes for table `sales_sessions`
---
-ALTER TABLE `sales_sessions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- Indexes for table `sale_items`
---
-ALTER TABLE `sale_items`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `sale_id` (`sale_id`),
-  ADD KEY `product_id` (`product_id`);
-
---
--- Indexes for table `stock_movements`
---
-ALTER TABLE `stock_movements`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `created_by` (`created_by`),
-  ADD KEY `idx_stock_movements_product` (`product_id`),
-  ADD KEY `idx_stock_movements_date` (`created_at`);
-
---
--- Indexes for table `stock_take_items`
---
-ALTER TABLE `stock_take_items`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `session_id` (`session_id`),
-  ADD KEY `product_id` (`product_id`);
-
---
--- Indexes for table `stock_take_sessions`
---
-ALTER TABLE `stock_take_sessions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `created_by` (`created_by`);
-
---
--- Indexes for table `suppliers`
---
-ALTER TABLE `suppliers`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `uom`
---
-ALTER TABLE `uom`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`);
-
---
--- Indexes for table `vouchers`
---
-ALTER TABLE `vouchers`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `code` (`code`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `cart`
---
-ALTER TABLE `cart`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=139;
-
---
--- AUTO_INCREMENT for table `categories`
---
-ALTER TABLE `categories`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT for table `company_settings`
---
-ALTER TABLE `company_settings`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `customer_cart`
---
-ALTER TABLE `customer_cart`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `members`
---
-ALTER TABLE `members`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT for table `membership_tiers`
---
-ALTER TABLE `membership_tiers`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `payment_methods`
---
-ALTER TABLE `payment_methods`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
-
---
--- AUTO_INCREMENT for table `products`
---
-ALTER TABLE `products`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
-
---
--- AUTO_INCREMENT for table `sales`
---
-ALTER TABLE `sales`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
-
---
--- AUTO_INCREMENT for table `sales_sessions`
---
-ALTER TABLE `sales_sessions`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
-
---
--- AUTO_INCREMENT for table `sale_items`
---
-ALTER TABLE `sale_items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
-
---
--- AUTO_INCREMENT for table `stock_movements`
---
-ALTER TABLE `stock_movements`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
-
---
--- AUTO_INCREMENT for table `stock_take_items`
---
-ALTER TABLE `stock_take_items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `stock_take_sessions`
---
-ALTER TABLE `stock_take_sessions`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT for table `suppliers`
---
-ALTER TABLE `suppliers`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT for table `uom`
---
-ALTER TABLE `uom`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `vouchers`
---
-ALTER TABLE `vouchers`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+DROP VIEW IF EXISTS `customer_order_summary`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `customer_order_summary`  AS SELECT `cc`.`order_number` AS `order_number`, `cc`.`table_id` AS `table_id`, count(0) AS `total_items`, sum(`cc`.`subtotal`) AS `subtotal`, (sum(`cc`.`subtotal`) * 0.06) AS `tax_amount`, (sum(`cc`.`subtotal`) * 1.06) AS `total_amount`, min(`cc`.`created_at`) AS `order_created_at`, max(`cc`.`updated_at`) AS `last_updated_at`, group_concat(distinct `cc`.`status` separator ',') AS `statuses`, (case when ((count(distinct `cc`.`status`) = 1) and (max(`cc`.`status`) = 'paid')) then 'paid' when ((count(distinct `cc`.`status`) = 1) and (max(`cc`.`status`) = 'cancelled')) then 'cancelled' when ((count(distinct `cc`.`status`) = 1) and (max(`cc`.`status`) = 'abandoned')) then 'abandoned' else 'in_progress' end) AS `overall_status` FROM `customer_cart` AS `cc` WHERE (`cc`.`order_number` is not null) GROUP BY `cc`.`order_number`, `cc`.`table_id``table_id`  ;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

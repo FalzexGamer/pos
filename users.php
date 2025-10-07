@@ -82,7 +82,7 @@ include 'include/sidebar.php';
 <!-- Add/Edit Modal -->
 <div id="user-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto max-h-[90vh] overflow-y-auto">
             <div class="p-6">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-xl font-bold text-gray-900" id="modal-title">Add User</h3>
@@ -152,6 +152,125 @@ include 'include/sidebar.php';
                             <option value="1">Active</option>
                             <option value="0">Inactive</option>
                         </select>
+                    </div>
+                    
+                    <!-- Permissions Section -->
+                    <div class="space-y-4 border-t pt-4">
+                        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-shield-alt mr-2 text-blue-600"></i>
+                            Access Permissions
+                        </h4>
+                        <p class="text-sm text-gray-600">Configure what this user can access in the system</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Basic Access -->
+                            <div class="space-y-3">
+                                <h5 class="font-medium text-gray-800 text-sm uppercase tracking-wide">Basic Access</h5>
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_dashboard" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Dashboard</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_pos" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Point of Sale</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_sales" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Sales History</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_opening_closing" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Opening/Closing Cash</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Inventory Management -->
+                            <div class="space-y-3">
+                                <h5 class="font-medium text-gray-800 text-sm uppercase tracking-wide">Inventory</h5>
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_products" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Products Management</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_categories" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Categories Management</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_suppliers" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Suppliers Management</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_uom" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Unit of Measure</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_stock_take" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Stock Take</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_inventory_report" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Inventory Reports</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Customer Management -->
+                            <div class="space-y-3">
+                                <h5 class="font-medium text-gray-800 text-sm uppercase tracking-wide">Customer</h5>
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_members" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Members Management</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_customer_orders" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Customer Orders</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_customer_order" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Customer Order Entry</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Reports -->
+                            <div class="space-y-3">
+                                <h5 class="font-medium text-gray-800 text-sm uppercase tracking-wide">Reports</h5>
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_sales_report" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Sales Reports</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_member_report" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Member Reports</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="permissions[]" value="access_profit_loss" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Profit & Loss Reports</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Select Buttons -->
+                        <div class="flex flex-wrap gap-2 pt-2">
+                            <button type="button" onclick="selectAllPermissions()" class="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors">
+                                <i class="fas fa-check-double mr-1"></i>Select All
+                            </button>
+                            <button type="button" onclick="selectBasicPermissions()" class="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors">
+                                <i class="fas fa-user mr-1"></i>Basic Access
+                            </button>
+                            <button type="button" onclick="selectManagerPermissions()" class="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors">
+                                <i class="fas fa-user-tie mr-1"></i>Manager
+                            </button>
+                            <button type="button" onclick="clearAllPermissions()" class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors">
+                                <i class="fas fa-times mr-1"></i>Clear All
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="flex space-x-3 pt-4">
@@ -394,6 +513,11 @@ function editUser(id) {
                 document.getElementById('role').value = user.role;
                 document.getElementById('user-status').value = user.is_active;
                 
+                // Load user permissions
+                if (user.permissions) {
+                    loadUserPermissions(user.permissions);
+                }
+                
                 // Hide password fields for edit
                 document.getElementById('password-section').style.display = 'none';
                 document.getElementById('confirm-password-section').style.display = 'none';
@@ -433,6 +557,13 @@ document.getElementById('user-form').addEventListener('submit', function(e) {
             return;
         }
     }
+    
+    // Add permissions to form data
+    const selectedPermissions = getSelectedPermissions();
+    formData.delete('permissions[]'); // Remove existing permissions data
+    selectedPermissions.forEach(permission => {
+        formData.append('permissions[]', permission);
+    });
     
     const url = id ? 'ajax/edit-user.php' : 'ajax/save-user.php';
     
@@ -516,5 +647,58 @@ function showAlert(title, message, type) {
         confirmButtonColor: '#3B82F6',
         confirmButtonText: 'OK'
     });
+}
+
+// Permission management functions
+function selectAllPermissions() {
+    const checkboxes = document.querySelectorAll('input[name="permissions[]"]');
+    checkboxes.forEach(checkbox => checkbox.checked = true);
+}
+
+function clearAllPermissions() {
+    const checkboxes = document.querySelectorAll('input[name="permissions[]"]');
+    checkboxes.forEach(checkbox => checkbox.checked = false);
+}
+
+function selectBasicPermissions() {
+    clearAllPermissions();
+    const basicPermissions = ['access_dashboard', 'access_pos', 'access_sales'];
+    basicPermissions.forEach(permission => {
+        const checkbox = document.querySelector(`input[name="permissions[]"][value="${permission}"]`);
+        if (checkbox) checkbox.checked = true;
+    });
+}
+
+function selectManagerPermissions() {
+    clearAllPermissions();
+    const managerPermissions = [
+        'access_dashboard', 'access_pos', 'access_sales', 'access_opening_closing',
+        'access_products', 'access_categories', 'access_suppliers', 'access_uom',
+        'access_stock_take', 'access_inventory_report', 'access_members',
+        'access_customer_orders', 'access_customer_order', 'access_sales_report',
+        'access_member_report', 'access_profit_loss'
+    ];
+    managerPermissions.forEach(permission => {
+        const checkbox = document.querySelector(`input[name="permissions[]"][value="${permission}"]`);
+        if (checkbox) checkbox.checked = true;
+    });
+}
+
+// Load user permissions for editing
+function loadUserPermissions(permissions) {
+    // Clear all checkboxes first
+    clearAllPermissions();
+    
+    // Set checked permissions
+    permissions.forEach(permission => {
+        const checkbox = document.querySelector(`input[name="permissions[]"][value="${permission}"]`);
+        if (checkbox) checkbox.checked = true;
+    });
+}
+
+// Get selected permissions
+function getSelectedPermissions() {
+    const checkboxes = document.querySelectorAll('input[name="permissions[]"]:checked');
+    return Array.from(checkboxes).map(checkbox => checkbox.value);
 }
 </script>
