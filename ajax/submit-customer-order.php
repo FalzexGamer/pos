@@ -1,6 +1,9 @@
 <?php
 include '../include/conn.php';
 
+// Set proper headers for JSON response
+header('Content-Type: application/json');
+
 // Function to generate QR code using QR Server API
 function generateQRCode($data, $size = 200) {
     $encoded_data = urlencode($data);
@@ -39,8 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table_id']) && isset(
             $price = (float)$item['price'];
             $item_subtotal = $price * $quantity;
             
-            // Get product details
-            $product_query = mysqli_query($conn, "SELECT name, sku, stock_quantity FROM products WHERE id = $product_id");
+            // Get product details (using escaped values for compatibility)
+            $product_id_escaped = mysqli_real_escape_string($conn, $product_id);
+            $product_query = mysqli_query($conn, "SELECT name, sku, stock_quantity FROM products WHERE id = $product_id_escaped");
             $product = mysqli_fetch_array($product_query);
             
             if (!$product) {
@@ -52,12 +56,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table_id']) && isset(
                 throw new Exception("Insufficient stock for {$product['name']}. Available: {$product['stock_quantity']}, Required: $quantity");
             }
             
-            // Update stock
-            mysqli_query($conn, "UPDATE products SET stock_quantity = stock_quantity - $quantity WHERE id = $product_id");
+            // Update stock (using escaped values for compatibility)
+            $quantity_escaped = mysqli_real_escape_string($conn, $quantity);
+            $product_id_escaped = mysqli_real_escape_string($conn, $product_id);
+            if (!mysqli_query($conn, "UPDATE products SET stock_quantity = stock_quantity - $quantity_escaped WHERE id = $product_id_escaped")) {
+                throw new Exception("Failed to update stock: " . mysqli_error($conn));
+            }
             
-            // Insert into customer_cart with order_id and order_number
-            $insert_query = "INSERT INTO customer_cart (order_id, order_number, table_id, product_id, sku, quantity, price, subtotal, status, created_at) 
-                            VALUES ('$order_id', '$order_id', $table_id, $product_id, '{$product['sku']}', $quantity, $price, $item_subtotal, 'ordered', NOW())";
+            // Insert into customer_cart with order_number (order_id should be NULL or a separate numeric ID)
+            $order_id_escaped = mysqli_real_escape_string($conn, $order_id);
+            $table_id_escaped = mysqli_real_escape_string($conn, $table_id);
+            $sku_escaped = mysqli_real_escape_string($conn, $product['sku']);
+            $price_escaped = mysqli_real_escape_string($conn, $price);
+            $item_subtotal_escaped = mysqli_real_escape_string($conn, $item_subtotal);
+            
+            $insert_query = "INSERT INTO customer_cart (order_number, table_id, product_id, sku, quantity, price, subtotal, status, created_at) 
+                            VALUES ('$order_id_escaped', $table_id_escaped, $product_id_escaped, '$sku_escaped', $quantity_escaped, $price_escaped, $item_subtotal_escaped, 'ordered', NOW())";
             
             if (!mysqli_query($conn, $insert_query)) {
                 throw new Exception("Failed to insert cart item: " . mysqli_error($conn));
