@@ -51,22 +51,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table_id']) && isset(
                 throw new Exception("Product not found: ID $product_id");
             }
             
-            // Check stock
+            // Check stock availability (but don't decrease yet - wait for payment success)
             if ($product['stock_quantity'] < $quantity) {
                 throw new Exception("Insufficient stock for {$product['name']}. Available: {$product['stock_quantity']}, Required: $quantity");
             }
             
-            // Update stock (using escaped values for compatibility)
-            $quantity_escaped = mysqli_real_escape_string($conn, $quantity);
-            $product_id_escaped = mysqli_real_escape_string($conn, $product_id);
-            if (!mysqli_query($conn, "UPDATE products SET stock_quantity = stock_quantity - $quantity_escaped WHERE id = $product_id_escaped")) {
-                throw new Exception("Failed to update stock: " . mysqli_error($conn));
-            }
+            // NOTE: Stock will be decreased only when payment is successful, not when order is placed
             
-            // Insert into customer_cart with order_number (order_id should be NULL or a separate numeric ID)
+            // Prepare escaped values for database insertion
             $order_id_escaped = mysqli_real_escape_string($conn, $order_id);
             $table_id_escaped = mysqli_real_escape_string($conn, $table_id);
+            $product_id_escaped = mysqli_real_escape_string($conn, $product_id);
             $sku_escaped = mysqli_real_escape_string($conn, $product['sku']);
+            $quantity_escaped = mysqli_real_escape_string($conn, $quantity);
             $price_escaped = mysqli_real_escape_string($conn, $price);
             $item_subtotal_escaped = mysqli_real_escape_string($conn, $item_subtotal);
             

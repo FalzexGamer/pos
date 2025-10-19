@@ -20,16 +20,28 @@ $result = mysqli_fetch_assoc($query);
 $RM = $result['total_amount'] * 100;
 $ref = $result['order_number'];
 
+// Get current domain for return URLs
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'];
+$script_name = dirname($_SERVER['SCRIPT_NAME']);
+if ($script_name == '\\' || $script_name == '/') {
+    $script_name = '';
+}
+$base_url = $protocol . '://' . $host . $script_name;
+
+// Remove trailing slash if it exists
+$base_url = rtrim($base_url, '/');
+
   $some_data = array(
     'userSecretKey'=>'c3alqk05-mwhy-aib7-fya0-1lg7zaquxd57',
     'categoryCode'=>'5daw6bza',
-    'billName'=>'Your Order',
-    'billDescription'=>'Your Order Description',
+    'billName'=>'Order ' . $ref,
+    'billDescription'=>'Payment for Order ' . $ref,
     'billPriceSetting'=>1,
     'billPayorInfo'=>0,
     'billAmount'=>$RM,
-    'billReturnUrl'=>'http://bizapp.my',
-    'billCallbackUrl'=>'http://bizapp.my/paystatus',
+    'billReturnUrl'=>$base_url . '/payment-result.php',
+    'billCallbackUrl'=>$base_url . '/payment-callback.php',
     'billExternalReferenceNo' => $ref,
     'billTo'=>'',
     'billEmail'=>'',
