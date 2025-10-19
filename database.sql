@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Oct 05, 2025 at 04:08 AM
+-- Generation Time: Oct 19, 2025 at 02:08 AM
 -- Server version: 8.0.31
 -- PHP Version: 8.0.26
 
@@ -20,16 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `pos`
 --
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `access_level_summary`
--- (See below for the actual view)
---
-DROP VIEW IF EXISTS `access_level_summary`;
-CREATE TABLE IF NOT EXISTS `access_level_summary` (
-);
 
 -- --------------------------------------------------------
 
@@ -174,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `customer_cart` (
   KEY `idx_order_id` (`order_id`),
   KEY `idx_customer_cart_table_status` (`table_id`,`status`),
   KEY `idx_customer_cart_created_at` (`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `customer_cart`
@@ -199,7 +189,8 @@ INSERT INTO `customer_cart` (`id`, `table_id`, `order_number`, `order_id`, `prod
 (42, 10, 'ORD20250918050459', 0, 5, 'PROD005', 1, '120.00', '120.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 13:04:51', '2025-09-18 13:04:51', NULL, NULL, NULL, NULL, NULL),
 (43, 1, 'ORD20250918083720', 0, 36, 'AUTO016', 1, '15.00', '15.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 16:37:28', '2025-09-18 16:37:28', NULL, NULL, NULL, NULL, NULL),
 (44, 1, 'ORD20250918083720', 0, 38, 'AUTO018', 1, '28.00', '28.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 16:37:28', '2025-09-18 16:37:28', NULL, NULL, NULL, NULL, NULL),
-(45, 1, 'ORD20250918084057', 0, 36, 'AUTO016', 1, '15.00', '15.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 16:40:37', '2025-09-18 16:40:37', NULL, NULL, NULL, NULL, NULL);
+(45, 1, 'ORD20250918084057', 0, 36, 'AUTO016', 1, '15.00', '15.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-09-18 16:40:37', '2025-09-18 16:40:37', NULL, NULL, NULL, NULL, NULL),
+(46, 1, 'ORD20251019014764', 0, 14, 'PROD014', 1, '6.00', '6.00', NULL, NULL, NULL, NULL, NULL, 'ordered', '2025-10-19 09:47:20', '2025-10-19 09:47:20', NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -245,21 +236,21 @@ CREATE TABLE IF NOT EXISTS `customer_orders` (
 --
 DROP VIEW IF EXISTS `customer_order_details`;
 CREATE TABLE IF NOT EXISTS `customer_order_details` (
-`category_name` varchar(100)
-,`created_at` datetime
-,`id` int
+`id` int
 ,`order_number` varchar(50)
-,`price` decimal(10,2)
-,`product_id` int
-,`product_image` varchar(150)
-,`product_name` varchar(255)
-,`quantity` int
-,`sku` varchar(150)
-,`special_instructions` text
-,`status` enum('active','ordered','preparing','ready','served','paid','cancelled','abandoned')
-,`subtotal` decimal(10,2)
 ,`table_id` int
+,`product_id` int
+,`product_name` varchar(255)
+,`product_image` varchar(150)
+,`sku` varchar(150)
+,`quantity` int
+,`price` decimal(10,2)
+,`subtotal` decimal(10,2)
+,`status` enum('active','ordered','preparing','ready','served','paid','cancelled','abandoned')
+,`special_instructions` text
+,`created_at` datetime
 ,`updated_at` datetime
+,`category_name` varchar(100)
 );
 
 -- --------------------------------------------------------
@@ -296,16 +287,16 @@ CREATE TABLE IF NOT EXISTS `customer_order_items` (
 --
 DROP VIEW IF EXISTS `customer_order_summary`;
 CREATE TABLE IF NOT EXISTS `customer_order_summary` (
-`last_updated_at` datetime
-,`order_created_at` datetime
-,`order_number` varchar(50)
-,`overall_status` varchar(11)
-,`statuses` text
-,`subtotal` decimal(32,2)
+`order_number` varchar(50)
 ,`table_id` int
+,`total_items` bigint
+,`subtotal` decimal(32,2)
 ,`tax_amount` decimal(35,4)
 ,`total_amount` decimal(35,4)
-,`total_items` bigint
+,`order_created_at` datetime
+,`last_updated_at` datetime
+,`statuses` text
+,`overall_status` varchar(11)
 );
 
 -- --------------------------------------------------------
@@ -454,7 +445,7 @@ INSERT INTO `products` (`id`, `sku`, `barcode`, `name`, `description`, `category
 (11, 'PROD011', '1234567890133', 'Yoga Mat', 'Non-slip premium yoga mat', 6, 2, 1, '20.00', '35.00', 16, 5, 50, 1, '2025-08-18 07:18:00', '2025-09-18 05:05:19', 'asa_1757570041.png'),
 (12, 'PROD012', '1234567890134', 'Notebook Set', 'Premium A4 notebooks 5-pack', 7, 1, 1, '12.00', '20.00', 35, 15, 150, 1, '2025-08-18 07:19:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (13, 'PROD013', '1234567890135', 'LEGO Building Set', 'Creative building blocks for kids', 8, 2, 1, '30.00', '50.00', 22, 8, 60, 1, '2025-08-18 07:20:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
-(14, 'PROD014', '1234567890136', 'Car Air Freshener', 'Long-lasting car air freshener', 9, 1, 1, '3.00', '6.00', 37, 20, 200, 1, '2025-08-18 07:21:00', '2025-09-18 02:41:08', 'asa_1757570041.png'),
+(14, 'PROD014', '1234567890136', 'Car Air Freshener', 'Long-lasting car air freshener', 9, 1, 1, '3.00', '6.00', 36, 20, 200, 1, '2025-08-18 07:21:00', '2025-10-19 01:47:20', 'asa_1757570041.png'),
 (15, 'PROD015', '1234567890137', 'Dog Food 10kg', 'Premium dry dog food', 10, 2, 2, '35.00', '55.00', 16, 5, 40, 1, '2025-08-18 07:22:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
 (16, 'PROD016', '1234567890138', 'Wireless Headphones', 'Noise-cancelling wireless headphones', 1, 1, 1, '60.00', '100.00', 12, 5, 50, 1, '2025-08-18 07:23:00', '2025-09-18 04:56:35', 'asa_1757570041.png'),
 (17, 'PROD017', '1234567890139', 'Hoodie Sweatshirt', 'Comfortable cotton hoodie', 2, 2, 1, '22.00', '40.00', 28, 10, 80, 1, '2025-08-18 07:24:00', '2025-09-11 06:45:54', 'asa_1757570041.png'),
@@ -960,8 +951,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `full_name`, `email`, `phone`, `role`, `is_active`, `last_login`, `created_at`, `updated_at`, `access_dashboard`, `access_pos`, `access_sales`, `access_opening_closing`, `access_products`, `access_categories`, `access_suppliers`, `access_uom`, `access_stock_take`, `access_inventory_report`, `access_members`, `access_customer_orders`, `access_customer_order`, `access_sales_report`, `access_member_report`, `access_profit_loss`) VALUES
-(1, 'admin', 'admin123', 'System Administrator', 'admin@possystem.com', '0123456789', 'admin', 1, '2025-10-05 03:25:00', '2025-08-17 02:55:52', '2025-10-05 03:25:00', 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(2, 'cashier', 'cashier123', 'Cashier User', 'cashier@possystem.com', NULL, 'cashier', 1, '2025-10-05 03:24:21', '2025-08-17 02:55:52', '2025-10-05 03:24:21', 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+(1, 'admin', 'admin123', 'System Administrator', 'admin@possystem.com', '0123456789', 'admin', 1, '2025-10-19 01:53:28', '2025-08-17 02:55:52', '2025-10-19 01:53:28', 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+(2, 'cashier', 'cashier123', 'Cashier User', 'cashier@possystem.com', '', 'cashier', 1, '2025-10-19 01:55:34', '2025-08-17 02:55:52', '2025-10-19 01:55:34', 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -991,22 +982,12 @@ CREATE TABLE IF NOT EXISTS `vouchers` (
 -- --------------------------------------------------------
 
 --
--- Structure for view `access_level_summary`
---
-DROP TABLE IF EXISTS `access_level_summary`;
-
-DROP VIEW IF EXISTS `access_level_summary`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `access_level_summary`  AS SELECT `al`.`id` AS `id`, `al`.`level_name` AS `level_name`, `al`.`level_key` AS `level_key`, `al`.`description` AS `description`, `al`.`status` AS `status`, count(distinct `u`.`id`) AS `user_count`, count(distinct `alp`.`permission`) AS `permissions_count`, group_concat(distinct `alp`.`permission` order by `alp`.`permission` ASC separator ', ') AS `permissions_list`, `al`.`created_at` AS `created_at`, `al`.`updated_at` AS `updated_at` FROM ((`access_level` `al` left join `users` `u` on((`al`.`level_key` = `u`.`role`))) left join `access_level_permissions` `alp` on((`al`.`id` = `alp`.`access_level_id`))) GROUP BY `al`.`id`, `al`.`level_name`, `al`.`level_key`, `al`.`description`, `al`.`status`, `al`.`created_at`, `al`.`updated_at` ORDER BY `al`.`level_name` ASC  ;
-
--- --------------------------------------------------------
-
---
 -- Structure for view `customer_order_details`
 --
 DROP TABLE IF EXISTS `customer_order_details`;
 
 DROP VIEW IF EXISTS `customer_order_details`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `customer_order_details`  AS SELECT `cc`.`id` AS `id`, `cc`.`order_number` AS `order_number`, `cc`.`table_id` AS `table_id`, `cc`.`product_id` AS `product_id`, `p`.`name` AS `product_name`, `p`.`img` AS `product_image`, `cc`.`sku` AS `sku`, `cc`.`quantity` AS `quantity`, `cc`.`price` AS `price`, `cc`.`subtotal` AS `subtotal`, `cc`.`status` AS `status`, `cc`.`special_instructions` AS `special_instructions`, `cc`.`created_at` AS `created_at`, `cc`.`updated_at` AS `updated_at`, `c`.`name` AS `category_name` FROM ((`customer_cart` `cc` left join `products` `p` on((`cc`.`product_id` = `p`.`id`))) left join `categories` `c` on((`p`.`category_id` = `c`.`id`))) WHERE (`cc`.`order_number` is not null) ORDER BY `cc`.`order_number` ASC, `cc`.`created_at` ASC  ;
+CREATE ALGORITHM=UNDEFINED VIEW `customer_order_details` AS SELECT `cc`.`id` AS `id`, `cc`.`order_number` AS `order_number`, `cc`.`table_id` AS `table_id`, `cc`.`product_id` AS `product_id`, `p`.`name` AS `product_name`, `p`.`img` AS `product_image`, `cc`.`sku` AS `sku`, `cc`.`quantity` AS `quantity`, `cc`.`price` AS `price`, `cc`.`subtotal` AS `subtotal`, `cc`.`status` AS `status`, `cc`.`special_instructions` AS `special_instructions`, `cc`.`created_at` AS `created_at`, `cc`.`updated_at` AS `updated_at`, `c`.`name` AS `category_name` FROM ((`customer_cart` `cc` left join `products` `p` on((`cc`.`product_id` = `p`.`id`))) left join `categories` `c` on((`p`.`category_id` = `c`.`id`))) WHERE (`cc`.`order_number` is not null) ORDER BY `cc`.`order_number` ASC, `cc`.`created_at` ASC  ;
 
 -- --------------------------------------------------------
 
@@ -1016,7 +997,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 DROP TABLE IF EXISTS `customer_order_summary`;
 
 DROP VIEW IF EXISTS `customer_order_summary`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `customer_order_summary`  AS SELECT `cc`.`order_number` AS `order_number`, `cc`.`table_id` AS `table_id`, count(0) AS `total_items`, sum(`cc`.`subtotal`) AS `subtotal`, (sum(`cc`.`subtotal`) * 0.06) AS `tax_amount`, (sum(`cc`.`subtotal`) * 1.06) AS `total_amount`, min(`cc`.`created_at`) AS `order_created_at`, max(`cc`.`updated_at`) AS `last_updated_at`, group_concat(distinct `cc`.`status` separator ',') AS `statuses`, (case when ((count(distinct `cc`.`status`) = 1) and (max(`cc`.`status`) = 'paid')) then 'paid' when ((count(distinct `cc`.`status`) = 1) and (max(`cc`.`status`) = 'cancelled')) then 'cancelled' when ((count(distinct `cc`.`status`) = 1) and (max(`cc`.`status`) = 'abandoned')) then 'abandoned' else 'in_progress' end) AS `overall_status` FROM `customer_cart` AS `cc` WHERE (`cc`.`order_number` is not null) GROUP BY `cc`.`order_number`, `cc`.`table_id``table_id`  ;
+CREATE ALGORITHM=UNDEFINED VIEW `customer_order_summary` AS SELECT `cc`.`order_number` AS `order_number`, `cc`.`table_id` AS `table_id`, count(0) AS `total_items`, sum(`cc`.`subtotal`) AS `subtotal`, (sum(`cc`.`subtotal`) * 0.06) AS `tax_amount`, (sum(`cc`.`subtotal`) * 1.06) AS `total_amount`, min(`cc`.`created_at`) AS `order_created_at`, max(`cc`.`updated_at`) AS `last_updated_at`, group_concat(distinct `cc`.`status` separator ',') AS `statuses`, (case when ((count(distinct `cc`.`status`) = 1) and (max(`cc`.`status`) = 'paid')) then 'paid' when ((count(distinct `cc`.`status`) = 1) and (max(`cc`.`status`) = 'cancelled')) then 'cancelled' when ((count(distinct `cc`.`status`) = 1) and (max(`cc`.`status`) = 'abandoned')) then 'abandoned' else 'in_progress' end) AS `overall_status` FROM `customer_cart` AS `cc` WHERE (`cc`.`order_number` is not null) GROUP BY `cc`.`order_number`, `cc`.`table_id`  ;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

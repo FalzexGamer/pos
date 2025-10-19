@@ -472,32 +472,30 @@ $company = mysqli_fetch_array($company_query);
                 $.ajax({
                     url: 'ajax/submit-customer-order.php',
                     type: 'POST',
+                    dataType: 'json',
                     data: {
                         table_id: tableId,
                         items: JSON.stringify(customerCart)
                     },
-                    success: function(response) {
-                        try {
-                            const data = JSON.parse(response);
-                            if (data.success) {
-                                customerCart = [];
-                                updateCustomerCartDisplay();
-                                showToast('Order placed successfully! Redirecting to payment...', 'success');
-                                
-                                // Redirect to payment gateway with order number
-                                setTimeout(function() {
-                                    window.location.href = 'paymentgateway.php?order_number=' + encodeURIComponent(data.receipt_data.order_id);
-                                }, 1000);
-                            } else {
-                                showToast(data.message || 'Failed to place order', 'error');
-                            }
-                        } catch (e) {
-                            showToast('Error processing order', 'error');
-                            console.error(e);
+                    success: function(data) {
+                        if (data.success) {
+                            customerCart = [];
+                            updateCustomerCartDisplay();
+                            showToast('Order placed successfully! Redirecting to payment...', 'success');
+                            
+                            // Redirect to payment gateway with order number
+                            setTimeout(function() {
+                                window.location.href = 'paymentgateway.php?order_number=' + encodeURIComponent(data.receipt_data.order_id);
+                            }, 1000);
+                        } else {
+                            console.error('Order submission failed:', data);
+                            showToast(data.message || 'Failed to place order', 'error');
                         }
                     },
-                    error: function() {
-                        showToast('Error connecting to server', 'error');
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', {xhr: xhr, status: status, error: error});
+                        console.error('Response:', xhr.responseText);
+                        showToast('Error connecting to server: ' + error, 'error');
                     }
                 });
             }
