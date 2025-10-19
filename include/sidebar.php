@@ -128,9 +128,6 @@
                     <a href="members.php" class="block px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
                         <i class="fas fa-user mr-2"></i>All Members
                     </a>
-                    <a href="membership-tiers.php" class="block px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-crown mr-2"></i>Membership Tiers
-                    </a>
                 </div>
             </div>
             <?php endif; ?>
@@ -179,17 +176,11 @@
                     <a href="users.php" class="block px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
                         <i class="fas fa-user-cog mr-2"></i>Users
                     </a>
-                    <a href="access-level.php" class="block px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-shield-alt mr-2"></i>Access Level
-                    </a>
                     <a href="company-settings.php" class="block px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
                         <i class="fas fa-building mr-2"></i>Company Settings
                     </a>
                     <a href="payment-methods.php" class="block px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
                         <i class="fas fa-credit-card mr-2"></i>Payment Methods
-                    </a>
-                    <a href="backup.php" class="block px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-database mr-2"></i>Backup
                     </a>
                 </div>
             </div>

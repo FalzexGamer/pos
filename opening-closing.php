@@ -1,12 +1,6 @@
 <?php
-session_start();
 require_once 'include/conn.php';
-
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
+require_once 'include/session.php';
 
 $user_id = $_SESSION['user_id'];
 $message = '';
@@ -21,24 +15,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $notes = trim($_POST['notes']);
                 
                 // Check if user already has an open session
-                $check_query = "SELECT id FROM sales_sessions WHERE user_id = ? AND status = 'open'";
-                $check_stmt = $conn->prepare($check_query);
-                $check_stmt->bind_param("i", $user_id);
-                $check_stmt->execute();
-                $result = $check_stmt->get_result();
+                $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                $opening_amount_escaped = mysqli_real_escape_string($conn, $opening_amount);
+                $notes_escaped = mysqli_real_escape_string($conn, $notes);
                 
-                if ($result->num_rows > 0) {
+                $check_query = "SELECT id FROM sales_sessions WHERE user_id = '$user_id_escaped' AND status = 'open'";
+                $check_result = mysqli_query($conn, $check_query);
+                
+                if ($check_result && mysqli_num_rows($check_result) > 0) {
                     $error = "You already have an open session. Please close it first.";
                 } else {
                     // Create new session
-                    $insert_query = "INSERT INTO sales_sessions (user_id, opening_amount, notes) VALUES (?, ?, ?)";
-                    $insert_stmt = $conn->prepare($insert_query);
-                    $insert_stmt->bind_param("ids", $user_id, $opening_amount, $notes);
+                    $insert_query = "INSERT INTO sales_sessions (user_id, opening_amount, notes) VALUES ('$user_id_escaped', '$opening_amount_escaped', '$notes_escaped')";
                     
-                    if ($insert_stmt->execute()) {
+                    if (mysqli_query($conn, $insert_query)) {
                         $message = "Session opened successfully with opening amount: RM " . number_format($opening_amount, 2);
                     } else {
-                        $error = "Error opening session: " . $conn->error;
+                        $error = "Error opening session: " . mysqli_error($conn);
                     }
                 }
                 break;
@@ -48,30 +41,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $notes = trim($_POST['notes']);
                 
                 // Get current open session
-                $get_session_query = "SELECT id, opening_amount, total_sales FROM sales_sessions WHERE user_id = ? AND status = 'open'";
-                $get_session_stmt = $conn->prepare($get_session_query);
-                $get_session_stmt->bind_param("i", $user_id);
-                $get_session_stmt->execute();
-                $session_result = $get_session_stmt->get_result();
+                $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                $get_session_query = "SELECT id, opening_amount, total_sales FROM sales_sessions WHERE user_id = '$user_id_escaped' AND status = 'open'";
+                $session_result = mysqli_query($conn, $get_session_query);
                 
-                if ($session_result->num_rows > 0) {
-                    $session = $session_result->fetch_assoc();
+                if ($session_result && mysqli_num_rows($session_result) > 0) {
+                    $session = mysqli_fetch_assoc($session_result);
                     $session_id = $session['id'];
                     
                     // Close the session
+                    $closing_amount_escaped = mysqli_real_escape_string($conn, $closing_amount);
+                    $notes_escaped = mysqli_real_escape_string($conn, $notes);
+                    $session_id_escaped = mysqli_real_escape_string($conn, $session_id);
+                    
                     $close_query = "UPDATE sales_sessions SET 
                                    session_end = NOW(), 
-                                   closing_amount = ?, 
+                                   closing_amount = '$closing_amount_escaped', 
                                    status = 'closed',
-                                   notes = CONCAT(IFNULL(notes, ''), ' | ', ?)
-                                   WHERE id = ?";
-                    $close_stmt = $conn->prepare($close_query);
-                    $close_stmt->bind_param("dsi", $closing_amount, $notes, $session_id);
+                                   notes = CONCAT(IFNULL(notes, ''), ' | ', '$notes_escaped')
+                                   WHERE id = '$session_id_escaped'";
                     
-                    if ($close_stmt->execute()) {
+                    if (mysqli_query($conn, $close_query)) {
                         $message = "Session closed successfully. Closing amount: RM " . number_format($closing_amount, 2);
                     } else {
-                        $error = "Error closing session: " . $conn->error;
+                        $error = "Error closing session: " . mysqli_error($conn);
                     }
                 } else {
                     $error = "No open session found.";
@@ -88,32 +81,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
                 
                 // Get current open session
-                $get_session_query = "SELECT id, opening_amount FROM sales_sessions WHERE user_id = ? AND status = 'open'";
-                $get_session_stmt = $conn->prepare($get_session_query);
-                $get_session_stmt->bind_param("i", $user_id);
-                $get_session_stmt->execute();
-                $session_result = $get_session_stmt->get_result();
+                $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                $get_session_query = "SELECT id, opening_amount FROM sales_sessions WHERE user_id = '$user_id_escaped' AND status = 'open'";
+                $session_result = mysqli_query($conn, $get_session_query);
                 
-                if ($session_result->num_rows > 0) {
-                    $session = $session_result->fetch_assoc();
+                if ($session_result && mysqli_num_rows($session_result) > 0) {
+                    $session = mysqli_fetch_assoc($session_result);
                     $session_id = $session['id'];
                     $new_opening_amount = $session['opening_amount'] + $topup_amount;
                     
                     // Update the opening amount
-                    $update_query = "UPDATE sales_sessions SET 
-                                   opening_amount = ?,
-                                   notes = CONCAT(IFNULL(notes, ''), ' | Top-up: RM ', ?, ' at ', NOW())
-                                   WHERE id = ?";
-                    $update_stmt = $conn->prepare($update_query);
-                    $update_stmt->bind_param("dsi", $new_opening_amount, $topup_amount, $session_id);
+                    $new_opening_amount_escaped = mysqli_real_escape_string($conn, $new_opening_amount);
+                    $topup_amount_escaped = mysqli_real_escape_string($conn, $topup_amount);
+                    $session_id_escaped = mysqli_real_escape_string($conn, $session_id);
                     
-                    if ($update_stmt->execute()) {
+                    $update_query = "UPDATE sales_sessions SET 
+                                   opening_amount = '$new_opening_amount_escaped',
+                                   notes = CONCAT(IFNULL(notes, ''), ' | Top-up: RM ', '$topup_amount_escaped', ' at ', NOW())
+                                   WHERE id = '$session_id_escaped'";
+                    
+                    if (mysqli_query($conn, $update_query)) {
                         $message = "Opening amount topped up successfully! Added RM " . number_format($topup_amount, 2) . ". New total: RM " . number_format($new_opening_amount, 2);
                         // Redirect to refresh the page and show updated amounts
                         header("Location: " . $_SERVER['PHP_SELF'] . "?success=topup");
                         exit();
                     } else {
-                        $error = "Error updating opening amount: " . $conn->error;
+                        $error = "Error updating opening amount: " . mysqli_error($conn);
                     }
                 } else {
                     $error = "No open session found.";
@@ -124,12 +117,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 // Get current session status
-$current_session_query = "SELECT * FROM sales_sessions WHERE user_id = ? AND status = 'open' ORDER BY session_start DESC LIMIT 1";
-$current_session_stmt = $conn->prepare($current_session_query);
-$current_session_stmt->bind_param("i", $user_id);
-$current_session_stmt->execute();
-$current_session_result = $current_session_stmt->get_result();
-$current_session = $current_session_result->fetch_assoc();
+$user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+$current_session_query = "SELECT * FROM sales_sessions WHERE user_id = '$user_id_escaped' AND status = 'open' ORDER BY session_start DESC LIMIT 1";
+$current_session_result = mysqli_query($conn, $current_session_query);
+$current_session = mysqli_fetch_assoc($current_session_result);
 
 // Get recent sessions with payment method breakdowns
 $recent_sessions_query = "SELECT 
@@ -156,13 +147,16 @@ LEFT JOIN (
     WHERE payment_method = 'ewallet' 
     GROUP BY session_id
 ) ewallet_sales ON ss.id = ewallet_sales.session_id
-WHERE ss.user_id = ? 
+WHERE ss.user_id = '$user_id_escaped' 
 ORDER BY ss.session_start DESC 
 LIMIT 10";
-$recent_sessions_stmt = $conn->prepare($recent_sessions_query);
-$recent_sessions_stmt->bind_param("i", $user_id);
-$recent_sessions_stmt->execute();
-$recent_sessions_result = $recent_sessions_stmt->get_result();
+$recent_sessions_result = mysqli_query($conn, $recent_sessions_query);
+$recent_sessions = [];
+if ($recent_sessions_result) {
+    while ($row = mysqli_fetch_assoc($recent_sessions_result)) {
+        $recent_sessions[] = $row;
+    }
+}
 
 // Get today's sales breakdown by payment method if session is open
 $today_sales = 0;
@@ -177,12 +171,9 @@ if ($current_session) {
         SUM(CASE WHEN payment_method = 'card' THEN total_amount ELSE 0 END) as card_total,
         SUM(CASE WHEN payment_method = 'ewallet' THEN total_amount ELSE 0 END) as ewallet_total
     FROM sales 
-    WHERE user_id = ? AND DATE(created_at) = CURDATE()";
-    $today_sales_stmt = $conn->prepare($today_sales_query);
-    $today_sales_stmt->bind_param("i", $user_id);
-    $today_sales_stmt->execute();
-    $today_sales_result = $today_sales_stmt->get_result();
-    $today_sales_row = $today_sales_result->fetch_assoc();
+    WHERE user_id = '$user_id_escaped' AND DATE(created_at) = CURDATE()";
+    $today_sales_result = mysqli_query($conn, $today_sales_query);
+    $today_sales_row = mysqli_fetch_assoc($today_sales_result);
     $today_sales = $today_sales_row['total'] ?? 0;
     $today_cash_sales = $today_sales_row['cash_total'] ?? 0;
     $today_card_sales = $today_sales_row['card_total'] ?? 0;
@@ -197,12 +188,9 @@ $session_stats_query = "SELECT
     SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) as closed_sessions,
     SUM(CASE WHEN status = 'open' THEN 1 ELSE 0 END) as open_sessions
 FROM sales_sessions     
-WHERE user_id = ?";
-$session_stats_stmt = $conn->prepare($session_stats_query);
-$session_stats_stmt->bind_param("i", $user_id);
-$session_stats_stmt->execute();
-$session_stats_result = $session_stats_stmt->get_result();
-$session_stats = $session_stats_result->fetch_assoc();
+WHERE user_id = '$user_id_escaped'";
+$session_stats_result = mysqli_query($conn, $session_stats_query);
+$session_stats = mysqli_fetch_assoc($session_stats_result);
 
 // Get payment method breakdowns for all sessions
 $payment_breakdown_query = "SELECT 
@@ -211,12 +199,9 @@ $payment_breakdown_query = "SELECT
     SUM(CASE WHEN s.payment_method = 'ewallet' THEN s.total_amount ELSE 0 END) as total_ewallet
 FROM sales s
 JOIN sales_sessions ss ON s.session_id = ss.id
-WHERE ss.user_id = ?";
-$payment_breakdown_stmt = $conn->prepare($payment_breakdown_query);
-$payment_breakdown_stmt->bind_param("i", $user_id);
-$payment_breakdown_stmt->execute();
-$payment_breakdown_result = $payment_breakdown_stmt->get_result();
-$payment_breakdown = $payment_breakdown_result->fetch_assoc();
+WHERE ss.user_id = '$user_id_escaped'";
+$payment_breakdown_result = mysqli_query($conn, $payment_breakdown_query);
+$payment_breakdown = mysqli_fetch_assoc($payment_breakdown_result);
 ?>
 
 <!DOCTYPE html>
@@ -641,8 +626,8 @@ $payment_breakdown = $payment_breakdown_result->fetch_assoc();
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <?php if ($recent_sessions_result && $recent_sessions_result->num_rows > 0): ?>
-                                <?php while ($session = $recent_sessions_result->fetch_assoc()): ?>
+                            <?php if (!empty($recent_sessions)): ?>
+                                <?php foreach ($recent_sessions as $session): ?>
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4">
                                             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
@@ -689,7 +674,7 @@ $payment_breakdown = $payment_breakdown_result->fetch_assoc();
                                             <?php endif; ?>
                                         </td>
                                     </tr>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
                                     <td colspan="10" class="px-6 py-4 text-center text-gray-500">
