@@ -108,10 +108,11 @@ try {
         $unit_price = $item['price'];
         $total_price = $item['subtotal'];
         
-        // Insert sale item
+        // Insert sale item with notes
+        $notes = mysqli_real_escape_string($conn, $item['notes'] ?? '');
         $insert_item = mysqli_query($conn, "
-            INSERT INTO sale_items (sale_id, product_id, quantity, unit_price, total_price) 
-            VALUES ($sale_id, $product_id, $quantity, $unit_price, $total_price)
+            INSERT INTO sale_items (sale_id, product_id, quantity, unit_price, total_price, notes) 
+            VALUES ($sale_id, $product_id, $quantity, $unit_price, $total_price, '$notes')
         ");
         
         if (!$insert_item) {

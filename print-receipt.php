@@ -120,6 +120,15 @@ $query_items = mysqli_query($conn, "
             color: #666;
         }
         
+        .item-note {
+            font-size: 9px;
+            color: #888;
+            font-style: italic;
+            margin-top: 2px;
+            padding-left: 10px;
+            border-left: 2px solid #ddd;
+        }
+        
         .item-total {
             text-align: right;
             font-weight: bold;
@@ -202,6 +211,9 @@ $query_items = mysqli_query($conn, "
                     <?= $item['sku'] ?> | Qty: <?= $item['quantity'] ?> <?= $item['uom_abbr'] ?> | 
                     RM <?= number_format($item['unit_price'], 2) ?> each
                 </div>
+                <?php if (!empty($item['notes'])): ?>
+                <div class="item-note">Note: <?= htmlspecialchars($item['notes']) ?></div>
+                <?php endif; ?>
                 <div class="item-total">RM <?= number_format($item['total_price'], 2) ?></div>
             </div>
             <?php endwhile; ?>
