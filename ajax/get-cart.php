@@ -61,7 +61,8 @@ while ($item = mysqli_fetch_array($query_cart_items)) {
         'sku' => $item['sku'],
         'price' => $item['price'],
         'quantity' => $item['quantity'],
-        'total' => $item['subtotal']
+        'total' => $item['subtotal'],
+        'notes' => $item['notes'] ?? ''
     ];
     
     $html .= '
@@ -80,11 +81,17 @@ while ($item = mysqli_fetch_array($query_cart_items)) {
             <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between mb-1">
                     <h4 class="font-semibold text-gray-900 text-xs lg:text-sm truncate">' . htmlspecialchars($item['name']) . '</h4>
-                    <button onclick="removeFromCart(' . $item['id'] . ')" class="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded-lg transition-colors duration-200 group-hover:opacity-100 opacity-0">
-                        <i class="fas fa-trash text-xs lg:text-sm"></i>
-                    </button>
+                    <div class="flex items-center space-x-1">
+                        <button onclick="openNoteModal(' . $item['id'] . ')" class="' . (!empty($item['notes']) ? 'text-blue-600 bg-blue-50' : 'text-blue-500 hover:text-blue-700') . ' p-1 hover:bg-blue-50 rounded-lg transition-colors duration-200 group-hover:opacity-100 opacity-0" title="' . (!empty($item['notes']) ? 'Edit Note' : 'Add Note') . '">
+                            <i class="fas fa-sticky-note text-xs lg:text-sm"></i>
+                        </button>
+                        <button onclick="removeFromCart(' . $item['id'] . ')" class="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded-lg transition-colors duration-200 group-hover:opacity-100 opacity-0" title="Remove Item">
+                            <i class="fas fa-trash text-xs lg:text-sm"></i>
+                        </button>
+                    </div>
                 </div>
                 <p class="text-xs text-gray-500 font-mono mb-1 lg:mb-2">' . htmlspecialchars($item['sku']) . '</p>
+                ' . (!empty($item['notes']) ? '<div class="text-xs text-blue-600 bg-blue-50 p-2 rounded-lg mb-2 border-l-2 border-blue-300"><i class="fas fa-sticky-note mr-1"></i>' . htmlspecialchars($item['notes']) . '</div>' : '') . '
                 <div class="flex items-center justify-between">
                     <div class="text-xs lg:text-sm font-bold text-blue-600">RM ' . number_format($item['price'], 2) . '</div>
                     <div class="text-xs lg:text-sm font-semibold text-gray-900">RM ' . number_format($item['subtotal'], 2) . '</div>
